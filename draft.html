@@ -239,12 +239,18 @@ table.main-layout {
 }
 .rec-icon-card:hover { transform: scale(1.08); z-index: 2; }
 
-/* Nueva clase para mitigar la interactividad en turno rival */
+/* Desactivar animaciones y cambiar cursor si es turno del oponente */
 .rec-icon-card.disabled-click {
   cursor: not-allowed;
 }
 .rec-icon-card.disabled-click:hover {
   transform: none;
+}
+
+/* 🎨 REGLA ACTUALIZADA: Pone gris y opaco al héroe si TODOS sus roles están cubiertos */
+.rec-icon-card.role-covered img.hero-main-thumb {
+  filter: grayscale(1) opacity(0.35);
+  border-color: #2a2a35;
 }
 
 .rec-icon-card img.hero-main-thumb {
@@ -611,9 +617,16 @@ function updateRecommendations() {
     return;
   }
 
-  // Verificar si actualmente es el turno del usuario
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   const isMyTurn = currentStep ? (currentStep.team === userSide) : false;
+
+  // 📝 MAPEO DE ROLES YA SELECCIONADOS POR EL USUARIO
+  const coveredRoles = new Set();
+  allies.forEach(hero => {
+    if (hero.roles) {
+      hero.roles.forEach(role => coveredRoles.add(role));
+    }
+  });
 
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
 
@@ -676,15 +689,19 @@ function updateRecommendations() {
       const iconCard = document.createElement('div');
       iconCard.className = 'rec-icon-card';
       
-      // Bloqueo visual si es turno del rival
       if (!isMyTurn) {
         iconCard.classList.add('disabled-click');
       }
 
-      iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre}">`;
+      // 🔘 CAMBIO CLAVE LOGIC: .every() asegura que TODOS los roles del héroe recomendado estén cubiertos para ponerse gris
+      const allRolesCovered = recHero.roles.every(role => coveredRoles.has(role));
+      if (allRolesCovered) {
+        iconCard.classList.add('role-covered');
+      }
+
+      iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre} (${recHero.roles.join(', ')})">`;
       
       iconCard.addEventListener('click', () => {
-        // Bloqueo lógico: Solo ejecuta la función si es el turno del usuario
         if (isMyTurn) {
           processSelection(recHero);
         }
@@ -720,15 +737,19 @@ function updateRecommendations() {
       const iconCard = document.createElement('div');
       iconCard.className = 'rec-icon-card';
       
-      // Bloqueo visual si es turno del rival
       if (!isMyTurn) {
         iconCard.classList.add('disabled-click');
       }
 
-      iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre}">`;
+      // 🔘 CAMBIO CLAVE LOGIC: .every() asegura que TODOS los roles del héroe recomendado estén cubiertos para ponerse gris
+      const allRolesCovered = recHero.roles.every(role => coveredRoles.has(role));
+      if (allRolesCovered) {
+        iconCard.classList.add('role-covered');
+      }
+
+      iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre} (${recHero.roles.join(', ')})">`;
       
       iconCard.addEventListener('click', () => {
-        // Bloqueo lógico: Solo ejecuta la función si es el turno del usuario
         if (isMyTurn) {
           processSelection(recHero);
         }
