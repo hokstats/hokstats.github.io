@@ -239,6 +239,14 @@ table.main-layout {
 }
 .rec-icon-card:hover { transform: scale(1.08); z-index: 2; }
 
+/* Nueva clase para mitigar la interactividad en turno rival */
+.rec-icon-card.disabled-click {
+  cursor: not-allowed;
+}
+.rec-icon-card.disabled-click:hover {
+  transform: none;
+}
+
 .rec-icon-card img.hero-main-thumb {
   width: 100%;
   height: 100%;
@@ -603,6 +611,10 @@ function updateRecommendations() {
     return;
   }
 
+  // Verificar si actualmente es el turno del usuario
+  const currentStep = DRAFT_SEQUENCE[currentStepIndex];
+  const isMyTurn = currentStep ? (currentStep.team === userSide) : false;
+
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
 
   let countersGrouped = {};
@@ -663,8 +675,20 @@ function updateRecommendations() {
     group.list.forEach(recHero => {
       const iconCard = document.createElement('div');
       iconCard.className = 'rec-icon-card';
+      
+      // Bloqueo visual si es turno del rival
+      if (!isMyTurn) {
+        iconCard.classList.add('disabled-click');
+      }
+
       iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre}">`;
-      iconCard.addEventListener('click', () => processSelection(recHero));
+      
+      iconCard.addEventListener('click', () => {
+        // Bloqueo lógico: Solo ejecuta la función si es el turno del usuario
+        if (isMyTurn) {
+          processSelection(recHero);
+        }
+      });
       grid.appendChild(iconCard);
     });
   }
@@ -695,8 +719,20 @@ function updateRecommendations() {
     group.list.forEach(recHero => {
       const iconCard = document.createElement('div');
       iconCard.className = 'rec-icon-card';
+      
+      // Bloqueo visual si es turno del rival
+      if (!isMyTurn) {
+        iconCard.classList.add('disabled-click');
+      }
+
       iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre}">`;
-      iconCard.addEventListener('click', () => processSelection(recHero));
+      
+      iconCard.addEventListener('click', () => {
+        // Bloqueo lógico: Solo ejecuta la función si es el turno del usuario
+        if (isMyTurn) {
+          processSelection(recHero);
+        }
+      });
       grid.appendChild(iconCard);
     });
   }
