@@ -239,7 +239,6 @@ table.main-layout {
 }
 .rec-icon-card:hover { transform: scale(1.08); z-index: 2; }
 
-/* Desactivar animaciones y cambiar cursor si es turno del oponente */
 .rec-icon-card.disabled-click {
   cursor: not-allowed;
 }
@@ -247,7 +246,7 @@ table.main-layout {
   transform: none;
 }
 
-/* 🎨 REGLA ACTUALIZADA: Pone gris y opaco al héroe si TODOS sus roles están cubiertos */
+/* 🎨 REGLA VISUAL GRIS */
 .rec-icon-card.role-covered img.hero-main-thumb {
   filter: grayscale(1) opacity(0.35);
   border-color: #2a2a35;
@@ -598,6 +597,44 @@ function undoLastAction() {
   highlightActiveSlot();
 }
 
+// 🧮 FUNCIÓN DE ALGORITMO COMPLETO PARA EVALUAR CONFLICTOS RE REALES DE LÍNEA
+function checkCompositionConflict(recHero, allies) {
+  if (allies.length === 0) return false;
+  
+  // Lista de los 5 roles base del juego
+  const allGameRoles = ['Choque', 'Cazador', 'Medio', 'Merodeo', 'Farmeo'];
+  
+  // Creamos un arreglo con los sets de roles de todos los integrantes (incluyendo la sugerencia)
+  let virtualTeam = allies.map(h => h.roles);
+  virtualTeam.push(recHero.roles);
+  
+  // Si con la sugerencia ya sumamos más de 5 campeones, es imposible mapear líneas únicas de por sí
+  if (virtualTeam.length > 5) return true;
+
+  // Algoritmo de emparejamiento por fuerza bruta / backtracking para comprobar si hay alguna combinación válida de roles únicos para el equipo
+  function canAssignUnique(index, assignedRoles) {
+    if (index === virtualTeam.length) return true;
+    
+    let currentHeroRoles = virtualTeam[index];
+    for (let role of currentHeroRoles) {
+      if (!assignedRoles.has(role)) {
+        assignedRoles.add(role);
+        if (canAssignUnique(index + 1, assignedRoles)) {
+          return true; 
+        }
+        assignedRoles.delete(role); // Backtrack
+      }
+    }
+    return false;
+  }
+
+  let testSet = new Set();
+  let hasValidComposition = canAssignUnique(0, testSet);
+
+  // Si NO existe NINGUNA forma válida de acomodar los roles únicos, significa que el rol del sugerido está 100% colapsado
+  return !hasValidComposition;
+}
+
 function updateRecommendations() {
   const containerBox = document.getElementById('rec-container-box');
   const countersZone = document.getElementById('counters-zone');
@@ -619,14 +656,6 @@ function updateRecommendations() {
 
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   const isMyTurn = currentStep ? (currentStep.team === userSide) : false;
-
-  // 📝 MAPEO DE ROLES YA SELECCIONADOS POR EL USUARIO
-  const coveredRoles = new Set();
-  allies.forEach(hero => {
-    if (hero.roles) {
-      hero.roles.forEach(role => coveredRoles.add(role));
-    }
-  });
 
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
 
@@ -693,9 +722,9 @@ function updateRecommendations() {
         iconCard.classList.add('disabled-click');
       }
 
-      // 🔘 CAMBIO CLAVE LOGIC: .every() asegura que TODOS los roles del héroe recomendado estén cubiertos para ponerse gris
-      const allRolesCovered = recHero.roles.every(role => coveredRoles.has(role));
-      if (allRolesCovered) {
+      // 🛠️ VALIDACIÓN REVISADA MEDIANTE ALGORITMO BACKTRACKING COMPLETO
+      const isRoleConflict = checkCompositionConflict(recHero, allies);
+      if (isRoleConflict) {
         iconCard.classList.add('role-covered');
       }
 
@@ -741,9 +770,9 @@ function updateRecommendations() {
         iconCard.classList.add('disabled-click');
       }
 
-      // 🔘 CAMBIO CLAVE LOGIC: .every() asegura que TODOS los roles del héroe recomendado estén cubiertos para ponerse gris
-      const allRolesCovered = recHero.roles.every(role => coveredRoles.has(role));
-      if (allRolesCovered) {
+      // 🛠️ VALIDACIÓN REVISADA MEDIANTE ALGORITMO BACKTRACKING COMPLETO
+      const isRoleConflict = checkCompositionConflict(recHero, allies);
+      if (isRoleConflict) {
         iconCard.classList.add('role-covered');
       }
 
