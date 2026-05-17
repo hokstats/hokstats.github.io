@@ -151,20 +151,20 @@ body {
   width: 100%;
   height: 100%;
   z-index: 4;
-  pointer-events: none; /* Dejamos que los clics pasen a través excepto cuando dibujamos */
+  pointer-events: none;
 }
 
 .svg-draw-layer.active-drawing {
-  pointer-events: auto; /* Se activa al usar el lápiz */
+  pointer-events: auto;
 }
 
-/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ: los hace seleccionables */
+/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
 .map-viewport.tool-eraser .svg-draw-layer {
-    pointer-events: auto;
+  pointer-events: auto;
 }
 
 .map-viewport.tool-eraser .svg-draw-layer path {
-    cursor: pointer; /* Indica que se puede borrar */
+  cursor: pointer;
 }
 
 .free-path {
@@ -172,14 +172,15 @@ body {
   stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
-  cursor: pointer; /* Agregado para que se comporte como borde */
 }
 
 /* Modo Goma sobre elementos borrables */
 .map-viewport.tool-eraser .placed-hero,
-.map-viewport.tool-eraser .vector-arrow {
+.map-viewport.tool-eraser .vector-arrow,
+.map-viewport.tool-eraser .free-path {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
 }
+
 .map-viewport.tool-eraser .placed-hero:hover,
 .map-viewport.tool-eraser .vector-arrow:hover,
 .map-viewport.tool-eraser .free-path:hover {
@@ -366,7 +367,8 @@ body {
       </div>
     </div>
 
-    <div class="map-viewport tool-move" id="mapZone"> <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK">
+    <div class="map-viewport tool-move" id="mapZone">
+      <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK">
       
       <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
     </div>
@@ -382,7 +384,7 @@ body {
           <div class="tab" data-role="Farmeo">Farmeo</div>
         </div>
         <div class="search-box">
-          <input text="text" id="drawerSearch" placeholder="Buscar héroe...">
+          <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
         </div>
       </div>
 
@@ -418,7 +420,7 @@ let redoStack = [];
 
 function saveState(actionType, element, extraData = null) {
   undoStack.push({ type: actionType, element: element, extra: extraData });
-  redoStack = []; // Limpiamos el rehecho al hacer una nueva acción
+  redoStack = []; 
   updateHistoryButtons();
 }
 
@@ -548,20 +550,23 @@ mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {pas
 function handleStartContainer(e) {
   const isBg = e.target === mapZone || e.target.className === 'map-background' || e.target === svgLayer;
   
+  // 🧽 LÓGICA DE LA GOMA DE BORRAR CORREGIDA Y REORDENADA
   if (currentTool === 'eraser' && !isBg) {
-    const targetEl = e.target.closest('.vector-arrow') || e.target;
-    if (targetEl.classList.contains('vector-arrow')) {
+    // 1. Detectar si es un trazo de lápiz SVG
+    if (e.target.classList.contains('free-path')) {
+      saveState('delete', e.target, { parent: svgLayer });
+      e.target.remove();
+      return;
+    }
+    
+    // 2. Detectar si es una flecha HTML
+    const targetEl = e.target.closest('.vector-arrow');
+    if (targetEl) {
       saveState('delete', targetEl, { parent: targetEl.parentNode });
       targetEl.remove();
+      return;
     }
     return;
-  }
-
-  /* NUEVA LÓGICA GOMA PARA LÁPIZ: los hace seleccionables */
-  if (currentTool === 'eraser' && !isBg && e.target.classList.contains('free-path')) {
-        saveState('delete', e.target, { parent: svgLayer });
-        e.target.remove();
-        return;
   }
 
   if (!isBg) return;
