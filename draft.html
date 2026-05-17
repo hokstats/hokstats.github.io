@@ -146,7 +146,7 @@ table.main-layout {
 .status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
 .status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-/* 📉 NUEVO RECOMENDADOR COMPACTO MAXIMIZADO PARA ABAJO */
+/* 📉 RECOMENDADOR COMPACTO EXTENDIDO */
 .recommender-container {
   width: 100%;
   display: flex;
@@ -161,7 +161,7 @@ table.main-layout {
   border-radius: 6px;
   padding: 10px;
   box-sizing: border-box;
-  height: 380px; /* 👈 Crecimiento vertical extendido para más espacio */
+  height: 380px; 
   display: flex;
   flex-direction: column;
 }
@@ -181,7 +181,7 @@ table.main-layout {
   padding-right: 4px;
 }
 
-/* 🧬 NUEVAS SECCIONES AGRUPADAS POR TARGET */
+/* SECCIONES AGRUPADAS */
 .rec-group-container {
   display: flex;
   flex-direction: column;
@@ -216,7 +216,7 @@ table.main-layout {
   gap: 8px;
 }
 
-/* 🎴 MINI TARJETAS SÓLO ICONOS */
+/* ICONOS COMPACTOS */
 .rec-icon-card {
   width: 44px;
   height: 44px;
@@ -581,35 +581,24 @@ function updateRecommendations() {
   countersZone.innerHTML = '';
   synergiesZone.innerHTML = '';
 
-  const currentStep = DRAFT_SEQUENCE[currentStepIndex];
-
-  // Mantener la regla de opacidad y feedback en fases de Ban u oponente pensando
-  if (currentStep.type === 'ban' || currentStep.team !== userSide) {
-    containerBox.style.opacity = "0.4";
-    countersZone.innerHTML = `<div class="empty-state">Pensando oponente... Ocultando sugerencias.</div>`;
-    synergiesZone.innerHTML = `<div class="empty-state">Esperando tu turno.</div>`;
-    return;
-  }
-
+  // 🛠️ FIX REPARADO: No bloqueamos los cálculos basándonos en si es fase de ban o turno rival
   containerBox.style.opacity = "1";
 
   const allies = (userSide === 'blue') ? blueTeamPicks : redTeamPicks;
   const enemies = (userSide === 'blue') ? redTeamPicks : blueTeamPicks;
 
+  // Si no hay absolutamente ningún pick en juego (ej. inicio absoluto) damos estados base limpios
   if (allies.length === 0 && enemies.length === 0) {
-    countersZone.innerHTML = `<div class="empty-state" style="color:#7b7a8e;">Esperando que el rival elija para calcular counters...</div>`;
-    synergiesZone.innerHTML = `<div class="empty-state" style="color:#4ade80; font-weight:bold;">¡First Pick! Selecciona un héroe prioritario para abrir tus sinergias.</div>`;
+    countersZone.innerHTML = `<div class="empty-state" style="color:#7b7a8e;">Esperando selecciones del rival...</div>`;
+    synergiesZone.innerHTML = `<div class="empty-state" style="color:#4ade80; font-weight:bold;">¡Fase de apertura! Realiza tu primer pick para detonar sinergias.</div>`;
     return;
   }
 
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
 
-  // ESTRUCTURAS DE AGRUPAMIENTO DINÁMICO POR PICK TARGET
-  // Llave: Nombre del héroe target (enemigo/aliado), Valor: { heroTarget, recommendedHeroes: [] }
   let countersGrouped = {};
   let synergiesGrouped = {};
 
-  // Inicializar grupos para los héroes que ya están fijados en la mesa
   enemies.forEach(enemy => {
     countersGrouped[enemy.nombre] = { target: enemy, list: [] };
   });
@@ -620,11 +609,10 @@ function updateRecommendations() {
   pool.forEach(hero => {
     const miNombre = hero.nombre.toLowerCase();
 
-    // ⚔️ AGRUPAMIENTO DE COUNTERS VS ENEMIGO
+    // Cruce de contramedidas
     enemies.forEach(enemy => {
       const enemigoNombre = enemy.nombre.toLowerCase();
       let esCounter = false;
-
       if (hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
       if (enemy.debilContra.includes(miNombre)) esCounter = true;
 
@@ -633,11 +621,10 @@ function updateRecommendations() {
       }
     });
 
-    // 🤝 AGRUPAMIENTO DE SINERGIAS CON ALIADO
+    // Cruce de combos
     allies.forEach(allied => {
       const aliadoNombre = allied.nombre.toLowerCase();
       let tieneSinergia = false;
-      
       if (hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
       if (allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
 
@@ -647,7 +634,7 @@ function updateRecommendations() {
     });
   });
 
-  // RENDEREADO DE CONTENEDORES AGRUPADOS POR ENERMIGO (COUNTERS)
+  // Renderizar bloques de Counters
   let totalCountersRendered = 0;
   for (const key in countersGrouped) {
     const group = countersGrouped[key];
@@ -657,13 +644,12 @@ function updateRecommendations() {
     
     const groupBlock = document.createElement('div');
     groupBlock.className = 'rec-group-container';
-
     groupBlock.innerHTML = `
       <div class="rec-group-title-row">
         <img src="${group.target.imagen}">
         <span>Counter de ${group.target.nombre}</span>
       </div>
-      <div class="rec-items-horizontal-grid" id="group-counter-${group.target.nombre.replace(/\s+/g, '')}"></div>
+      <div class="rec-items-horizontal-grid"></div>
     `;
     countersZone.appendChild(groupBlock);
 
@@ -678,10 +664,10 @@ function updateRecommendations() {
   }
 
   if (totalCountersRendered === 0) {
-    countersZone.innerHTML = `<div class="empty-state">Sin counters directos detectados...</div>`;
+    countersZone.innerHTML = `<div class="empty-state">Sin counters directos contra la mesa.</div>`;
   }
 
-  // RENDEREADO DE CONTENEDORES AGRUPADOS POR ALIADO (SINERGIAS)
+  // Renderizar bloques de Sinergias
   let totalSynergiesRendered = 0;
   for (const key in synergiesGrouped) {
     const group = synergiesGrouped[key];
@@ -691,13 +677,12 @@ function updateRecommendations() {
 
     const groupBlock = document.createElement('div');
     groupBlock.className = 'rec-group-container';
-
     groupBlock.innerHTML = `
       <div class="rec-group-title-row">
         <img src="${group.target.imagen}">
         <span>Combo con ${group.target.nombre}</span>
       </div>
-      <div class="rec-items-horizontal-grid" id="group-synergy-${group.target.nombre.replace(/\s+/g, '')}"></div>
+      <div class="rec-items-horizontal-grid"></div>
     `;
     synergiesZone.appendChild(groupBlock);
 
@@ -712,7 +697,7 @@ function updateRecommendations() {
   }
 
   if (totalSynergiesRendered === 0) {
-    synergiesZone.innerHTML = `<div class="empty-state">Sin combos directos detectados...</div>`;
+    synergiesZone.innerHTML = `<div class="empty-state">Sin combos directos registrados en base de datos.</div>`;
   }
 }
 
