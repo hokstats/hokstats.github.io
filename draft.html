@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Simulador de Draft - HoKstats</title>
 <style>
+/* 📊 REGLAS GLOBALES CALZADAS CON PLANNER / INDEX */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -13,15 +14,14 @@ body {
   user-select: none;
 }
 
-/* 📊 TABLA ESTRUCTURAL COMPARTIDA (MISMO ANCHO QUE INDEX/PLANNER) */
 .container {
   max-width: 1100px;
   margin: auto;
 }
 
+/* LA TABLA ESTRUCTURAL AHORA SE ADAPTA AL ANCHO TOTAL DE LA FAKE TABLA (1100px) */
 table.main-layout {
-  width: 1000px;
-  margin: auto;
+  width: 100%;
   border-collapse: collapse;
 }
 
@@ -55,12 +55,13 @@ table.main-layout {
   color: white;
 }
 
-/* LA CAJA PRINCIPAL QUE SE COMPORTA COMO UN ALINEADO DE TABLA */
+/* CAJA CENTRAL COMPORTÁNDOSE COMO LA FILA DEL PLANNER */
 .main-box-cell {
   background: #31313c;
   border-radius: 6px;
   border: 1px solid #1c1c1f;
   padding: 0 0 20px 0;
+  overflow: hidden; /* Asegura consistencia visual con main-box de planner */
 }
 
 /* 🎭 OVERLAY DE SELECCIÓN DE BANDO */
@@ -81,7 +82,7 @@ table.main-layout {
 .btn-red-side { background: #dc2626; }
 .btn-red-side:hover { background: #b91c1c; }
 
-/* 📊 ARENA DEL DRAFT (ESPACIO HORIZONTAL MAXIMIZADO) */
+/* 📊 ARENA DEL DRAFT (ESPACIO HORIZONTAL MAXIMIZADO A 1100PX) */
 .draft-arena {
   display: none; 
   justify-content: space-between;
@@ -131,7 +132,7 @@ table.main-layout {
 
 .red-side .pick-slot { flex-direction: row-reverse; text-align: right; }
 
-/* PANEL CENTRAL INTERMEDIO */
+/* PANEL CENTRAL INTERMEDIO AMPLILADO BIEN PROPORCIONADO */
 .center-panel {
   width: 50%;
   display: flex;
@@ -153,7 +154,7 @@ table.main-layout {
 .status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
 .status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-/* RECOMENDADOR COMPACTO EXTENDIDO HACIA ABAJO */
+/* RECOMENDADOR COMPACTO EXTENDIDO */
 .recommender-container {
   width: 100%;
   display: flex;
@@ -188,7 +189,7 @@ table.main-layout {
   padding-right: 4px;
 }
 
-/* SECCIONES AGRUPADAS DINÁMICAMENTE POR HEROE TARGET */
+/* SECCIONES AGRUPADAS DINÁMICAMENTE */
 .rec-group-container {
   display: flex;
   flex-direction: column;
