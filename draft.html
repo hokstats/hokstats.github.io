@@ -14,7 +14,7 @@ body {
   user-select: none;
 }
 
-/* Estructura de Tabla Base para alineación idéntica */
+/* 📐 Estructura de Tabla Base idéntica a las otras pestañas */
 table.main-layout {
   width: 1000px;
   margin: auto;
@@ -129,7 +129,7 @@ table.main-layout {
 .status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
 .status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-/* ASISTENTE RECOMENDADOR SEPARADO */
+/* RECOMENDADOR EN DOS COLUMNAS */
 .recommender-container {
   width: 100%;
   display: flex;
@@ -187,7 +187,7 @@ table.main-layout {
 .blue-side-bans .ban-slot.active-turn { border: 1px solid #0ea5e9; box-shadow: 0 0 6px #0ea5e9; }
 .red-side-bans .ban-slot.active-turn { border: 1px solid #dc2626; box-shadow: 0 0 6px #dc2626; }
 
-/* CAJÓN INFERIOR DE SELECCIÓN */
+/* PANEL INFERIOR DE SELECCIÓN */
 .drawer-section { padding: 15px 20px 0 20px; }
 .drawer-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
 .tabs { display: flex; border: 1px solid #444452; border-radius: 4px; overflow: hidden; }
@@ -236,7 +236,6 @@ table.main-layout {
     <td class="main-box-cell">
       
       <div class="draft-arena">
-        
         <div class="team-side blue-side" id="blue-picks">
           <div class="pick-slot" id="blue-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
           <div class="pick-slot" id="blue-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
@@ -246,14 +245,12 @@ table.main-layout {
         </div>
 
         <div class="center-panel">
-          
           <div class="status-display">
             <div class="status-title" id="phase-label">Fase de Bloqueo</div>
             <div class="status-turn" id="turn-label">Turno del Equipo Azul</div>
           </div>
 
           <div class="recommender-container" id="rec-container-box">
-            
             <div class="recommender-box box-counters">
               <div class="rec-header">⚔️ Counters (Fuerte vs Rival)</div>
               <div class="rec-list-vertical" id="counters-zone"></div>
@@ -263,7 +260,6 @@ table.main-layout {
               <div class="rec-header">🤝 Sinergias (Buen Combo)</div>
               <div class="rec-list-vertical" id="synergies-zone"></div>
             </div>
-
           </div>
 
           <div class="bans-container">
@@ -280,7 +276,6 @@ table.main-layout {
               <div class="ban-slot" id="red-b3"></div>
             </div>
           </div>
-
         </div>
 
         <div class="team-side red-side" id="red-picks">
@@ -290,7 +285,6 @@ table.main-layout {
           <div class="pick-slot" id="red-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
           <div class="pick-slot" id="red-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
         </div>
-
       </div>
 
       <div class="control-bar">
@@ -311,7 +305,6 @@ table.main-layout {
             <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
           </div>
         </div>
-
         <div class="heroes-grid" id="available-heroes"></div>
       </div>
 
@@ -350,26 +343,6 @@ const DRAFT_SEQUENCE = [
 
 let currentStepIndex = 0;
 
-// Relaciones estáticas provisionales (Cruces de Fuertes y Débiles)
-function obtenerCountersDe(nombreHeroe) {
-  const relaciones = {
-    'Hou Yi': ['Li Bai', 'Lian Po'],
-    'Marco Polo': ['Gongsun Li'],
-    'Li Bai': ['Donghuang Taiyi', 'Arli'],
-    'Guan Yu': ['Lian Po', 'Guo Jia']
-  };
-  return relaciones[nombreHeroe] || [];
-}
-
-function obtenerSinergiasDe(nombreHeroe) {
-  const relaciones = {
-    'Guo Jia': ['Lian Po', 'Allain'],
-    'Gongsun Li': ['Yaria', 'Zhuang Zhou'],
-    'Marco Polo': ['Yaria', 'Sun Bin']
-  };
-  return relaciones[nombreHeroe] || [];
-}
-
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -377,16 +350,48 @@ Papa.parse(CSV_URL, {
     const rows = results.data.slice(1);
     rows.forEach(cols => {
       if (!cols[1]) return;
+      
       heroesData.push({
-        nombre: cols[1],
-        imagen: cols[3],
-        roles: [cols[5], cols[6], cols[7]].filter(Boolean)
+        nombre: cols[1].trim(),
+        imagen: cols[3] ? cols[3].trim() : "",
+        roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
+        fuerteContraRaw: cols[9] ? cols[9].trim() : "", 
+        debilContraRaw: cols[10] ? cols[10].trim() : "",
+        sinergiaRaw: cols[11] ? cols[11].trim() : ""
       });
     });
     heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
     initDraft();
   }
 });
+
+// 🧠 COMPROBACIÓN EXACETA POR TEXTO (COINCIDENCIA EN TITLE) O URL DE IMAGEN
+function verificarRelacion(heroeA, heroeB, tipo) {
+  if (!heroeA || !heroeB) return false;
+  
+  let celdaHtml = "";
+  if (tipo === 'fuerte') celdaHtml = heroeA.fuerteContraRaw;
+  if (tipo === 'debil') celdaHtml = heroeA.debilContraRaw;
+  if (tipo === 'sinergia') celdaHtml = heroeA.sinergiaRaw;
+
+  if (!celdaHtml) return false;
+
+  const nombreBusqueda = heroeB.nombre.toLowerCase();
+  const imagenBusqueda = heroeB.imagen ? heroeB.imagen.toLowerCase() : "";
+  const celdaMinuscula = celdaHtml.toLowerCase();
+
+  // 1. Prioridad: Buscar si el nombre del héroe aparece en el HTML de la celda (ej: title="Chicha")
+  if (celdaMinuscula.includes(nombreBusqueda)) {
+    return true;
+  }
+
+  // 2. Respaldo: Buscar si coincide por el string exacto de la URL de su imagen
+  if (imagenBusqueda && celdaMinuscula.includes(imagenBusqueda)) {
+    return true;
+  }
+
+  return false;
+}
 
 function initDraft() {
   selectedHeroes.clear();
@@ -485,7 +490,7 @@ function updateRecommendations(step) {
     container.innerHTML = `
       <div style="font-size:12px; color:#a0a0b5; text-align:center; width:100%; padding:15px; background:#31313c; border-radius:6px; border:1px dashed #4f6edb; line-height:1.4;">
         <span style="color:#eab308; font-weight:bold;">✨ Primer Pick Libre:</span><br>
-        Asegura un <strong>Flex Pick</strong> versátil o un héroe prioritario de Tier S para ocultar tu composición.
+        Asegura un <strong>Flex Pick</strong> versátil o un héroe prioritario de Tier S.
       </div>`;
     return;
   } else {
@@ -510,42 +515,33 @@ function updateRecommendations(step) {
   const allies = (step.team === 'blue') ? blueTeamPicks : redTeamPicks;
   const enemies = (step.team === 'blue') ? redTeamPicks : blueTeamPicks;
 
-  let alliedRolesCovered = new Set();
-  allies.forEach(h => { if (h.roles.length === 1) alliedRolesCovered.add(h.roles[0]); });
-
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
   let counterList = [];
   let synergyList = [];
 
   pool.forEach(hero => {
-    if (hero.roles.length === 1 && alliedRolesCovered.has(hero.roles[0])) return;
-
     let counterScore = 0;
     let synergyScore = 0;
     let counterReason = "";
     let synergyReason = "";
 
+    // ⚔️ Evaluar Counters desde las relaciones cruzadas del CSV
     enemies.forEach(enemy => {
-      let countersDelEnemigo = obtenerCountersDe(enemy.nombre);
-      if (countersDelEnemigo.includes(hero.nombre)) {
+      if (verificarRelacion(enemy, hero, 'debil')) {
         counterScore += 25;
         counterReason = `Fuerte contra ${enemy.nombre}`;
       }
-      if (hero.roles.includes('Cazador') && enemy.roles.includes('Farmeo') && counterScore === 0) {
-        counterScore += 10;
-        counterReason = `Presión a línea de Farmeo`;
+      else if (verificarRelacion(hero, enemy, 'fuerte')) {
+        counterScore += 25;
+        counterReason = `Fuerte contra ${enemy.nombre}`;
       }
     });
 
+    // 🤝 Evaluar Sinergias desde las relaciones cruzadas del CSV
     allies.forEach(allied => {
-      let sinergiasDelAliado = obtenerSinergiasDe(allied.nombre);
-      if (sinergiasDelAliado.includes(hero.nombre)) {
+      if (verificarRelacion(allied, hero, 'sinergia') || verificarRelacion(hero, allied, 'sinergia')) {
         synergyScore += 25;
         synergyReason = `Excelente con ${allied.nombre}`;
-      }
-      if (hero.roles.includes('Merodeo') && allied.roles.includes('Farmeo') && synergyScore === 0) {
-        synergyScore += 10;
-        synergyReason = `Soporte de línea clásico`;
       }
     });
 
@@ -560,7 +556,7 @@ function updateRecommendations(step) {
   const finalSynergies = synergyList.slice(0, 3);
 
   if (finalCounters.length === 0) {
-    countersZone.innerHTML = `<div style="font-size:11px; color:#7b7a8e; padding:5px;">No hay counters claros...</div>`;
+    countersZone.innerHTML = `<div style="font-size:11px; color:#7b7a8e; padding:5px;">No hay counters específicos...</div>`;
   } else {
     finalCounters.forEach(item => {
       const row = document.createElement('div');
