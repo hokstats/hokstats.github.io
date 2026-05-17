@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tier List HoK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+body {
+  background: #1c1c1f;
+  font-family: Arial, sans-serif;
+  color: #7b7a8e;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.main-box {
+  background: #31313c;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #1c1c1f;
+}
+
+.tabs-container {
+  padding: 10px;
+  background: #31313c;
+  border-bottom: 1px solid #1c1c1f;
+}
+
+/* 🔥 contenedor flexible */
+.tabs-wrapper {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.tabs {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tab {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-right: 1px solid #444452;
+  background: #31313c;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tab:last-child {
+  border-right: none;
+}
+
+.tab.active {
+  color: white;
+  background: #4f6edb;
+}
+
+/* 🔍 buscador */
+.search-box {
+  width: 180px;
+  flex: 0 0 180px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 4px;
+  border: 1px solid #444452;
+  background: #282830;
+  color: #ccc;
+  box-sizing: border-box;
+  font-size: 12px;
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: #777;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Mantener modo fijo para controlar las primeras columnas */
+}
+
+thead {
+  background: #282830;
+}
+
+thead tr {
+  border-bottom: 1px solid #1c1c1f;
+}
+
+/* 🔥 CORRECCIÓN ANTERIOR: Forzamos la negrita apuntando exactamente a las celdas th de thead */
+thead th {
+  padding: 8px 4px;    
+  font-size: 11px;    
+  color: #b3b2bf;
+  font-weight: bold !important;  
+  cursor: pointer;
+}
+
+tbody tr {
+  background: #31313c;
+  border-top: 1px solid #1c1c1f;
+  border-bottom: 1px solid #1c1c1f;
+}
+
+tbody tr:hover {
+  background: #3a3a46;
+}
+
+td {
+  padding: 6px 4px;   /* Reducimos el padding lateral de las celdas a 4px para juntarlas más */
+}
+
+/* 📌 FIJAMOS EL TAMAÑO DE LAS PRIMERAS 4 COLUMNAS */
+.col-pos  { width: 4%; text-align: center; }
+.col-hero { width: 13%; }
+.col-tier { width: 5%; text-align: center; }
+.col-rol  { width: 10%; text-align: center; }
+
+/* 🔄 LAS ESTADÍSTICAS NO TIENEN ANCHO DEFINIDO */
+.col-stat { text-align: center; }
+.col-syn  { width: 10%; text-align: center; }
+.col-weak { width: 10%; text-align: center; }
+.col-counter { width: 10%; text-align: center; }
+
+/* 🔥 ESTILO EXCLUSIVO PARA LOS NÚMEROS DEL CUERPO DE LA TABLA (Win, Pick, Ban) */
+tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
+  font-weight: bold !important;
+  color: #b3b2bf !important;
+}
+
+.champion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  padding-left: 8px;
+}
+
+.champion img {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+}
+
+.champion span {
+  font-size: 11px; 
+  font-weight: bold;
+}
+
+.tier-badge {
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1c1c1f;
+}
+
+.tier-badge span {
+  transform: rotate(-45deg);
+  color: white;
+  font-weight: bold;
+  font-size: 11px; 
+}
+
+.tier-S { background: #1c7ed6; }
+.tier-A { background: #099268; }
+.tier-B { background: #ff922b; }
+.tier-C { background: #868e96; }
+
+.stat {
+  font-size: 11px; 
+  color: #a0a0b5;
+  white-space: nowrap; 
+}
+
+.role-cell {
+  display: flex;
+  justify-content: center;   
+  align-items: center;       
+  gap: 6px;
+  height: 32px;
+}
+
+.role-cell img {
+  width: 25px;              
+  height: 25px;
+  object-fit: contain;
+  opacity: 0.50;            
+  filter: brightness(0.90); 
+  transition: all 0.2s ease;
+}
+
+.synergy-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.synergy-cell img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}  
+
+.logo-text {
+  font-family: monospace;
+  font-size: 22px;
+  color: white;
+  margin-bottom: 10px;
+  margin-left: 4px;
+  letter-spacing: 1px;
+}
+
+.info-box {
+  background: #31313c;
+  border: 1px solid #1c1c1f;
+  border-radius: 6px;
+  padding: 15px 18px;
+  margin-bottom: 20px;
+  color: #a0a0b5;
+  font-size: 12px;
+  line-height: 1.5;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  font-size: 26px;   
+  line-height: 1;
+  margin-top: 14px;   
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-box strong {
+  color: white;
+}
+
+.contact-area {
+  margin-top: 10px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.contact-link {
+  color: #a0a0b5;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.contact-link:hover {
+  color: white;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.view-tab {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #31313c;
+  border: 1px solid #444452;
+  cursor: pointer;
+  color: #a0a0b5;
+}
+
+.view-tab.active {
+  background: #4f6edb;
+  color: white;
+}
+
+/* contenedores */
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+/* placeholder gráfico */
+.chart-box {
+  background: #31313c;
+  border: 1px solid #1c1c1f;
+  border-radius: 6px;
+  padding: 20px;
+  color: #a0a0b5;
+  text-align: center;
+}
+
+/* scrollbar modo oscuro */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1c1c1f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a6b;
+}
+  
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="logo-text">HoKstats</div>
+
+    <div class="view-tabs">
+      <div class="view-tab active" data-view="stats">Estadísticas</div>
+      <div class="view-tab" data-view="charts">Gráficas</div>
+      <a href="counter.html" class="view-tab" style="text-decoration: none;">Counters</a>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-content">
+      <p>
+        Este es un proyecto personal desarrollado originalmente para mejorar mi rendimiento en 
+        <strong>Honor of Kings</strong>. 
+        Al notar su utilidad, decidí compartirlo con la comunidad. Esta herramienta es independiente, sin fines de lucro 
+        y no tiene relación oficial con Honor of Kings, los datos presentados se obtienen de las fuentes oficiales públicas 
+        destinadas a los jugadores. Se recomienda visualizar la pagina con el smartphone en horizontal 
+        para una mejor experiencia. Si tienes alguna observación te dejo mi correo y mi canal de youtube.
+      </p>
+
+      <div class="contact-area">
+        <a href="mailto:michixhok@gmail.com" class="contact-link">📧 michixhok@gmail.com</a>
+        <a href="https://www.youtube.com/@michixhok" target="_blank" class="contact-link">📺 YouTube</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="view active" id="stats">
+  <div class="main-box">
+
+    <div class="tabs-container">
+      <div class="tabs-wrapper">
+
+        <div class="tabs">
+          <div class="tab active" data-role="all">Todo</div>
+          <div class="tab" data-role="Choque">Choque</div>
+          <div class="tab" data-role="Cazador">Cazador</div>
+          <div class="tab" data-role="Medio">Medio</div>
+          <div class="tab" data-role="Merodeo">Merodeo</div>
+          <div class="tab" data-role="Farmeo">Farmeo</div>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Buscar héroe...">
+        </div>
+
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="col-pos" onclick="sortTable('pos')">Pos</th>
+          <th class="col-hero">Héroe</th>
+          <th class="col-tier" onclick="sortTable('tier')">Tier</th>
+          <th class="col-rol">Rol</th>
+          <th class="col-stat" onclick="sortTable('win')">Win</th>
+          <th class="col-stat" onclick="sortTable('pick')">Pick</th>
+          <th class="col-stat" onclick="sortTable('ban')">Ban</th>
+
+          <th class="col-stat" onclick="sortTable('early')">Rend. Early</th>
+          <th class="col-stat" onclick="sortTable('mid')">Rend. Mid</th>
+          <th class="col-stat" onclick="sortTable('late')">Rend. Late</th>
+          <th class="col-stat" onclick="sortTable('output')">Daño/ partida</th>
+          <th class="col-stat" onclick="sortTable('kills')">Kills/ partida</th>
+          <th class="col-stat" onclick="sortTable('gold')">Oro caza</th>
+          <th class="col-stat" onclick="sortTable('suffer')">Daño/ muerte</th>
+          <th class="col-stat" onclick="sortTable('assist')">Asist./ partida</th>
+          <th class="col-stat" onclick="sortTable('towers')">Torres/ partida</th>
+          <th class="col-stat" onclick="sortTable('towerDmg')">Daño torres</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div>
+</div>
+
+<div class="view" id="charts">
+  <div class="chart-box">
+    <canvas id="scatterChart"></canvas>
+  </div>
+</div>
+      
+</div>
+
+<script>
+let chartInstance = null;
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
+
+let allData = [];
+let currentSort = { key: null, asc: false };
+let currentRole = "all";
+let currentSearch = "";
+
+const imagePointsPlugin = {
+  id: 'imagePoints',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+
+      meta.data.forEach((point, index) => {
+        const data = dataset.data[index];
+        const img = data.imgInstance;
+
+        if (!img) return;
+
+        const size = 26;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, size / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+
+        ctx.drawImage(
+          img,
+          point.x - size / 2,
+          point.y - size / 2,
+          size,
+          size
+        );
+
+        ctx.restore();
+      });
+    });
+  }
+};
+
+function cleanNumber(val){
+  if (!val) return 0;
+
+  return parseFloat(
+    val.toString()
+       .replace(/,/g, '')  
+       .replace('%', '')
+       .trim()
+  ) || 0;
+}
+  
+function parseCSV(text) {
+  return Papa.parse(text.trim(), {
+    skipEmptyLines: true
+  }).data;
+}
+
+fetch(CSV_URL)
+.then(r => r.text())
+.then(csv => {
+  const data = parseCSV(csv).slice(1);
+
+  data.forEach(cols => {
+    if (!cols[1]) return;
+
+    allData.push({
+      nombre: cols[1],
+      imagen: cols[3],
+      roles: [cols[5], cols[6], cols[7]].filter(Boolean),
+      roleImgs: [cols[64], cols[65], cols[66]]
+      .map(x => x.trim())
+      .filter(x => x && x !== "#N/A"),
+      win: cleanNumber(cols[8]),
+      pick: cleanNumber(cols[9]),
+      ban: cleanNumber(cols[10]),
+      
+      early: cleanNumber(cols[67]),
+      mid: cleanNumber(cols[68]),
+      late: cleanNumber(cols[69]),
+      output: cleanNumber(cols[70]),
+      kills: cleanNumber(cols[71]),
+      gold: cleanNumber(cols[72]),
+      suffer: cleanNumber(cols[73]),
+      assist: cleanNumber(cols[74]),
+      towers: cleanNumber(cols[75]),
+      towerDmg: cleanNumber(cols[76]),
+      
+      tier: cols[62],
+      pos: cleanNumber(cols[63]),
+
+      syn: [
+        {img: cols[13], name: cols[11]},
+        {img: cols[16], name: cols[14]}
+      ],
+
+      weak: [
+        {img: cols[19], name: cols[17]},
+        {img: cols[22], name: cols[20]}
+      ],
+
+      counter: [
+        {img: cols[25], name: cols[23]},
+        {img: cols[28], name: cols[26]}
+      ]
+    });
+  });
+
+  // 🔥 REQUISITO 1: Orden inicial por la columna 'pos' de menor a mayor (1, 2, 3...) al cargar la web
+  currentSort = { key: 'pos', asc: true };
+  allData.sort((a, b) => a.pos - b.pos);
+
+  applyFilters();
+
+  if (!chartCreated) {
+    createChart();
+    chartCreated = true;
+  }
+});
+
+function renderIcons(arr){
+  return arr
+    .filter(x => x.img && x.img !== "#N/A")
+    .map(x => `<img src="${x.img}" title="${x.name}">`)
+    .join("");
+}
+
+function applyFilters() {
+  let data = [...allData];
+
+  if (currentRole !== "all") {
+    data = data.filter(i => i.roles.includes(currentRole));
+  }
+
+  if (currentSearch) {
+    data = data.filter(i =>
+      i.nombre.toLowerCase().includes(currentSearch)
+    );
+  }
+
+  renderTable(data);
+}
+
+function renderTable(data) {
+  const tbody = document.querySelector("tbody");
+  tbody.innerHTML = "";
+
+  data.forEach(item => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td class="col-pos stat">${item.pos}</td>
+    
+      <td class="col-hero">
+        <div class="champion">
+          <img src="${item.imagen}">
+          <span>${item.nombre}</span>
+        </div>
+      </td>
+
+      <td class="col-tier">
+        <div class="tier-badge tier-${item.tier}">
+          <span>${item.tier}</span>
+        </div>
+      </td>
+
+      <td class="col-rol">
+        <div class="role-cell">
+          ${item.roleImgs.map(img => `<img src="${img}">`).join("")}
+        </div>
+      </td>
+
+      <td class="col-stat col-win-val stat">${item.win}%</td>
+      <td class="col-stat col-pick-val stat">${item.pick}%</td>
+      <td class="col-stat col-ban-val stat">${item.ban}%</td>
+
+      <td class="col-stat stat">${item.early}</td>
+      <td class="col-stat stat">${item.mid}</td>
+      <td class="col-stat stat">${item.late}</td>
+      <td class="col-stat stat">${item.output}</td>
+      <td class="col-stat stat">${item.kills}</td>
+      <td class="col-stat stat">${item.gold}</td>
+      <td class="col-stat stat">${item.suffer}</td>
+      <td class="col-stat stat">${item.assist}</td>
+      <td class="col-stat stat">${item.towers}</td>
+      <td class="col-stat stat">${item.towerDmg}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* filtros */
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    currentRole = tab.dataset.role;
+    applyFilters();
+  });
+});
+
+/* buscador */
+document.getElementById("searchInput").addEventListener("input", e => {
+  currentSearch = e.target.value.toLowerCase();
+  applyFilters();
+});
+
+/* sorting */
+function sortTable(key) {
+  // 🔥 REQUISITO 2: Cambiado comportamiento para estadísticas.
+  // Si es 'pos', por defecto inicia de menor a mayor (ascendente).
+  // Si es estadística, inicia de mayor a menor (descendente), luego alterna al reverso.
+  let asc = false;
+  
+  if (currentSort.key === key) {
+    asc = !currentSort.asc;
+  } else {
+    // Si cambiamos de columna, definimos el orden por defecto del primer clic:
+    asc = (key === 'pos' || key === 'tier'); 
+  }
+  
+  currentSort = { key, asc };
+
+  allData.sort((a, b) => {
+    let valA = a[key];
+    let valB = b[key];
+
+    // Tratamiento especial por si se ordena por la letra del Tier (S, A, B, C...)
+    if (key === 'tier') {
+      return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    }
+
+    return asc ? valA - valB : valB - valA;
+  });
+
+  applyFilters();
+}
+let chartCreated = false;
+
+document.querySelectorAll(".view-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+
+    document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    const view = tab.dataset.view;
+
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById(view).classList.add("active");
+
+    if (view === "charts" && !chartCreated && allData.length > 0) {
+      createChart();
+      chartCreated = true;
+    }
+
+  });
+});
+
+function createChart() {
+
+  const ctx = document.getElementById("scatterChart");
+
+  const data = allData.map(hero => {
+    const img = new Image();
+    img.src = hero.imagen;
+
+    return {
+      x: hero.pick + hero.ban,
+      y: hero.win,
+      imgInstance: img,
+      name: hero.nombre
+    };
+  });
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: {datasets: [{
+        label: 'Heroes',
+        data: data,
+        pointRadius: 0
+      }]
+    },
+    plugins: [imagePointsPlugin],
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const d = data[context.dataIndex];
+              return `${d.name} | Win: ${d.y}% | Presence: ${d.x}%`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Presence rate (%)'
+          }
+        },
+        y: {
+          min: 44,
+          max: 56,
+          title: {
+            display: true,
+            text: 'Win rate (%)'
+          }
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>
