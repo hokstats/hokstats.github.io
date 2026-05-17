@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Simulador de Draft - HoKstats</title>
+<title>Map Planner - HoKstats</title>
 
 <style>
 body {
@@ -14,11 +14,23 @@ body {
   user-select: none;
 }
 
-/* 📐 Estructura de Tabla Base idéntica a las otras pestañas */
-table.main-layout {
-  width: 1000px;
+.container {
+  max-width: 1100px;
   margin: auto;
-  border-collapse: collapse;
+}
+
+.main-box {
+  background: #31313c;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #1c1c1f;
+  padding: 0 0 30px 0;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo-text {
@@ -33,7 +45,6 @@ table.main-layout {
 .view-tabs {
   display: flex;
   gap: 6px;
-  justify-content: flex-end;
 }
 
 .view-tab {
@@ -51,298 +62,377 @@ table.main-layout {
   color: white;
 }
 
-.main-box-cell {
-  background: #31313c;
-  border-radius: 6px;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 20px 0;
-}
-
-/* 📊 ARENA DEL BORRADOR */
-.draft-arena {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-  gap: 15px;
-  background: #24242b;
-  border-bottom: 1px solid #1c1c1f;
-}
-
-.team-side {
-  width: 23%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.pick-slot {
-  height: 75px;
-  background: #2d2d37;
-  border-radius: 6px;
-  border: 2px solid #444452;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  gap: 12px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.blue-side .pick-slot.active-turn { border-color: #0ea5e9; box-shadow: 0 0 10px rgba(14, 165, 233, 0.4); }
-.red-side .pick-slot.active-turn { border-color: #dc2626; box-shadow: 0 0 10px rgba(220, 38, 38, 0.4); }
-
-.pick-avatar {
-  width: 55px;
-  height: 55px;
-  background: #1c1c1f;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid #555;
-}
-.pick-avatar img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4); }
-
-.pick-info { display: flex; flex-direction: column; }
-.pick-name { color: white; font-weight: bold; font-size: 14px; }
-.pick-role { font-size: 11px; color: #7b7a8e; margin-top: 2px; }
-
-.red-side .pick-slot { flex-direction: row-reverse; text-align: right; }
-
-/* PANEL CENTRAL */
-.center-panel {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.status-display {
-  text-align: center;
-  background: #1c1c1f;
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: 1px solid #444452;
-  width: 85%;
-  box-sizing: border-box;
-}
-.status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
-.status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
-
-/* RECOMENDADOR EN DOS COLUMNAS */
-.recommender-container {
-  width: 100%;
-  display: flex;
-  gap: 10px;
-  margin: 15px 0;
-  box-sizing: border-box;
-}
-
-.recommender-box {
-  flex: 1;
-  background: #31313c;
-  border-radius: 6px;
-  padding: 10px;
-  box-sizing: border-box;
-  min-height: 155px;
-}
-.recommender-box.box-counters { border: 1px solid #dc2626; }
-.recommender-box.box-synergies { border: 1px solid #22c55e; }
-
-.rec-header { font-weight: bold; font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-.box-counters .rec-header { color: #f87171; }
-.box-synergies .rec-header { color: #4ade80; }
-
-.rec-list-vertical { display: flex; flex-direction: column; gap: 6px; }
-
-.rec-row-item {
-  display: flex;
-  align-items: center;
+/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA */
+.planner-toolbar {
   background: #282830;
-  padding: 6px 8px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid #1c1c1f;
+  flex-wrap: wrap;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #7b7a8e;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+
+.btn-tool {
+  background: #31313c;
+  border: 1px solid #444452;
+  color: #ccc;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-tool:hover {
+  background: #3a3a46;
+  color: white;
+}
+
+.btn-tool.active {
+  background: #4f6edb;
+  color: white;
+  border-color: #4f6edb;
+}
+
+.btn-tool:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* 🗺️ ÁREA OPERATIVA DEL MAPA */
+.map-viewport {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  margin: 15px auto;
+  background: #222;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+.map-background {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
+.svg-draw-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.svg-draw-layer.active-drawing {
+  pointer-events: auto;
+}
+
+/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
+.map-viewport.tool-eraser .svg-draw-layer {
+  pointer-events: auto;
+}
+
+.map-viewport.tool-eraser .svg-draw-layer path {
+  cursor: pointer;
+}
+
+.free-path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Modo Goma sobre elementos borrables */
+.map-viewport.tool-eraser .placed-hero,
+.map-viewport.tool-eraser .vector-arrow,
+.map-viewport.tool-eraser .free-path {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
+}
+
+.map-viewport.tool-eraser .placed-hero:hover,
+.map-viewport.tool-eraser .vector-arrow:hover,
+.map-viewport.tool-eraser .free-path:hover {
+  filter: drop-shadow(0 0 8px #ef4444) brightness(1.2);
+  opacity: 0.7;
+}
+
+/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
+.placed-hero {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: grab;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.placed-hero img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  pointer-events: none;
+}
+
+.placed-hero.aura-blue { border: 3px solid #4f6edb; }
+.placed-hero.aura-red { border: 3px solid #ef4444; }
+
+.vector-arrow {
+  position: absolute;
+  height: 4px;
+  transform-origin: top left;
+  z-index: 5;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.vector-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -5px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid currentColor;
+}
+
+/* 📦 CAJÓN INFERIOR DE HÉROES */
+.heroes-drawer {
+  padding: 20px 30px 0 30px;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 15px;
+}
+
+.tabs {
+  display: flex;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tab {
+  padding: 6px 14px;
+  cursor: pointer;
+  background: #31313c;
+  font-size: 11px;
+  color: #a0a0b5;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-right: 1px solid #444452;
+}
+
+.tab:last-child { border-right: none; }
+.tab.active {
+  color: white;
+  background: #4f6edb;
+}
+
+.search-box input {
+  width: 180px;
+  padding: 6px 10px;
   border-radius: 4px;
   border: 1px solid #444452;
-  cursor: pointer;
-  gap: 8px;
-  transition: transform 0.1s ease;
-}
-.rec-row-item:hover { background: #2f2f39; transform: translateX(2px); }
-.box-counters .rec-row-item:hover { border-color: #dc2626; }
-.box-synergies .rec-row-item:hover { border-color: #22c55e; }
-
-.rec-row-item img { width: 30px; height: 30px; border-radius: 4px; object-fit: cover; }
-.rec-row-text { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
-.rec-row-name { font-size: 12px; color: white; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rec-row-desc { font-size: 10px; color: #a0a0b5; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rec-row-badge { font-size: 10px; font-weight: bold; padding: 2px 4px; border-radius: 3px; }
-.box-counters .rec-row-badge { background: rgba(220, 38, 38, 0.2); color: #f87171; }
-.box-synergies .rec-row-badge { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-
-/* BANEOS */
-.bans-container { display: flex; justify-content: space-between; width: 100%; padding: 0 5px; }
-.ban-group { display: flex; gap: 6px; align-items: center; }
-.ban-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #7b7a8e; }
-.ban-slot { width: 36px; height: 36px; background: #1c1c1f; border: 1px dashed #555; border-radius: 4px; overflow: hidden; }
-.ban-slot img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(0.6); }
-.blue-side-bans .ban-slot.active-turn { border: 1px solid #0ea5e9; box-shadow: 0 0 6px #0ea5e9; }
-.red-side-bans .ban-slot.active-turn { border: 1px solid #dc2626; box-shadow: 0 0 6px #dc2626; }
-
-/* PANEL INFERIOR DE SELECCIÓN */
-.drawer-section { padding: 15px 20px 0 20px; }
-.drawer-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
-.tabs { display: flex; border: 1px solid #444452; border-radius: 4px; overflow: hidden; }
-.tab {
-  padding: 6px 12px; cursor: pointer; background: #31313c; font-size: 11px;
-  color: #a0a0b5; font-weight: bold; text-transform: uppercase; border-right: 1px solid #444452;
-}
-.tab:last-child { border-right: none; }
-.tab.active { color: white; background: #4f6edb; }
-.search-box input {
-  width: 160px; padding: 6px 10px; border-radius: 4px; border: 1px solid #444452;
-  background: #282830; color: #ccc; font-size: 11px; outline: none;
+  background: #282830;
+  color: #ccc;
+  font-size: 11px;
+  outline: none;
 }
 
 .heroes-grid {
-  display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px;
-  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-height: 140px;
+  overflow-y: auto;
+  background: #282830;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #1c1c1f;
 }
-.hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; }
-.hero-item img { width: 100%; height: 100%; border-radius: 6px; object-fit: cover; }
-.hero-item.disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
-.control-bar { display: flex; justify-content: flex-end; padding: 10px 20px 0 20px; }
+.hero-avatar-item {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.hero-avatar-item:hover {
+  transform: scale(1.1);
+}
+
+.hero-avatar-item img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #1c1c1f; }
+::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
 </style>
 </head>
+
 <body>
 
-<table class="main-layout">
-  <tr>
-    <td>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
-        <tr>
-          <td class="logo-text">HoKstats</td>
-          <td class="view-tabs">
-            <a href="index.html" class="view-tab">Estadísticas</a>
-            <a href="counter.html" class="view-tab">Counters</a>
-            <a href="planner.html" class="view-tab">Planner</a>
-            <a href="draft.html" class="view-tab active">Draft</a>
-            <a href="acerca.html" class="view-tab">Acerca de</a>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td class="main-box-cell">
+<div class="container">
+
+  <div class="top-bar">
+    <div class="logo-text">HoKstats</div>
+    
+    <div class="view-tabs">
+      <a href="index.html" class="view-tab">Estadísticas</a>
+      <a href="counter.html" class="view-tab">Counters</a>
+      <a href="planner.html" class="view-tab active">Planner</a>
+      <a href="draft.html" class="view-tab">Draft</a>
+      <a href="acerca.html" class="view-tab">Acerca de</a>
+    </div>
+    
+  </div>
+
+  <div class="main-box">
+
+    <div class="planner-toolbar">
+      <div class="tool-group">
+        <span class="tool-label">Acciones</span>
+        <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
+        <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
+        <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
+        <button class="btn-tool" id="tool-eraser">🧽 Goma</button>
+      </div>
+
+      <div class="tool-group">
+        <span class="tool-label">Historial</span>
+        <button class="btn-tool" id="hist-undo" disabled>↩️ Deshacer</button>
+        <button class="btn-tool" id="hist-redo" disabled>↪️ Rehacer</button>
+      </div>
+
+      <div class="tool-group">
+        <span class="tool-label">Aura de Bando</span>
+        <button class="btn-tool" id="aura-none">⚪ Ninguno</button>
+        <button class="btn-tool" id="aura-blue">🔵 Azul</button>
+        <button class="btn-tool" id="aura-red">🔴 Rojo</button>
+      </div>
+
+      <div class="tool-group">
+        <span class="tool-label">Color Trazo</span>
+        <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
+        <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
+        <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
+      </div>
+
+      <div class="tool-group">
+        <button class="btn-tool" id="clear-all" style="border-color:#ef4444; color:#f87171;">🔄 Reset Todo</button>
+      </div>
+    </div>
+
+    <div class="map-viewport tool-move" id="mapZone">
+      <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK">
       
-      <div class="draft-arena">
-        <div class="team-side blue-side" id="blue-picks">
-          <div class="pick-slot" id="blue-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
-          <div class="pick-slot" id="blue-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
-          <div class="pick-slot" id="blue-p3"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 3</div></div></div>
-          <div class="pick-slot" id="blue-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
-          <div class="pick-slot" id="blue-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
+      <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
+    </div>
+
+    <div class="heroes-drawer">
+      <div class="drawer-header">
+        <div class="tabs">
+          <div class="tab active" data-role="all">Todo</div>
+          <div class="tab" data-role="Choque">Choque</div>
+          <div class="tab" data-role="Cazador">Cazador</div>
+          <div class="tab" data-role="Medio">Medio</div>
+          <div class="tab" data-role="Merodeo">Merodeo</div>
+          <div class="tab" data-role="Farmeo">Farmeo</div>
         </div>
-
-        <div class="center-panel">
-          <div class="status-display">
-            <div class="status-title" id="phase-label">Fase de Bloqueo</div>
-            <div class="status-turn" id="turn-label">Turno del Equipo Azul</div>
-          </div>
-
-          <div class="recommender-container" id="rec-container-box">
-            <div class="recommender-box box-counters">
-              <div class="rec-header">⚔️ Counters (Fuerte vs Rival)</div>
-              <div class="rec-list-vertical" id="counters-zone"></div>
-            </div>
-
-            <div class="recommender-box box-synergies">
-              <div class="rec-header">🤝 Sinergias (Buen Combo)</div>
-              <div class="rec-list-vertical" id="synergies-zone"></div>
-            </div>
-          </div>
-
-          <div class="bans-container">
-            <div class="ban-group blue-side-bans">
-              <span class="ban-label">Bans Azul:</span>
-              <div class="ban-slot" id="blue-b1"></div>
-              <div class="ban-slot" id="blue-b2"></div>
-              <div class="ban-slot" id="blue-b3"></div>
-            </div>
-            <div class="ban-group red-side-bans">
-              <span class="ban-label">Bans Rojo:</span>
-              <div class="ban-slot" id="red-b1"></div>
-              <div class="ban-slot" id="red-b2"></div>
-              <div class="ban-slot" id="red-b3"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="team-side red-side" id="red-picks">
-          <div class="pick-slot" id="red-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
-          <div class="pick-slot" id="red-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
-          <div class="pick-slot" id="red-p3"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 3</div></div></div>
-          <div class="pick-slot" id="red-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
-          <div class="pick-slot" id="red-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
+        <div class="search-box">
+          <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
         </div>
       </div>
 
-      <div class="control-bar">
-        <button class="view-tab" id="reset-draft" style="border-color:#ef4444; color:#f87171; border-radius:4px;">🔄 Reiniciar Draft</button>
-      </div>
-
-      <div class="drawer-section">
-        <div class="drawer-header">
-          <div class="tabs">
-            <div class="tab active" data-role="all">Todo</div>
-            <div class="tab" data-role="Choque">Choque</div>
-            <div class="tab" data-role="Cazador">Cazador</div>
-            <div class="tab" data-role="Medio">Medio</div>
-            <div class="tab" data-role="Merodeo">Merodeo</div>
-            <div class="tab" data-role="Farmeo">Farmeo</div>
-          </div>
-          <div class="search-box">
-            <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
-          </div>
+      <div class="heroes-grid" id="available-heroes">
         </div>
-        <div class="heroes-grid" id="available-heroes"></div>
-      </div>
+    </div>
 
-    </td>
-  </tr>
-</table>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
+const mapZone = document.getElementById('mapZone');
+const svgLayer = document.getElementById('svgLayer');
+
 let heroesData = [];
-let selectedHeroes = new Set(); 
-let blueTeamPicks = [];
-let redTeamPicks = [];
+let currentTool = 'move';
+let currentAura = 'none';
+let currentStrokeColor = '#eab308';
 
-const DRAFT_SEQUENCE = [
-  { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
-  { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
-  { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
-  { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
-  { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
-  { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' },
-  
-  { type: 'pick', team: 'blue', slotId: 'blue-p1', label: 'Pick Azul 1' },
-  { type: 'pick', team: 'red', slotId: 'red-p1', label: 'Pick Rojo 1' },
-  { type: 'pick', team: 'red', slotId: 'red-p2', label: 'Pick Rojo 2' },
-  { type: 'pick', team: 'blue', slotId: 'blue-p2', label: 'Pick Azul 2' },
-  { type: 'pick', team: 'blue', slotId: 'blue-p3', label: 'Pick Azul 3' },
-  { type: 'pick', team: 'red', slotId: 'red-p3', label: 'Pick Rojo 3' },
-  { type: 'pick', team: 'red', slotId: 'red-p4', label: 'Pick Rojo 4' },
-  { type: 'pick', team: 'blue', slotId: 'blue-p4', label: 'Pick Azul 4' },
-  { type: 'pick', team: 'blue', slotId: 'blue-p5', label: 'Pick Azul 5' },
-  { type: 'pick', team: 'red', slotId: 'red-p5', label: 'Pick Rojo 5' }
-];
+// Estado de dibujo general
+let isDrawing = false;
+let startX = 0, startY = 0;
+let activeArrowElement = null;
+let activePathElement = null;
+let currentPathPoints = "";
 
-let currentStepIndex = 0;
+// 🗃️ MOTOR DE HISTORIAL (Deshacer / Rehacer)
+let undoStack = [];
+let redoStack = [];
 
+function saveState(actionType, element, extraData = null) {
+  undoStack.push({ type: actionType, element: element, extra: extraData });
+  redoStack = []; 
+  updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+  document.getElementById('hist-undo').disabled = undoStack.length === 0;
+  document.getElementById('hist-redo').disabled = redoStack.length === 0;
+}
+
+// Carga e integración de datos HoKstats
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -350,69 +440,16 @@ Papa.parse(CSV_URL, {
     const rows = results.data.slice(1);
     rows.forEach(cols => {
       if (!cols[1]) return;
-      
       heroesData.push({
         nombre: cols[1].trim(),
         imagen: cols[3] ? cols[3].trim() : "",
-        roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
-        fuerteContraRaw: cols[9] ? cols[9].trim() : "", 
-        debilContraRaw: cols[10] ? cols[10].trim() : "",
-        sinergiaRaw: cols[11] ? cols[11].trim() : ""
+        roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim())
       });
     });
     heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
-    initDraft();
+    renderDrawer('all', '');
   }
 });
-
-// 🧠 COMPROBACIÓN EXACETA POR TEXTO (COINCIDENCIA EN TITLE) O URL DE IMAGEN
-function verificarRelacion(heroeA, heroeB, tipo) {
-  if (!heroeA || !heroeB) return false;
-  
-  let celdaHtml = "";
-  if (tipo === 'fuerte') celdaHtml = heroeA.fuerteContraRaw;
-  if (tipo === 'debil') celdaHtml = heroeA.debilContraRaw;
-  if (tipo === 'sinergia') celdaHtml = heroeA.sinergiaRaw;
-
-  if (!celdaHtml) return false;
-
-  const nombreBusqueda = heroeB.nombre.toLowerCase();
-  const imagenBusqueda = heroeB.imagen ? heroeB.imagen.toLowerCase() : "";
-  const celdaMinuscula = celdaHtml.toLowerCase();
-
-  // 1. Prioridad: Buscar si el nombre del héroe aparece en el HTML de la celda (ej: title="Chicha")
-  if (celdaMinuscula.includes(nombreBusqueda)) {
-    return true;
-  }
-
-  // 2. Respaldo: Buscar si coincide por el string exacto de la URL de su imagen
-  if (imagenBusqueda && celdaMinuscula.includes(imagenBusqueda)) {
-    return true;
-  }
-
-  return false;
-}
-
-function initDraft() {
-  selectedHeroes.clear();
-  blueTeamPicks = [];
-  redTeamPicks = [];
-  currentStepIndex = 0;
-  
-  document.querySelectorAll('.pick-avatar').forEach(el => el.innerHTML = '');
-  document.querySelectorAll('.pick-name').forEach(el => el.innerText = '-');
-  document.querySelectorAll('.ban-slot').forEach(el => el.innerHTML = '');
-  
-  DRAFT_SEQUENCE.forEach(step => {
-    if(step.type === 'pick') {
-      const slotEl = document.getElementById(step.slotId);
-      if(slotEl) slotEl.querySelector('.pick-role').innerText = step.label.replace('Pick ', '');
-    }
-  });
-
-  renderDrawer('all', '');
-  highlightActiveSlot();
-}
 
 function renderDrawer(role, query) {
   const grid = document.getElementById('available-heroes');
@@ -423,175 +460,269 @@ function renderDrawer(role, query) {
     if (query && !hero.nombre.toLowerCase().includes(query)) return;
     
     const div = document.createElement('div');
-    div.className = 'hero-item';
-    if (selectedHeroes.has(hero.nombre)) div.classList.add('disabled');
-    
+    div.className = 'hero-avatar-item';
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
+    
     div.addEventListener('click', () => {
-      if (!selectedHeroes.has(hero.nombre)) processSelection(hero);
+      createHeroNode(hero.imagen, 300, 300, true);
     });
     grid.appendChild(div);
   });
 }
 
-function highlightActiveSlot() {
-  document.querySelectorAll('.pick-slot, .ban-slot').forEach(el => el.classList.remove('active-turn'));
-  const containerBox = document.getElementById('rec-container-box');
-
-  if (currentStepIndex >= DRAFT_SEQUENCE.length) {
-    document.getElementById('phase-label').innerText = "Draft Finalizado";
-    document.getElementById('turn-label').innerText = "Composiciones Listas";
-    containerBox.innerHTML = `<div style="color:#22c55e; font-size:13px; font-weight:bold; text-align:center; width:100%; padding:20px; background:#1c1c1f; border-radius:6px;">¡Draft completado con éxito!</div>`;
-    return;
-  }
+// 🖐️ Gestión de Héroes
+function createHeroNode(imgUrl, x, y, recordHistory = true) {
+  const el = document.createElement('div');
+  el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  el.innerHTML = `<img src="${imgUrl}">`;
   
-  const currentStep = DRAFT_SEQUENCE[currentStepIndex];
-  document.getElementById('phase-label').innerText = currentStep.type === 'ban' ? "Fase de Bloqueo (Ban)" : "Fase de Selección (Pick)";
-  document.getElementById('turn-label').innerText = `Turno: ${currentStep.label}`;
+  el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
+  el.addEventListener('touchstart', (e) => handleHeroClickOrDrag(e, el), {passive: false});
   
-  const activeSlot = document.getElementById(currentStep.slotId);
-  if (activeSlot) activeSlot.classList.add('active-turn');
-  
-  if (currentStep.type === 'ban') {
-    containerBox.style.display = "none"; 
-  } else {
-    containerBox.style.display = "flex"; 
-    updateRecommendations(currentStep);
-  }
+  mapZone.appendChild(el);
+  if (recordHistory) saveState('add', el);
 }
 
-function processSelection(hero) {
-  if (currentStepIndex >= DRAFT_SEQUENCE.length) return;
-  const currentStep = DRAFT_SEQUENCE[currentStepIndex];
-  selectedHeroes.add(hero.nombre);
-  const slotEl = document.getElementById(currentStep.slotId);
+function handleHeroClickOrDrag(e, element) {
+  if (currentTool === 'eraser') {
+    saveState('delete', element, { parent: mapZone });
+    element.remove();
+    return;
+  }
+  if (currentTool !== 'move') return;
+  e.preventDefault();
   
-  if (currentStep.type === 'ban') {
-    slotEl.innerHTML = `<img src="${hero.imagen}">`;
-  } else {
-    if (currentStep.team === 'blue') blueTeamPicks.push(hero);
-    else redTeamPicks.push(hero);
-
-    slotEl.querySelector('.pick-avatar').innerHTML = `<img src="${hero.imagen}">`;
-    slotEl.querySelector('.pick-name').innerText = hero.nombre;
-    slotEl.querySelector('.pick-role').innerText = hero.roles.join(' / ');
+  const rect = mapZone.getBoundingClientRect();
+  const initialX = element.style.left;
+  const initialY = element.style.top;
+  let hasMoved = false;
+  
+  function moveHandler(evt) {
+    hasMoved = true;
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
+    
+    if(x < 0 || x > 600 || y < 0 || y > 600) {
+      saveState('delete', element, { parent: mapZone });
+      element.remove();
+      endHandler();
+      return;
+    }
+    
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
   }
   
-  currentStepIndex++;
-  renderDrawer(currentRole, currentSearch);
-  highlightActiveSlot();
-}
-
-function updateRecommendations(step) {
-  const container = document.getElementById('rec-container-box');
-  
-  if (blueTeamPicks.length === 0 && redTeamPicks.length === 0) {
-    container.style.display = "block";
-    container.innerHTML = `
-      <div style="font-size:12px; color:#a0a0b5; text-align:center; width:100%; padding:15px; background:#31313c; border-radius:6px; border:1px dashed #4f6edb; line-height:1.4;">
-        <span style="color:#eab308; font-weight:bold;">✨ Primer Pick Libre:</span><br>
-        Asegura un <strong>Flex Pick</strong> versátil o un héroe prioritario de Tier S.
-      </div>`;
-    return;
-  } else {
-    if (container.querySelector('.box-counters') === null) {
-      container.innerHTML = `
-        <div class="recommender-box box-counters">
-          <div class="rec-header">⚔️ Counters (Fuerte vs Rival)</div>
-          <div class="rec-list-vertical" id="counters-zone"></div>
-        </div>
-        <div class="recommender-box box-synergies">
-          <div class="rec-header">🤝 Sinergias (Buen Combo)</div>
-          <div class="rec-list-vertical" id="synergies-zone"></div>
-        </div>`;
+  function endHandler() {
+    window.removeEventListener('mousemove', moveHandler);
+    window.removeEventListener('mouseup', endHandler);
+    window.removeEventListener('touchmove', moveHandler);
+    window.removeEventListener('touchend', endHandler);
+    
+    if (hasMoved) {
+      saveState('move', element, { fromX: initialX, fromY: initialY, toX: element.style.left, toY: element.style.top });
     }
   }
+  
+  window.addEventListener('mousemove', moveHandler);
+  window.addEventListener('mouseup', endHandler);
+  window.addEventListener('touchmove', moveHandler, {passive: false});
+  window.addEventListener('touchend', endHandler);
+}
 
-  const countersZone = document.getElementById('counters-zone');
-  const synergiesZone = document.getElementById('synergies-zone');
-  countersZone.innerHTML = '';
-  synergiesZone.innerHTML = '';
+// 🏹 Captura de Coordenadas Locales
+function getLocalCoords(e) {
+  const rect = mapZone.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top
+  };
+}
 
-  const allies = (step.team === 'blue') ? blueTeamPicks : redTeamPicks;
-  const enemies = (step.team === 'blue') ? redTeamPicks : blueTeamPicks;
+// Control Operativo del Tablero
+mapZone.addEventListener('mousedown', (e) => { handleStartContainer(e); });
+mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
 
-  let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
-  let counterList = [];
-  let synergyList = [];
-
-  pool.forEach(hero => {
-    let counterScore = 0;
-    let synergyScore = 0;
-    let counterReason = "";
-    let synergyReason = "";
-
-    // ⚔️ Evaluar Counters desde las relaciones cruzadas del CSV
-    enemies.forEach(enemy => {
-      if (verificarRelacion(enemy, hero, 'debil')) {
-        counterScore += 25;
-        counterReason = `Fuerte contra ${enemy.nombre}`;
-      }
-      else if (verificarRelacion(hero, enemy, 'fuerte')) {
-        counterScore += 25;
-        counterReason = `Fuerte contra ${enemy.nombre}`;
-      }
-    });
-
-    // 🤝 Evaluar Sinergias desde las relaciones cruzadas del CSV
-    allies.forEach(allied => {
-      if (verificarRelacion(allied, hero, 'sinergia') || verificarRelacion(hero, allied, 'sinergia')) {
-        synergyScore += 25;
-        synergyReason = `Excelente con ${allied.nombre}`;
-      }
-    });
-
-    if (counterScore > 0) counterList.push({ hero: hero, score: counterScore, desc: counterReason });
-    if (synergyScore > 0) synergyList.push({ hero: hero, score: synergyScore, desc: synergyReason });
-  });
-
-  counterList.sort((a, b) => b.score - a.score);
-  synergyList.sort((a, b) => b.score - a.score);
-
-  const finalCounters = counterList.slice(0, 3);
-  const finalSynergies = synergyList.slice(0, 3);
-
-  if (finalCounters.length === 0) {
-    countersZone.innerHTML = `<div style="font-size:11px; color:#7b7a8e; padding:5px;">No hay counters específicos...</div>`;
-  } else {
-    finalCounters.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'rec-row-item';
-      row.innerHTML = `
-        <img src="${item.hero.imagen}">
-        <div class="rec-row-text">
-          <div class="rec-row-name">${item.hero.nombre}</div>
-          <div class="rec-row-desc">${item.desc}</div>
-        </div>
-        <div class="rec-row-badge">+${item.score}</div>`;
-      row.addEventListener('click', () => processSelection(item.hero));
-      countersZone.appendChild(row);
-    });
+function handleStartContainer(e) {
+  const isBg = e.target === mapZone || e.target.className === 'map-background' || e.target === svgLayer;
+  
+  // 🧽 LÓGICA DE LA GOMA DE BORRAR CORREGIDA Y REORDENADA
+  if (currentTool === 'eraser' && !isBg) {
+    // 1. Detectar si es un trazo de lápiz SVG
+    if (e.target.classList.contains('free-path')) {
+      saveState('delete', e.target, { parent: svgLayer });
+      e.target.remove();
+      return;
+    }
+    
+    // 2. Detectar si es una flecha HTML
+    const targetEl = e.target.closest('.vector-arrow');
+    if (targetEl) {
+      saveState('delete', targetEl, { parent: targetEl.parentNode });
+      targetEl.remove();
+      return;
+    }
+    return;
   }
 
-  if (finalSynergies.length === 0) {
-    synergiesZone.innerHTML = `<div style="font-size:11px; color:#7b7a8e; padding:5px;">Esperando elecciones...</div>`;
-  } else {
-    finalSynergies.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'rec-row-item';
-      row.innerHTML = `
-        <img src="${item.hero.imagen}">
-        <div class="rec-row-text">
-          <div class="rec-row-name">${item.hero.nombre}</div>
-          <div class="rec-row-desc">${item.desc}</div>
-        </div>
-        <div class="rec-row-badge">+${item.score}</div>`;
-      row.addEventListener('click', () => processSelection(item.hero));
-      synergiesZone.appendChild(row);
-    });
+  if (!isBg) return;
+
+  if (currentTool === 'arrow') {
+    isDrawing = true;
+    const coords = getLocalCoords(e);
+    startX = coords.x; startY = coords.y;
+    
+    activeArrowElement = document.createElement('div');
+    activeArrowElement.className = 'vector-arrow';
+    activeArrowElement.style.backgroundColor = currentStrokeColor;
+    activeArrowElement.style.color = currentStrokeColor;
+    activeArrowElement.style.left = `${startX}px`;
+    activeArrowElement.style.top = `${startY}px`;
+    
+    mapZone.appendChild(activeArrowElement);
+  } 
+  else if (currentTool === 'draw') {
+    isDrawing = true;
+    const coords = getLocalCoords(e);
+    startX = coords.x; startY = coords.y;
+    
+    activePathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    activePathElement.setAttribute("class", "free-path");
+    activePathElement.setAttribute("stroke", currentStrokeColor);
+    
+    currentPathPoints = `M ${startX} ${startY}`;
+    activePathElement.setAttribute("d", currentPathPoints);
+    svgLayer.appendChild(activePathElement);
   }
 }
 
+window.addEventListener('mousemove', (e) => { handleMoveContainer(e); });
+window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passive: false});
+
+function handleMoveContainer(e) {
+  if (!isDrawing) return;
+  const coords = getLocalCoords(e);
+  const currentX = Math.max(0, Math.min(600, coords.x));
+  const currentY = Math.max(0, Math.min(600, coords.y));
+
+  if (currentTool === 'arrow' && activeArrowElement) {
+    if (e.cancelable) e.preventDefault();
+    const dx = currentX - startX;
+    const dy = currentY - startY;
+    const distance = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
+    
+    activeArrowElement.style.width = `${distance}px`;
+    activeArrowElement.style.transform = `rotate(${angle}rad)`;
+  } 
+  else if (currentTool === 'draw' && activePathElement) {
+    if (e.cancelable) e.preventDefault();
+    currentPathPoints += ` L ${currentX} ${currentY}`;
+    activePathElement.setAttribute("d", currentPathPoints);
+  }
+}
+
+window.addEventListener('mouseup', () => { handleEndContainer(); });
+window.addEventListener('touchend', () => { handleEndContainer(); });
+
+function handleEndContainer() {
+  if (!isDrawing) return;
+  isDrawing = false;
+
+  if (currentTool === 'arrow' && activeArrowElement) {
+    if (parseFloat(activeArrowElement.style.width || 0) < 8) {
+      activeArrowElement.remove();
+    } else {
+      saveState('add', activeArrowElement);
+    }
+    activeArrowElement = null;
+  }
+  else if (currentTool === 'draw' && activePathElement) {
+    saveState('add', activePathElement);
+    activePathElement = null;
+  }
+}
+
+// ↩️ LÓGICA DE DESHACER Y REHACER (Undo / Redo)
+document.getElementById('hist-undo').addEventListener('click', () => {
+  if (undoStack.length === 0) return;
+  const action = undoStack.pop();
+  redoStack.push(action);
+  
+  if (action.type === 'add') {
+    action.element.remove();
+  } else if (action.type === 'delete') {
+    action.extra.parent.appendChild(action.element);
+  } else if (action.type === 'move') {
+    action.element.style.left = action.extra.fromX;
+    action.element.style.top = action.extra.fromY;
+  }
+  updateHistoryButtons();
+});
+
+document.getElementById('hist-redo').addEventListener('click', () => {
+  if (redoStack.length === 0) return;
+  const action = redoStack.pop();
+  undoStack.push(action);
+  
+  if (action.type === 'add') {
+    if (action.element.classList.contains('free-path')) {
+      svgLayer.appendChild(action.element);
+    } else {
+      mapZone.appendChild(action.element);
+    }
+  } else if (action.type === 'delete') {
+    action.element.remove();
+  } else if (action.type === 'move') {
+    action.element.style.left = action.extra.toX;
+    action.element.style.top = action.extra.toY;
+  }
+  updateHistoryButtons();
+});
+
+// Controladores visuales de la barra de herramientas
+document.querySelectorAll('.tool-group').forEach(group => {
+  group.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-tool');
+    if (!btn || btn.id.startsWith('hist-')) return;
+    
+    btn.parentElement.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    if (btn.id.startsWith('tool-')) {
+      currentTool = btn.id.replace('tool-', '');
+      mapZone.className = `map-viewport tool-${currentTool}`;
+      
+      if (currentTool === 'draw') {
+        svgLayer.classList.add('active-drawing');
+      } else {
+        svgLayer.classList.remove('active-drawing');
+      }
+    }
+    if (btn.id.startsWith('aura-')) currentAura = btn.id.replace('aura-', '');
+    if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
+    if (btn.id === 'color-green') currentStrokeColor = '#22c55e';
+    if (btn.id === 'color-white') currentStrokeColor = '#ffffff';
+  });
+});
+
+document.getElementById('clear-all').addEventListener('click', () => {
+  document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
+  document.querySelectorAll('.placed-hero').forEach(el => el.remove());
+  svgLayer.innerHTML = "";
+  undoStack = [];
+  redoStack = [];
+  updateHistoryButtons();
+});
+
+// Controladores de filtros
 let currentRole = 'all';
 let currentSearch = '';
 
@@ -608,8 +739,6 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value.toLowerCase().trim();
   renderDrawer(currentRole, currentSearch);
 });
-
-document.getElementById('reset-draft').addEventListener('click', initDraft);
 </script>
 
 </body>
