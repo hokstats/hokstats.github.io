@@ -444,18 +444,23 @@ function renderArrowHead(x1, y1, x2, y2, color) {
 }
 
 // 🛠️ Mapeo de coordenadas recalculado con escala visual
+// 🚀 EL FIX DEFINITIVO DE COORDENADAS (Soporta pantallas Retina/4K y Scroll de página)
 function getCoords(e) {
   const rect = canvas.getBoundingClientRect();
+  
+  // 1. Capturamos la posición exacta del toque o clic en la ventana del navegador
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
+  // 2. Calculamos la posición relativa restando los bordes del canvas (¡y sumando el scroll real!)
+  const relativeX = clientX - rect.left;
+  const relativeY = clientY - rect.top;
   
-  return {
-    x: (clientX - rect.left) * scaleX,
-    y: (clientY - rect.top) * scaleY
-  };
+  // 3. Multiplicamos por la relación de aspecto real del espacio de dibujo del Canvas
+  const x = relativeX * (canvas.width / rect.width);
+  const y = relativeY * (canvas.height / rect.height);
+  
+  return { x, y };
 }
 
 function handleStart(e) {
