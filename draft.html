@@ -146,7 +146,7 @@ table.main-layout {
 .status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
 .status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-/* RECOMENDADOR EN DOS COLUMNAS */
+/* 📉 NUEVO RECOMENDADOR COMPACTO MAXIMIZADO PARA ABAJO */
 .recommender-container {
   width: 100%;
   display: flex;
@@ -161,7 +161,7 @@ table.main-layout {
   border-radius: 6px;
   padding: 10px;
   box-sizing: border-box;
-  height: 280px; 
+  height: 380px; /* 👈 Crecimiento vertical extendido para más espacio */
   display: flex;
   flex-direction: column;
 }
@@ -175,31 +175,64 @@ table.main-layout {
 .rec-list-vertical { 
   display: flex; 
   flex-direction: column; 
-  gap: 6px; 
+  gap: 12px; 
   overflow-y: auto; 
   flex-grow: 1;
   padding-right: 4px;
 }
 
-.rec-row-item {
+/* 🧬 NUEVAS SECCIONES AGRUPADAS POR TARGET */
+.rec-group-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #1c1c1f;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.rec-group-title-row {
   display: flex;
   align-items: center;
-  background: #282830;
-  padding: 5px 8px;
-  border-radius: 4px;
-  border: 1px solid #444452;
-  cursor: pointer;
-  gap: 8px;
-  transition: background 0.15s ease;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  border-bottom: 1px solid #2a2a35;
+  padding-bottom: 5px;
+  margin-bottom: 2px;
 }
-.rec-row-item:hover { background: #353540; }
-.rec-row-item img { width: 28px; height: 28px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
-.rec-row-text { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
-.rec-row-name { font-size: 11px; color: white; font-weight: bold; }
-.rec-row-desc { font-size: 10px; color: #a0a0b5; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rec-row-badge { font-size: 9px; font-weight: bold; padding: 2px 4px; border-radius: 3px; flex-shrink: 0; }
-.box-counters .rec-row-badge { background: rgba(220, 38, 38, 0.2); color: #f87171; }
-.box-synergies .rec-row-badge { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
+.rec-group-title-row img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.rec-items-horizontal-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 🎴 MINI TARJETAS SÓLO ICONOS */
+.rec-icon-card {
+  width: 44px;
+  height: 44px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.rec-icon-card:hover { transform: scale(1.08); z-index: 2; }
+
+.rec-icon-card img.hero-main-thumb {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #444452;
+}
 
 /* BANEOS SUPERIORES */
 .bans-container { display: flex; justify-content: space-between; width: 100%; padding: 0 5px; margin-top: 5px; }
@@ -358,7 +391,7 @@ let selectedHeroes = new Set();
 let blueTeamPicks = [];
 let redTeamPicks = [];
 let userSide = 'blue';
-let actionHistory = []; // Pila de historial para el comando undo
+let actionHistory = []; 
 
 const DRAFT_SEQUENCE = [
   { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
@@ -487,7 +520,6 @@ function processSelection(hero) {
   
   selectedHeroes.add(hero.nombre);
   
-  // Registrar en el historial para permitir deshacer
   actionHistory.push({
     stepIndex: currentStepIndex,
     hero: hero
@@ -513,15 +545,12 @@ function processSelection(hero) {
 function undoLastAction() {
   if (actionHistory.length === 0) return;
   
-  // Extraer última acción realizada
   const lastAction = actionHistory.pop();
   const stepConfig = DRAFT_SEQUENCE[lastAction.stepIndex];
   const heroObj = lastAction.hero;
 
-  // Liberar el héroe del pool global
   selectedHeroes.delete(heroObj.nombre);
 
-  // Remover de las listas internas de los equipos si era un Pick
   if (stepConfig.type === 'pick') {
     if (stepConfig.team === 'blue') {
       blueTeamPicks = blueTeamPicks.filter(h => h.nombre !== heroObj.nombre);
@@ -530,7 +559,6 @@ function undoLastAction() {
     }
   }
 
-  // Limpiar visualmente el slot afectado
   const slotEl = document.getElementById(stepConfig.slotId);
   if (stepConfig.type === 'ban') {
     slotEl.innerHTML = '';
@@ -539,7 +567,6 @@ function undoLastAction() {
     slotEl.querySelector('.pick-name').innerText = '-';
   }
 
-  // Devolver el marcador de secuencia al paso anterior
   currentStepIndex = lastAction.stepIndex;
   
   renderDrawer(currentRole, currentSearch);
@@ -547,11 +574,24 @@ function undoLastAction() {
 }
 
 function updateRecommendations() {
+  const containerBox = document.getElementById('rec-container-box');
   const countersZone = document.getElementById('counters-zone');
   const synergiesZone = document.getElementById('synergies-zone');
 
   countersZone.innerHTML = '';
   synergiesZone.innerHTML = '';
+
+  const currentStep = DRAFT_SEQUENCE[currentStepIndex];
+
+  // Mantener la regla de opacidad y feedback en fases de Ban u oponente pensando
+  if (currentStep.type === 'ban' || currentStep.team !== userSide) {
+    containerBox.style.opacity = "0.4";
+    countersZone.innerHTML = `<div class="empty-state">Pensando oponente... Ocultando sugerencias.</div>`;
+    synergiesZone.innerHTML = `<div class="empty-state">Esperando tu turno.</div>`;
+    return;
+  }
+
+  containerBox.style.opacity = "1";
 
   const allies = (userSide === 'blue') ? blueTeamPicks : redTeamPicks;
   const enemies = (userSide === 'blue') ? redTeamPicks : blueTeamPicks;
@@ -563,18 +603,24 @@ function updateRecommendations() {
   }
 
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
-  let counterList = [];
-  let synergyList = [];
+
+  // ESTRUCTURAS DE AGRUPAMIENTO DINÁMICO POR PICK TARGET
+  // Llave: Nombre del héroe target (enemigo/aliado), Valor: { heroTarget, recommendedHeroes: [] }
+  let countersGrouped = {};
+  let synergiesGrouped = {};
+
+  // Inicializar grupos para los héroes que ya están fijados en la mesa
+  enemies.forEach(enemy => {
+    countersGrouped[enemy.nombre] = { target: enemy, list: [] };
+  });
+  allies.forEach(allied => {
+    synergiesGrouped[allied.nombre] = { target: allied, list: [] };
+  });
 
   pool.forEach(hero => {
-    let counterScore = 0;
-    let synergyScore = 0;
-    let counterReasons = [];
-    let synergyReasons = [];
-
     const miNombre = hero.nombre.toLowerCase();
 
-    // ⚔️ CRUCE BIDIRECCIONAL COMPLETO DE COUNTERS
+    // ⚔️ AGRUPAMIENTO DE COUNTERS VS ENEMIGO
     enemies.forEach(enemy => {
       const enemigoNombre = enemy.nombre.toLowerCase();
       let esCounter = false;
@@ -583,12 +629,11 @@ function updateRecommendations() {
       if (enemy.debilContra.includes(miNombre)) esCounter = true;
 
       if (esCounter) {
-        counterScore += 25;
-        counterReasons.push(`vs ${enemy.nombre}`);
+        countersGrouped[enemy.nombre].list.push(hero);
       }
     });
 
-    // 🤝 CRUCE BIDIRECCIONAL COMPLETO DE SINERGIAS
+    // 🤝 AGRUPAMIENTO DE SINERGIAS CON ALIADO
     allies.forEach(allied => {
       const aliadoNombre = allied.nombre.toLowerCase();
       let tieneSinergia = false;
@@ -597,60 +642,77 @@ function updateRecommendations() {
       if (allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
 
       if (tieneSinergia) {
-        synergyScore += 25;
-        synergyReasons.push(`con ${allied.nombre}`);
+        synergiesGrouped[allied.nombre].list.push(hero);
       }
     });
-
-    if (counterScore > 0) {
-      counterList.push({ hero: hero, score: counterScore, desc: counterReasons.join(', ') });
-    }
-    if (synergyScore > 0) {
-      synergyList.push({ hero: hero, score: synergyScore, desc: synergyReasons.join(', ') });
-    }
   });
 
-  counterList.sort((a, b) => b.score - a.score);
-  synergyList.sort((a, b) => b.score - a.score);
+  // RENDEREADO DE CONTENEDORES AGRUPADOS POR ENERMIGO (COUNTERS)
+  let totalCountersRendered = 0;
+  for (const key in countersGrouped) {
+    const group = countersGrouped[key];
+    if (group.list.length === 0) continue;
 
-  if (counterList.length === 0) {
-    countersZone.innerHTML = `<div class="empty-state">Sin counters directos.</div>`;
-  } else {
-    counterList.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'rec-row-item';
-      row.innerHTML = `
-        <img src="${item.hero.imagen}">
-        <div class="rec-row-text">
-          <div class="rec-row-name">${item.hero.nombre}</div>
-          <div class="rec-row-desc" title="Fuerte ${item.desc}">Fuerte ${item.desc}</div>
-        </div>
-        <div class="rec-row-badge">Counter</div>`;
-      row.addEventListener('click', () => processSelection(item.hero));
-      countersZone.appendChild(row);
+    totalCountersRendered++;
+    
+    const groupBlock = document.createElement('div');
+    groupBlock.className = 'rec-group-container';
+
+    groupBlock.innerHTML = `
+      <div class="rec-group-title-row">
+        <img src="${group.target.imagen}">
+        <span>Counter de ${group.target.nombre}</span>
+      </div>
+      <div class="rec-items-horizontal-grid" id="group-counter-${group.target.nombre.replace(/\s+/g, '')}"></div>
+    `;
+    countersZone.appendChild(groupBlock);
+
+    const grid = groupBlock.querySelector('.rec-items-horizontal-grid');
+    group.list.forEach(recHero => {
+      const iconCard = document.createElement('div');
+      iconCard.className = 'rec-icon-card';
+      iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre}">`;
+      iconCard.addEventListener('click', () => processSelection(recHero));
+      grid.appendChild(iconCard);
     });
   }
 
-  if (synergyList.length === 0) {
-    if (allies.length > 0) {
-      synergiesZone.innerHTML = `<div class="empty-state">Sin combos directos registrados en base de datos.</div>`;
-    } else {
-      synergiesZone.innerHTML = `<div class="empty-state">Haz tu primer pick para ver sinergias aliadas.</div>`;
-    }
-  } else {
-    synergyList.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'rec-row-item';
-      row.innerHTML = `
-        <img src="${item.hero.imagen}">
-        <div class="rec-row-text">
-          <div class="rec-row-name">${item.hero.nombre}</div>
-          <div class="rec-row-desc" title="Combo ${item.desc}">Combo ${item.desc}</div>
-        </div>
-        <div class="rec-row-badge">Combo</div>`;
-      row.addEventListener('click', () => processSelection(item.hero));
-      synergiesZone.appendChild(row);
+  if (totalCountersRendered === 0) {
+    countersZone.innerHTML = `<div class="empty-state">Sin counters directos detectados...</div>`;
+  }
+
+  // RENDEREADO DE CONTENEDORES AGRUPADOS POR ALIADO (SINERGIAS)
+  let totalSynergiesRendered = 0;
+  for (const key in synergiesGrouped) {
+    const group = synergiesGrouped[key];
+    if (group.list.length === 0) continue;
+
+    totalSynergiesRendered++;
+
+    const groupBlock = document.createElement('div');
+    groupBlock.className = 'rec-group-container';
+
+    groupBlock.innerHTML = `
+      <div class="rec-group-title-row">
+        <img src="${group.target.imagen}">
+        <span>Combo con ${group.target.nombre}</span>
+      </div>
+      <div class="rec-items-horizontal-grid" id="group-synergy-${group.target.nombre.replace(/\s+/g, '')}"></div>
+    `;
+    synergiesZone.appendChild(groupBlock);
+
+    const grid = groupBlock.querySelector('.rec-items-horizontal-grid');
+    group.list.forEach(recHero => {
+      const iconCard = document.createElement('div');
+      iconCard.className = 'rec-icon-card';
+      iconCard.innerHTML = `<img src="${recHero.imagen}" class="hero-main-thumb" title="${recHero.nombre}">`;
+      iconCard.addEventListener('click', () => processSelection(recHero));
+      grid.appendChild(iconCard);
     });
+  }
+
+  if (totalSynergiesRendered === 0) {
+    synergiesZone.innerHTML = `<div class="empty-state">Sin combos directos detectados...</div>`;
   }
 }
 
