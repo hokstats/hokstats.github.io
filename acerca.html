@@ -11,7 +11,6 @@ body {
   color: #a0a0b5;
   margin: 0;
   padding: 20px;
-  line-height: 1.6;
 }
 
 .container {
@@ -19,23 +18,19 @@ body {
   margin: auto;
 }
 
+/* 📊 Caja principal idéntica a las otras pestañas */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0; /* 👈 Cambiado: 0 arriba, 0 lados, 30px abajo para mantener el contorno */
+  padding: 0 0 30px 0;
 }
 
-/* 🆕 Agregamos esta regla para que el texto de "Acerca de" tenga un colchón cómodo por dentro y no choque con los bordes de la caja */
-.main-box h2, .main-box h3, .main-box p, .main-box ul {
-  padding-left: 30px;
-  padding-right: 30px;
-}
-
-/* Ajustamos los títulos para que no se duplique el espacio */
-.main-box h2 {
-  margin-top: 30px; /* 👈 Le da el "aire" necesario al inicio del texto */
+/* 🎛️ Contenedor de simulación de barra de filtros para mantener la altura exacta */
+.tabs-container {
+  padding: 15px 30px;
+  background: #31313c;
 }
 
 .logo-text {
@@ -73,25 +68,34 @@ body {
   color: white;
 }
 
+/* 📝 Contenedor interno exclusivo para el texto informativo */
+.about-content {
+  padding: 10px 30px 0 30px;
+}
+
+/* 🔥 TÍTULOS EN MAYÚSCULAS */
 h2 {
   color: white;
-  font-size: 20px;
-  margin-top: 0;
+  font-size: 18px;
+  margin-top: 10px;
   margin-bottom: 20px;
   border-bottom: 1px solid #444452;
   padding-bottom: 10px;
+  letter-spacing: 0.5px;
 }
 
 h3 {
   color: white;
-  font-size: 15px;
+  font-size: 14px;
   margin-top: 25px;
   margin-bottom: 10px;
+  letter-spacing: 0.5px;
 }
 
 p {
   font-size: 13px;
   margin-bottom: 15px;
+  line-height: 1.6;
 }
 
 a {
@@ -111,12 +115,14 @@ ul {
 li {
   font-size: 13px;
   margin-bottom: 12px;
+  line-height: 1.6;
 }
 
 strong {
   color: white;
 }
 
+/* 🔥 CORRECCIÓN: Eliminado el estilo de círculo, ahora es una etiqueta rectangular limpia con fondo de color */
 .level-badge {
   display: inline-block;
   padding: 2px 6px;
@@ -152,39 +158,45 @@ strong {
   </div>
 
   <div class="main-box">
-    <h2>Acerca de HoKstats</h2>
     
-    <h3>Declaración de Independencia y Propósito</h3>
-    <p><strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad competitiva.</p>
+    <div class="tabs-container"></div>
 
-    <h3>Origen de Datos: Sección Estadísticas</h3>
-    <p>Los indicadores cuantitativos de la sección de <strong>Estadísticas</strong> se extraen directamente de las fuentes oficiales del servidor global a través de la plataforma <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">https://camp.honorofkings.com</a>). Con el fin de garantizar la vigencia de las métricas de rendimiento (<em>Win Rate, Pick Rate, Ban Rate</em>), el set de datos se actualiza periódicamente cada <strong>7 días</strong>.</p>
+    <div class="about-content">
+      <h2>ACERCA DE HOKSTATS</h2>
+      
+      <h3>DECLARACIÓN DE INDEPENDENCIA Y PROPÓSITO</h3>
+      <p><strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad competitiva.</p>
 
-    <h3>Metodología y Origen de Datos: Sección Counters (Matchups)</h3>
-    <p>A diferencia de las estadísticas generales, las interacciones avanzadas de compatibilidad y contrarresto (<em>Counters, Debilidades y Sinergias</em>) no se encuentran consolidadas de forma pública en el ecosistema global. Por ello, la matriz de relaciones de HoKstats se construye mediante un modelo analítico propio que recopila y procesa información bajo los siguientes criterios de prioridad:</p>
+      <h3>ORIGEN DE DATOS: SECCIÓN ESTADÍSTICAS</h3>
+      <p>Los indicadores cuantitativos de la sección de <strong>Estadísticas</strong> se extraen directamente de las fuentes oficiales del servidor global a través de la plataforma <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">https://camp.honorofkings.com</a>). Con el fin de garantizar la vigencia de las métricas de rendimiento (<em>Win Rate, Pick Rate, Ban Rate</em>), el set de datos se actualiza periódicamente cada <strong>7 días</strong>.</p>
 
-    <ul>
-      <li>
-        <span class="level-badge lvl-1">Nivel 1</span> <strong>Datos Estructurados (Máxima Prioridad Analítica):</strong> 
-        La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la aplicación de origen). Esta información se complementa y contrasta con las infografías oficiales y publicaciones periódicas distribuidas por el equipo de desarrollo en el entorno global a través de HoK Camp. En caso de existir discrepancias mecánicas o de balance entre la versión china y la global, la herramienta opta por conservar ambas referencias para enriquecer el marco analítico.
-      </li>
-      <li>
-        <span class="level-badge lvl-2">Nivel 2</span> <strong>Entorno Competitivo (Alta Prioridad):</strong> 
-        Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias e interacciones entre héroes se ejecutan bajo condiciones óptimas de coordinación, sirviendo como un valioso entorno de validación de alto nivel.
-      </li>
-      <li>
-        <span class="level-badge lvl-3">Nivel 3</span> <strong>Opinión Experta (Prioridad Media):</strong> 
-        Integración de criterios técnicos provistos por creadores de contenido, <em>streamers</em> especializados y jugadores de rango profesional o alto nivel (<em>High Elo</em>), orientados a identificar matices estratégicos específicos.
-      </li>
-      <li>
-        <span class="level-badge lvl-4">Nivel 4</span> <strong>Experiencia Empírica (Prioridad Complementaria):</strong> 
-        Validación a través de la experiencia directa en juego (<em>enfoque empírico</em>), utilizada exclusivamente como contraste de campo y ajuste fino del ecosistema, sin desplazar la base estructurada de los niveles superiores.
-      </li>
-    </ul>
+      <h3>METODOLOGÍA Y ORIGEN DE DATOS: SECCIÓN COUNTERS (MATCHUPS)</h3>
+      <p>A diferencia de las estadísticas generales, las interacciones avanzadas de compatibilidad y contrarresto (<em>Counters, Debilidades y Sinergias</em>) no se encuentran consolidadas de forma pública en el ecosistema global. Por ello, la matriz de relaciones de HoKstats se construye mediante un modelo analítico propio que recopila y procesa información bajo los siguientes criterios de prioridad:</p>
 
-    <p><strong>Objetivo del Sistema:</strong> Ofrecer una interpretation actualizada, coherente y directamente aplicable de las dinámicas de enfrentamiento entre héroes dentro del metajuego actual.</p> 
+      <ul>
+        <li>
+          <span class="level-badge lvl-1">Nivel 1</span> <strong>DATOS ESTRUCTURADOS (MÁXIMA PRIORIDAD ANALÍTICA):</strong> 
+          La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la aplicación de origen). Esta información se complementa y contrasta con las infografías oficiales y publicaciones periódicas distribuidas por el equipo de desarrollo en el entorno global a través de HoK Camp. En caso de existir discrepancias mecánicas o de balance entre la versión china y la global, la herramienta opta por conservar ambas referencias para enriquecer el marco analítico.
+        </li>
+        <li>
+          <span class="level-badge lvl-2">Nivel 2</span> <strong>ENTORNO COMPETITIVO (ALTA PRIORIDAD):</strong> 
+          Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias e interacciones entre héroes se ejecutan bajo condiciones óptimas de coordinación, sirviendo como un valioso entorno de validación de alto nivel.
+        </li>
+        <li>
+          <span class="level-badge lvl-3">Nivel 3</span> <strong>OPINIÓN EXPERTA (PRIORIDAD MEDIA):</strong> 
+          Integración de criterios técnicos provistos por creadores de contenido, <em>streamers</em> especializados y jugadores de rango profesional o alto nivel (<em>High Elo</em>), orientados a identificar matices estratégicos específicos.
+        </li>
+        <li>
+          <span class="level-badge lvl-4">Nivel 4</span> <strong>EXPERIENCIA EMPÍRICA (PRIORIDAD COMPLEMENTARIA):</strong> 
+          Validación a través de la experiencia directa en juego (<em>enfoque empírico</em>), utilizada exclusivamente como contraste de campo y ajuste fino del ecosistema, sin desplazar la base estructurada de los niveles superiores.
+        </li>
+      </ul>
 
-    <p><em>Si detectas alguna discrepancia técnica, cuentas con información adicional verificable o deseas proponer un ajuste basado en datos, te invitamos a enviar tus sugerencias por correo electrónico para su correspondiente revisión e incorporación en el sistema.</em></p>
+      <h3>OBJETIVO DEL SISTEMA</h3>
+      <p>Ofrecer una interpretación actualizada, coherente y directamente aplicable de las dinámicas de enfrentamiento entre héroes dentro del metajuego actual.</p> 
+
+      <p><em>Si detectas alguna discrepancia técnica, cuentas con información adicional verificable o deseas proponer un ajuste basado en datos, te invitamos a enviar tus sugerencias por correo electrónico para su correspondiente revisión e incorporación en el sistema.</em></p>
+    </div>
   </div>
       
 </div>
