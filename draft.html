@@ -152,6 +152,7 @@ table.main-layout {
   gap: 10px;
   margin: 15px 0;
   box-sizing: border-box;
+  transition: opacity 0.2s ease;
 }
 
 .recommender-box {
@@ -180,7 +181,9 @@ table.main-layout {
   border: 1px solid #444452;
   cursor: pointer;
   gap: 8px;
+  transition: background 0.15s ease;
 }
+.rec-row-item:hover { background: #353540; }
 .rec-row-item img { width: 30px; height: 30px; border-radius: 4px; object-fit: cover; }
 .rec-row-text { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
 .rec-row-name { font-size: 12px; color: white; font-weight: bold; }
@@ -217,12 +220,13 @@ table.main-layout {
   display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px;
   overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f;
 }
-.hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; }
+.hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; transition: transform 0.1s ease; }
+.hero-item:hover { transform: scale(1.05); }
 .hero-item img { width: 100%; height: 100%; border-radius: 6px; object-fit: cover; }
 .hero-item.disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
 .control-bar { display: flex; justify-content: flex-end; padding: 10px 20px 0 20px; display: none; }
-.empty-state { font-size: 11px; color: #7b7a8e; padding: 5px; }
+.empty-state { font-size: 11px; color: #7b7a8e; padding: 5px; text-align: center; width: 100%; }
 </style>
 </head>
 <body>
@@ -361,7 +365,10 @@ const DRAFT_SEQUENCE = [
 ];
 
 let currentStepIndex = 0;
+let currentRole = 'all';
+let currentSearch = '';
 
+// Extracción idéntica a tu archivo counter.html usando los índices correctos
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -370,13 +377,23 @@ Papa.parse(CSV_URL, {
     rows.forEach(cols => {
       if (!cols[1]) return;
       
+      // Mapeo exacto de nombres purificados para el motor de comparaciones
+      let fuertesNames = [cols[26], cols[29], cols[32], cols[35], cols[38], cols[41]]
+        .filter(Boolean).map(n => n.trim().toLowerCase());
+        
+      let debilesNames = [cols[44], cols[47], cols[50], cols[53], cols[54], cols[59]]
+        .filter(Boolean).map(n => n.trim().toLowerCase());
+        
+      let sinergiasNames = [cols[11], cols[14], cols[17], cols[20], cols[23]]
+        .filter(Boolean).map(n => n.trim().toLowerCase());
+
       heroesData.push({
         nombre: cols[1].trim(),
         imagen: cols[3] ? cols[3].trim() : "",
         roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
-        fuerteContra: cols[9] ? cols[9].toLowerCase().trim() : "", 
-        debilContra: cols[10] ? cols[10].toLowerCase().trim() : "",
-        sinergiaCon: cols[11] ? cols[11].toLowerCase().trim() : ""
+        fuerteContra: fuertesNames, 
+        debilContra: debilesNames,
+        sinergiaCon: sinergiasNames
       });
     });
     heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
@@ -433,13 +450,17 @@ function highlightActiveSlot() {
   if (currentStepIndex >= DRAFT_SEQUENCE.length) {
     document.getElementById('phase-label').innerText = "Draft Finalizado";
     document.getElementById('turn-label').innerText = "Composiciones Listas";
-    containerBox.innerHTML = `<div style="color:#22c55e; font-size:13px; font-weight:bold; text-align:center; width:100%; padding:20px;">¡Draft completado!</div>`;
+    containerBox.style.opacity = "1";
+    document.getElementById('counters-zone').innerHTML = `<div style="color:#22c55e; font-size:12px; font-weight:bold; text-align:center; width:100%;">Draft completado con éxito</div>`;
+    document.getElementById('synergies-zone').innerHTML = `<div style="color:#4ade80; font-size:12px; font-weight:bold; text-align:center; width:100%;">Estrategia lista para la arena.</div>`;
     return;
   }
   
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
+  const isMyTurn = currentStep.team === userSide;
+  
   document.getElementById('phase-label').innerText = currentStep.type === 'ban' ? "Fase de Bloqueo (Ban)" : "Fase de Selección (Pick)";
-  document.getElementById('turn-label').innerText = `Turno actual: ${currentStep.label}`;
+  document.getElementById('turn-label').innerText = isMyTurn ? `👉 TU TURNO: ${currentStep.label}` : `⏳ REGISTRA ELECCIÓN DEL RIVAL: ${currentStep.label}`;
   
   const activeSlot = document.getElementById(currentStep.slotId);
   if (activeSlot) activeSlot.classList.add('active-turn');
@@ -473,11 +494,11 @@ function updateRecommendations(step) {
   const countersZone = document.getElementById('counters-zone');
   const synergiesZone = document.getElementById('synergies-zone');
 
-  // Si es fase de baneo u oponente eligiendo, ocultamos para que sea solo indicación tuya
+  // Congelar sugerencias si es baneo o turno del rival
   if (step.type === 'ban' || step.team !== userSide) {
     container.style.opacity = "0.4";
-    countersZone.innerHTML = `<div class="empty-state">Pensando oponente... Ocultando sugerencias.</div>`;
-    synergiesZone.innerHTML = `<div class="empty-state">Esperando tu turno.</div>`;
+    countersZone.innerHTML = `<div class="empty-state">Mesa analizando elecciones...</div>`;
+    synergiesZone.innerHTML = `<div class="empty-state">Esperando tu turno de selección.</div>`;
     return;
   }
 
@@ -488,9 +509,10 @@ function updateRecommendations(step) {
   const allies = (userSide === 'blue') ? blueTeamPicks : redTeamPicks;
   const enemies = (userSide === 'blue') ? redTeamPicks : blueTeamPicks;
 
+  // Si es el primer pick absoluto de tu escuadra y la mesa está vacía
   if (allies.length === 0 && enemies.length === 0) {
-    countersZone.innerHTML = `<div class="empty-state" style="color:#eab308;">Asegura un pick prioritario de tu lista.</div>`;
-    synergiesZone.innerHTML = `<div class="empty-state">Esperando base aliada.</div>`;
+    countersZone.innerHTML = `<div class="empty-state" style="color:#eab308; font-weight:bold;">First Pick: Elige un campeón prioritario o de Tier Alto.</div>`;
+    synergiesZone.innerHTML = `<div class="empty-state">Abre la base estratégica de tu juego.</div>`;
     return;
   }
 
@@ -506,31 +528,33 @@ function updateRecommendations(step) {
 
     const miNombre = hero.nombre.toLowerCase();
 
-    // ⚔️ MOTOR BIDIRECCIONAL COMPLETO DE COUNTERS
+    // ⚔️ CRUCE BIDIRECCIONAL COMPLETO DE COUNTERS (6 de ida y 6 de vuelta)
     enemies.forEach(enemy => {
       const enemigoNombre = enemy.nombre.toLowerCase();
-      let esCounterValido = false;
+      let esCounter = false;
 
-      // Condición A: Mi personaje de la lista tiene al rival en su celda "Fuerte contra"
-      if (hero.fuerteContra.includes(enemigoNombre)) {
-        esCounterValido = true;
-      }
-      // Condición B: El rival que ya está en la mesa tiene a mi personaje en su celda "Débil contra"
-      if (enemy.debilContra.includes(miNombre)) {
-        esCounterValido = true;
-      }
+      // Ida: Si el héroe disponible es fuerte contra el enemigo de la mesa
+      if (hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
+      // Vuelta: Si el enemigo de la mesa es débil contra este héroe disponible
+      if (enemy.debilContra.includes(miNombre)) esCounter = true;
 
-      if (esCounterValido) {
+      if (esCounter) {
         counterScore += 25;
         counterReasons.push(`Fuerte vs ${enemy.nombre}`);
       }
     });
 
-    // 🤝 MOTOR DE SINERGIAS / COMBOS
+    // 🤝 CRUCE BIDIRECCIONAL COMPLETO DE SINERGIAS (5 de ida y 5 de vuelta)
     allies.forEach(allied => {
       const aliadoNombre = allied.nombre.toLowerCase();
+      let tieneSinergia = false;
       
-      if (hero.sinergiaCon.includes(aliadoNombre) || allied.sinergiaCon.includes(miNombre)) {
+      // Ida: Mi héroe disponible hace combo con tu aliado de la mesa
+      if (hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
+      // Vuelta: Tu aliado de la mesa hace combo con este héroe disponible
+      if (allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
+
+      if (tieneSinergia) {
         synergyScore += 25;
         synergyReasons.push(`Combo con ${allied.nombre}`);
       }
@@ -544,11 +568,13 @@ function updateRecommendations(step) {
     }
   });
 
+  // Ordenar de mayor a menor relevancia competitiva
   counterList.sort((a, b) => b.score - a.score);
   synergyList.sort((a, b) => b.score - a.score);
 
+  // Renderizar los 3 mejores Counters
   if (counterList.length === 0) {
-    countersZone.innerHTML = `<div class="empty-state">Sin counters detectados...</div>`;
+    countersZone.innerHTML = `<div class="empty-state">No se detectan counters directos en la base de datos.</div>`;
   } else {
     counterList.slice(0, 3).forEach(item => {
       const row = document.createElement('div');
@@ -559,14 +585,15 @@ function updateRecommendations(step) {
           <div class="rec-row-name">${item.hero.nombre}</div>
           <div class="rec-row-desc" title="${item.desc}">${item.desc}</div>
         </div>
-        <div class="rec-row-badge">+10</div>`;
+        <div class="rec-row-badge">Counter</div>`;
       row.addEventListener('click', () => processSelection(item.hero));
       countersZone.appendChild(row);
     });
   }
 
+  // Renderizar las 3 mejores Sinergias
   if (synergyList.length === 0) {
-    synergiesZone.innerHTML = `<div class="empty-state">Elige sinergias estándar...</div>`;
+    synergiesZone.innerHTML = `<div class="empty-state">No hay sinergias directas registradas para tus picks.</div>`;
   } else {
     synergyList.slice(0, 3).forEach(item => {
       const row = document.createElement('div');
@@ -577,16 +604,14 @@ function updateRecommendations(step) {
           <div class="rec-row-name">${item.hero.nombre}</div>
           <div class="rec-row-desc" title="${item.desc}">${item.desc}</div>
         </div>
-        <div class="rec-row-badge">+10</div>`;
+        <div class="rec-row-badge">Combo</div>`;
       row.addEventListener('click', () => processSelection(item.hero));
       synergiesZone.appendChild(row);
     });
   }
 }
 
-let currentRole = 'all';
-let currentSearch = '';
-
+// Controladores de eventos de la UI
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
