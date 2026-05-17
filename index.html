@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Portal Principal - HoKstats</title>
+<style>
+/* 📊 ESTILOS GLOBALES - COPIADOS EXACTAMENTE DE TU WEB */
+body {
+  background: #1c1c1f;
+  font-family: Arial, sans-serif;
+  color: #a0a0b5;
+  margin: 0;
+  padding: 20px;
+  user-select: none;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-text {
+  font-family: monospace;
+  font-size: 22px;
+  color: white;
+  margin-bottom: 10px;
+  margin-left: 4px;
+  letter-spacing: 1px;
+}
+
+.view-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.view-tab {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #31313c;
+  border: 1px solid #444452;
+  cursor: pointer;
+  color: #a0a0b5;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.view-tab.active {
+  background: #4f6edb;
+  color: white;
+}
+
+/* 📦 ESTRUCTURA DE CAJA PRINCIPAL IDENTICA */
+table.main-layout {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.main-box-cell {
+  background: #31313c;
+  border-radius: 6px;
+  border: 1px solid #1c1c1f;
+  padding: 30px; /* Espaciado interno cómodo para las tarjetas */
+}
+
+.welcome-title {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.welcome-subtitle {
+  color: #7b7a8e;
+  font-size: 14px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* 🎴 GRID DE SELECCIÓN TÁCTICA (4 HERRAMIENTAS) */
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+  gap: 20px; /* Espacio idéntico a las zonas de draft */
+}
+
+/* Tarjetas interactivas con el estilo de HoKstats */
+.hub-card {
+  background: #24242b; /* Fondo oscuro secundario como los bloques internos */
+  border: 2px solid #444452;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: #a0a0b5;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  height: 240px; /* Altura perfecta para albergar la imagen y la info */
+}
+
+/* Efecto hover azulado característico */
+.hub-card:hover {
+  border-color: #4f6edb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(79, 110, 219, 0.15);
+}
+
+/* Contenedor de la foto de la herramienta */
+.card-image-box {
+  height: 140px;
+  background: #1c1c1f;
+  border-bottom: 1px solid #444452;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hub-card:hover .card-image-box img {
+  transform: scale(1.03); /* Suave zoom al pasar el mouse */
+}
+
+/* Contenido de texto inferior */
+.card-info {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.card-title {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: #7b7a8e;
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="logo-text">HoKstats</div>
+    <div class="view-tabs">
+      <a href="index.html" class="view-tab active">General</a> <a href="stats.html" class="view-tab">Estadísticas</a>
+      <a href="counter.html" class="view-tab">Counters</a>
+      <a href="planner.html" class="view-tab">Planner</a>
+      <a href="draft.html" class="view-tab">Draft</a>
+      <a href="acerca.html" class="view-tab">Acerca de</a>
+    </div>
+  </div>
+
+  <table class="main-layout">
+    <tr>
+      <td class="main-box-cell">
+        
+        <div class="welcome-title">Bienvenido a HoKstats</div>
+        <div class="welcome-subtitle">Selecciona la herramienta analítica que deseas utilizar para tu partida</div>
+
+        <div class="hub-grid">
+          
+          <a href="stats.html" class="hub-card">
+            <div class="card-image-box">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=500" alt="Estadísticas">
+            </div>
+            <div class="card-info">
+              <div class="card-title">📊 Tabla de Estadísticas</div>
+              <div class="card-desc">Analiza los porcentajes de victoria (Winrate), popularidad y bloqueos del meta actual.</div>
+            </div>
+          </a>
+
+          <a href="counter.html" class="hub-card">
+            <div class="card-image-box">
+              <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&q=80&w=500" alt="Counters">
+            </div>
+            <div class="card-info">
+              <div class="card-title">⚔️ Matriz de Counters</div>
+              <div class="card-desc">Descubre de forma cruzada qué héroes destrozan o son débiles frente a las elecciones del rival.</div>
+            </div>
+          </a>
+
+          <a href="planner.html" class="hub-card">
+            <div class="card-image-box">
+              <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&q=80&w=500" alt="Map Planner">
+            </div>
+            <div class="card-info">
+              <div class="card-title">🗺️ Map Planner Táctico</div>
+              <div class="card-desc">Dibuja tus estrategias, rutas de la jungla y posicionamiento de objetivos en tiempo real.</div>
+            </div>
+          </a>
+
+          <a href="draft.html" class="hub-card">
+            <div class="card-image-box">
+              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=500" alt="Draft Simulator">
+            </div>
+            <div class="card-info">
+              <div class="card-title">🎭 Simulador de Draft Profesional</div>
+              <div class="card-desc">Simula bloqueos y selecciones competitivas con sugerencias dinámicas de sinergia libres de colisión.</div>
+            </div>
+          </a>
+
+        </div>
+
+      </td>
+    </tr>
+  </table>
+</div>
+
+</body>
+</html>
