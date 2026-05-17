@@ -19,7 +19,6 @@ body {
   margin: auto;
 }
 
-/* 📊 Estructura unificada idéntica a las otras secciones */
 .main-box {
   background: #31313c;
   border-radius: 6px;
@@ -63,7 +62,7 @@ body {
   color: white;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR */
+/* 🛠️ BARRA DE HERRAMIENTAS */
 .planner-toolbar {
   background: #282830;
   padding: 12px 20px;
@@ -121,22 +120,67 @@ body {
   display: inline-block;
 }
 
-/* 🗺️ ÁREA CENTRAL DEL MAPA CANVAS */
-.canvas-container {
+/* 🗺️ ÁREA OPERATIVA DEL MAPA DEFINITIVO */
+.map-viewport {
   position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  background: #18181b;
-  padding: 15px 0;
-  border-bottom: 1px solid #1c1c1f;
-}
-
-canvas {
+  width: 600px;
+  height: 600px;
+  margin: 15px auto;
   background: #222;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  cursor: crosshair;
-  max-width: 100%;
+  overflow: hidden;
+}
+
+.map-background {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* 🎯 ELEMENTOS INTERACTIVOS (Héroes y Flechas Nativas) */
+.placed-hero {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: grab;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.placed-hero img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Contornos premium de bando */
+.placed-hero.aura-blue { border: 3px solid #4f6edb; }
+.placed-hero.aura-red { border: 3px solid #ef4444; }
+
+/* 🏹 Flecha Nativa por CSS (100% Precisa) */
+.vector-arrow {
+  position: absolute;
+  height: 4px;
+  transform-origin: top left;
+  z-index: 5;
+  border-radius: 2px;
+}
+
+/* Punta de la flecha usando pseudo-elemento */
+.vector-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -5px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid currentColor;
 }
 
 /* 📦 CAJÓN INFERIOR DE HÉROES */
@@ -152,7 +196,6 @@ canvas {
   gap: 15px;
 }
 
-/* Filtros de rol unificados */
 .tabs {
   display: flex;
   border: 1px solid #444452;
@@ -188,7 +231,6 @@ canvas {
   outline: none;
 }
 
-/* Rejilla de caritas de héroes */
 .heroes-grid {
   display: flex;
   flex-wrap: wrap;
@@ -205,8 +247,7 @@ canvas {
   width: 42px;
   height: 42px;
   border-radius: 6px;
-  cursor: grab;
-  position: relative;
+  cursor: pointer;
   transition: transform 0.1s ease;
 }
 
@@ -247,7 +288,6 @@ canvas {
       <div class="tool-group">
         <span class="tool-label">Acciones</span>
         <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
-        <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
         <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
       </div>
 
@@ -259,7 +299,7 @@ canvas {
       </div>
 
       <div class="tool-group">
-        <span class="tool-label">Color Trazo</span>
+        <span class="tool-label">Color Flecha</span>
         <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
         <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
         <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
@@ -271,9 +311,9 @@ canvas {
       </div>
     </div>
 
-    <div class="canvas-container">
-      <canvas id="mapCanvas" width="600" height="600"></canvas>
-    </div>
+    <div class="map-viewport" id="mapZone">
+      <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK">
+      </div>
 
     <div class="heroes-drawer">
       <div class="drawer-header">
@@ -301,29 +341,19 @@ canvas {
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
-const canvas = document.getElementById('mapCanvas');
-const ctx = canvas.getContext('2d');
+const mapZone = document.getElementById('mapZone');
 
 let heroesData = [];
-let placedHeroes = [];
-let staticDrawings = [];
+let currentTool = 'move';
+let currentAura = 'none';
+let currentStrokeColor = '#eab308';
 
-// Estados de configuración táctica
-let currentTool = 'move'; 
-let currentAura = 'none'; 
-let currentStrokeColor = '#eab308'; 
-
-// Carga del mapa nativo (Usa 'mapa.png' o reemplaza por un link directo si lo prefieres)
-const mapImg = new Image();
-mapImg.src = 'https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png'; 
-mapImg.onload = () => drawEverything();
-
+// Estado del trazo de vectores
 let isDrawing = false;
-let startX, startY;
-let currentActiveHero = null;
-let currentPreviewArrow = null;
+let startX = 0, startY = 0;
+let activeArrowElement = null;
 
-// Extracción de datos integrada
+// Extracción e integración de datos
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -352,200 +382,137 @@ function renderDrawer(role, query) {
     
     const div = document.createElement('div');
     div.className = 'hero-avatar-item';
-    div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" alt="${hero.nombre}">`;
+    div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
     
+    // Inyectar un nuevo héroe nativo en el centro exacto
     div.addEventListener('click', () => {
-      const imgObj = new Image();
-      imgObj.src = hero.imagen;
-      imgObj.onload = () => {
-        placedHeroes.push({
-          img: imgObj,
-          x: canvas.width / 2,
-          y: canvas.height / 2,
-          radius: 20,
-          aura: currentAura
-        });
-        drawEverything();
-      };
+      createHeroNode(hero.imagen, 300, 300);
     });
     grid.appendChild(div);
   });
 }
 
-function drawEverything() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// 🖐️ Función para generar e interactuar con héroes (HTML Puro)
+function createHeroNode(imgUrl, x, y) {
+  const el = document.createElement('div');
+  el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  el.innerHTML = `<img src="${imgUrl}">`;
   
-  // 1. Capa Fondo: Mapa
-  ctx.drawImage(mapImg, 0, 0, canvas.width, canvas.height);
+  // Agregar soporte para arrastrar (Mouse y Táctil)
+  el.addEventListener('mousedown', (e) => startDrag(e, el));
+  el.addEventListener('touchstart', (e) => startDrag(e, el), {passive: false});
   
-  // 2. Capa Trazos Analíticos Guardados
-  staticDrawings.forEach(d => {
-    ctx.strokeStyle = d.color;
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    if (d.type === 'line') {
-      ctx.beginPath();
-      d.points.forEach((p, idx) => {
-        if (idx === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
-      });
-      ctx.stroke();
-    } else if (d.type === 'arrow') {
-      renderArrowHead(d.x1, d.y1, d.x2, d.y2, d.color);
-    }
-  });
+  mapZone.appendChild(el);
+}
 
-  // Preview en tiempo real al arrastrar la flecha
-  if (currentPreviewArrow) {
-    renderArrowHead(currentPreviewArrow.x1, currentPreviewArrow.y1, currentPreviewArrow.x2, currentPreviewArrow.y2, currentStrokeColor);
+function startDrag(e, element) {
+  if (currentTool !== 'move') return;
+  e.preventDefault();
+  
+  const rect = mapZone.getBoundingClientRect();
+  
+  function moveHandler(evt) {
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
+    
+    // Límites de la caja operativa
+    if(x < 0 || x > 600 || y < 0 || y > 600) {
+      element.remove(); // Se elimina si se arrastra hacia afuera
+      endHandler();
+      return;
+    }
+    
+    element.style.left = `${x}px`;
+    element.style.top = `${y}px`;
   }
   
-  // 3. Capa de Héroes con sus Contornos Tácticos
-  placedHeroes.forEach(hero => {
-    ctx.save();
-    
-    if (hero.aura !== 'none') {
-      ctx.beginPath();
-      ctx.arc(hero.x, hero.y, hero.radius + 3, 0, Math.PI * 2);
-      ctx.fillStyle = hero.aura === 'blue' ? '#4f6edb' : '#ef4444';
-      ctx.fill();
-    }
-    
-    ctx.beginPath();
-    ctx.arc(hero.x, hero.y, hero.radius, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(hero.img, hero.x - hero.radius, hero.y - hero.radius, hero.radius * 2, hero.radius * 2);
-    ctx.restore();
-  });
+  function endHandler() {
+    window.removeEventListener('mousemove', moveHandler);
+    window.removeEventListener('mouseup', endHandler);
+    window.removeEventListener('touchmove', moveHandler);
+    window.removeEventListener('touchend', endHandler);
+  }
+  
+  window.addEventListener('mousemove', moveHandler);
+  window.addEventListener('mouseup', endHandler);
+  window.addEventListener('touchmove', moveHandler, {passive: false});
+  window.addEventListener('touchend', endHandler);
 }
 
-// 🏹 Sistema de renderizado de vectores simétricos corregido
-function renderArrowHead(x1, y1, x2, y2, color) {
-  const headlen = 16; 
-  const angle = Math.atan2(y2 - y1, x2 - y1);
-  
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  
-  ctx.beginPath();
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI * 0.15), y2 - headlen * Math.sin(angle - Math.PI * 0.15));
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - headlen * Math.cos(angle + Math.PI * 0.15), y2 - headlen * Math.sin(angle + Math.PI * 0.15));
-  ctx.stroke();
-}
-
-// 🛠️ Mapeo de coordenadas recalculado con escala visual
-// 🚀 EL FIX DEFINITIVO DE COORDENADAS (Soporta pantallas Retina/4K y Scroll de página)
-function getCoords(e) {
-  const rect = canvas.getBoundingClientRect();
-  
-  // 1. Capturamos la posición exacta del toque o clic en la ventana del navegador
+// 🏹 Sistema de Control de Vectores HTML5/CSS3 (Garantía de precisión de un 100%)
+function getLocalCoords(e) {
+  const rect = mapZone.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  
-  // 2. Calculamos la posición relativa restando los bordes del canvas (¡y sumando el scroll real!)
-  const relativeX = clientX - rect.left;
-  const relativeY = clientY - rect.top;
-  
-  // 3. Multiplicamos por la relación de aspecto real del espacio de dibujo del Canvas
-  const x = relativeX * (canvas.width / rect.width);
-  const y = relativeY * (canvas.height / rect.height);
-  
-  return { x, y };
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top
+  };
 }
 
-function handleStart(e) {
-  const coords = getCoords(e);
+mapZone.addEventListener('mousedown', (e) => {
+  if (currentTool !== 'arrow' || e.target !== mapZone && e.target.className !== 'map-background') return;
+  initArrow(e);
+});
+mapZone.addEventListener('touchstart', (e) => {
+  if (currentTool !== 'arrow' || e.target !== mapZone && e.target.className !== 'map-background') return;
+  initArrow(e);
+}, {passive: false});
+
+function initArrow(e) {
+  isDrawing = true;
+  const coords = getLocalCoords(e);
   startX = coords.x;
   startY = coords.y;
   
-  if (currentTool === 'move') {
-    currentActiveHero = null;
-    for (let i = placedHeroes.length - 1; i >= 0; i--) {
-      const h = placedHeroes[i];
-      const dist = Math.hypot(coords.x - h.x, coords.y - h.y);
-      if (dist <= h.radius) {
-        currentActiveHero = h;
-        currentActiveHero.aura = currentAura;
-        break;
-      }
-    }
-  } else if (currentTool === 'draw') {
-    isDrawing = true;
-    staticDrawings.push({
-      type: 'line',
-      color: currentStrokeColor,
-      points: [{x: startX, y: startY}]
-    });
-  } else if (currentTool === 'arrow') {
-    isDrawing = true;
-    currentPreviewArrow = { x1: startX, y1: startY, x2: startX, y2: startY };
-  }
+  activeArrowElement = document.createElement('div');
+  activeArrowElement.className = 'vector-arrow';
+  activeArrowElement.style.backgroundColor = currentStrokeColor;
+  activeArrowElement.style.color = currentStrokeColor; // Para la punta nativa
+  activeArrowElement.style.left = `${startX}px`;
+  activeArrowElement.style.top = `${startY}px`;
+  
+  mapZone.appendChild(activeArrowElement);
 }
 
-function handleMove(e) {
-  const coords = getCoords(e);
+window.addEventListener('mousemove', (e) => { if (isDrawing) updateArrow(e); });
+window.addEventListener('touchmove', (e) => { if (isDrawing) updateArrow(e); }, {passive: false});
 
-  if (currentTool === 'move' && currentActiveHero) {
-    if (e.cancelable) e.preventDefault();
-    currentActiveHero.x = coords.x;
-    currentActiveHero.y = coords.y;
-    drawEverything();
-  } else if (isDrawing && currentTool === 'draw') {
-    const currentLine = staticDrawings[staticDrawings.length - 1];
-    currentLine.points.push({x: coords.x, y: coords.y});
-    drawEverything();
-  } else if (isDrawing && currentTool === 'arrow') {
-    if (e.cancelable) e.preventDefault();
-    currentPreviewArrow.x2 = coords.x;
-    currentPreviewArrow.y2 = coords.y;
-    drawEverything();
-  }
+function updateArrow(e) {
+  if (!activeArrowElement) return;
+  const coords = getLocalCoords(e);
+  
+  // Forzamos límites internos para la punta operativa
+  const currentX = Math.max(0, Math.min(600, coords.x));
+  const currentY = Math.max(0, Math.min(600, coords.y));
+  
+  const dx = currentX - startX;
+  const dy = currentY - startY;
+  const distance = Math.hypot(dx, dy);
+  const angle = Math.atan2(dy, dx);
+  
+  // Rotación y estiramiento nativo por hardware (CSS3)
+  activeArrowElement.style.width = `${distance}px`;
+  activeArrowElement.style.transform = `rotate(${angle}js)`.replace('js', 'rad');
 }
 
-function handleEnd() {
-  if (currentTool === 'move') {
-    if (currentActiveHero && (currentActiveHero.x < 0 || currentActiveHero.x > canvas.width || currentActiveHero.y < 0 || currentActiveHero.y > canvas.height)) {
-      placedHeroes = placedHeroes.filter(h => h !== currentActiveHero);
-    }
-    currentActiveHero = null;
-  } else if (isDrawing && currentTool === 'arrow' && currentPreviewArrow) {
-    const dist = Math.hypot(currentPreviewArrow.x2 - currentPreviewArrow.x1, currentPreviewArrow.y2 - currentPreviewArrow.y1);
-    if (dist > 5) {
-      staticDrawings.push({
-        type: 'arrow',
-        color: currentStrokeColor,
-        x1: currentPreviewArrow.x1,
-        y1: currentPreviewArrow.y1,
-        x2: currentPreviewArrow.x2,
-        y2: currentPreviewArrow.y2
-      });
-    }
+window.addEventListener('mouseup', () => { if (isDrawing) cleanArrowDraw(); });
+window.addEventListener('touchend', () => { if (isDrawing) cleanArrowDraw(); });
+
+function cleanArrowDraw() {
+  if (activeArrowElement && parseFloat(activeArrowElement.style.width || 0) < 8) {
+    activeArrowElement.remove(); // Borra flechas fantasmas de un solo click
   }
   isDrawing = false;
-  currentPreviewArrow = null;
-  drawEverything();
+  activeArrowElement = null;
 }
 
-// Escucha global en la ventana para máxima precisión de rastreo
-canvas.addEventListener('mousedown', handleStart);
-window.addEventListener('mousemove', handleMove);
-window.addEventListener('mouseup', handleEnd);
-
-canvas.addEventListener('touchstart', handleStart, {passive: false});
-window.addEventListener('touchmove', handleMove, {passive: false});
-window.addEventListener('touchend', handleEnd);
-
-// Controladores de interfaz de la barra de herramientas
+// Controladores estructurales de la botonera
 document.querySelectorAll('.tool-group').forEach(group => {
   group.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn-tool');
@@ -563,17 +530,15 @@ document.querySelectorAll('.tool-group').forEach(group => {
 });
 
 document.getElementById('clear-drawings').addEventListener('click', () => {
-  staticDrawings = [];
-  drawEverything();
+  document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
 });
 
 document.getElementById('clear-all').addEventListener('click', () => {
-  staticDrawings = [];
-  placedHeroes = [];
-  drawEverything();
+  document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
+  document.querySelectorAll('.placed-hero').forEach(el => el.remove());
 });
 
-// Controladores del sistema de filtros e inputs del cajón inferior
+// Controladores del sistema de filtros
 let currentRole = 'all';
 let currentSearch = '';
 
