@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Map Planner - HoKstats</title>
-
+<title>Draft Simulator - HoKstats</title>
 <style>
 body {
   background: #1c1c1f;
@@ -17,14 +16,6 @@ body {
 .container {
   max-width: 1100px;
   margin: auto;
-}
-
-.main-box {
-  background: #31313c;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0;
 }
 
 .top-bar {
@@ -62,187 +53,199 @@ body {
   color: white;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA */
-.planner-toolbar {
+.main-box {
   background: #282830;
-  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid #1c1c1f;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.draft-arena {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.team-side {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pick-slot {
+  background: #31313c;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  border-bottom: 1px solid #1c1c1f;
-  flex-wrap: wrap;
-}
-
-.tool-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tool-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  color: #7b7a8e;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  margin-right: 4px;
-}
-
-.btn-tool {
-  background: #31313c;
-  border: 1px solid #444452;
-  color: #ccc;
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-tool:hover {
-  background: #3a3a46;
-  color: white;
-}
-
-.btn-tool.active {
-  background: #4f6edb;
-  color: white;
-  border-color: #4f6edb;
-}
-
-.btn-tool:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.color-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-/* 🗺️ ÁREA OPERATIVA DEL MAPA */
-.map-viewport {
-  position: relative;
-  width: 600px;
-  height: 600px;
-  margin: 15px auto;
-  background: #222;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  overflow: hidden;
-}
-
-.map-background {
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-}
-
-/* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
-.svg-draw-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.svg-draw-layer.active-drawing {
-  pointer-events: auto;
-}
-
-/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
-.map-viewport.tool-eraser .svg-draw-layer {
-  pointer-events: auto;
-}
-
-.map-viewport.tool-eraser .svg-draw-layer path {
-  cursor: pointer;
-}
-
-.free-path {
-  fill: none;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Modo Goma sobre elementos borrables */
-.map-viewport.tool-eraser .placed-hero,
-.map-viewport.tool-eraser .vector-arrow,
-.map-viewport.tool-eraser .free-path {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
-}
-
-.map-viewport.tool-eraser .placed-hero:hover,
-.map-viewport.tool-eraser .vector-arrow:hover,
-.map-viewport.tool-eraser .free-path:hover {
-  filter: drop-shadow(0 0 8px #ef4444) brightness(1.2);
-  opacity: 0.7;
-}
-
-/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
-.placed-hero {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: grab;
-  transform: translate(-50%, -50%);
-  z-index: 10;
+  height: 60px;
   box-sizing: border-box;
 }
 
-.placed-hero img {
-  width: 100%;
-  height: 100%;
+.pick-slot.active-turn {
+  border-color: #4f6edb;
+  box-shadow: 0 0 8px rgba(79, 110, 219, 0.5);
+}
+
+.pick-slot.active-turn.red-side {
+  border-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.slot-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.slot-name {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.slot-role {
+  font-size: 11px;
+  color: #7b7a8e;
+}
+
+.slot-img {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  display: block;
-  pointer-events: none;
+  background: #1c1c1f;
+  object-fit: cover;
 }
 
-.placed-hero.aura-blue { border: 3px solid #4f6edb; }
-.placed-hero.aura-red { border: 3px solid #ef4444; }
-
-.vector-arrow {
-  position: absolute;
-  height: 4px;
-  transform-origin: top left;
-  z-index: 5;
-  border-radius: 2px;
-  cursor: pointer;
+.center-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.vector-arrow::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: -5px;
-  width: 0;
-  height: 0;
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
-  border-left: 12px solid currentColor;
+.phase-header {
+  background: #1c1c1f;
+  border-radius: 20px;
+  padding: 10px 20px;
+  text-align: center;
 }
 
-/* 📦 CAJÓN INFERIOR DE HÉROES */
-.heroes-drawer {
-  padding: 20px 30px 0 30px;
+.phase-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #7b7a8e;
+  letter-spacing: 1px;
 }
 
-.drawer-header {
+.phase-turn {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.panels-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  min-height: 220px;
+}
+
+.recom-box {
+  background: #1c1c1f;
+  border-radius: 6px;
+  border: 1px solid #31313c;
+  padding: 15px;
+}
+
+.recom-box.counters-box { border-top: 3px solid #ef4444; }
+.recom-box.synergies-box { border-top: 3px solid #22c55e; }
+
+.recom-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.recom-title.red-text { color: #f87171; }
+.recom-title.green-text { color: #4ade80; }
+
+.recom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.recom-item {
+  background: #282830;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recom-item img {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.recom-item .item-details {
+  flex: 1;
+}
+
+.recom-item .item-name {
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.recom-item .item-desc {
+  font-size: 11px;
+  color: #7b7a8e;
+}
+
+.recom-score {
+  font-size: 11px;
+  font-weight: bold;
+  background: #31313c;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.recom-score.plus-red { color: #f87171; }
+.recom-score.plus-green { color: #4ade80; }
+
+.bans-row {
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+  font-weight: bold;
+  color: #7b7a8e;
+  margin-top: 10px;
+}
+
+.pool-box {
+  background: #282830;
+  border-radius: 8px;
+  border: 1px solid #1c1c1f;
+  padding: 15px;
+}
+
+.pool-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-  gap: 15px;
 }
 
 .tabs {
@@ -270,11 +273,11 @@ body {
 }
 
 .search-box input {
-  width: 180px;
+  width: 200px;
   padding: 6px 10px;
   border-radius: 4px;
   border: 1px solid #444452;
-  background: #282830;
+  background: #1c1c1f;
   color: #ccc;
   font-size: 11px;
   outline: none;
@@ -284,462 +287,394 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  max-height: 140px;
+  max-height: 180px;
   overflow-y: auto;
-  background: #282830;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #1c1c1f;
 }
 
-.hero-avatar-item {
-  width: 42px;
-  height: 42px;
+.hero-card {
+  width: 44px;
+  height: 44px;
   border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  position: relative;
 }
 
-.hero-avatar-item:hover {
-  transform: scale(1.1);
-}
-
-.hero-avatar-item img {
+.hero-card img {
   width: 100%;
   height: 100%;
   border-radius: 6px;
   object-fit: cover;
 }
 
-::-webkit-scrollbar { width: 10px; }
+.hero-card.picked {
+  filter: grayscale(1) opacity(0.3);
+  cursor: not-allowed;
+}
+
+.btn-reset {
+  background: #31313c;
+  border: 1px solid #ef4444;
+  color: #f87171;
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+.btn-reset:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.empty-state {
+  font-size: 12px;
+  color: #555566;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
-::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
+::-webkit-scrollbar-thumb { background: #444452; border-radius: 4px; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
-    
     <div class="view-tabs">
       <a href="index.html" class="view-tab">Estadísticas</a>
       <a href="counter.html" class="view-tab">Counters</a>
-      <a href="planner.html" class="view-tab active">Planner</a>
-      <a href="draft.html" class="view-tab">Draft</a>
+      <a href="planner.html" class="view-tab">Planner</a>
+      <a href="draft.html" class="view-tab active">Draft</a>
       <a href="acerca.html" class="view-tab">Acerca de</a>
     </div>
-    
   </div>
 
   <div class="main-box">
+    <button class="btn-reset" id="resetDraft">🔄 Reiniciar Draft</button>
+    <div style="clear:both;"></div>
 
-    <div class="planner-toolbar">
-      <div class="tool-group">
-        <span class="tool-label">Acciones</span>
-        <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
-        <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
-        <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
-        <button class="btn-tool" id="tool-eraser">🧽 Goma</button>
+    <div class="draft-arena">
+      <div class="team-side" id="blue-side">
+        <div class="pick-slot" id="slot-b1"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Azul 1</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-b2"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Azul 2</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-b3"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Azul 3</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-b4"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Azul 4</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-b5"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Azul 5</span></div><div class="slot-img"></div></div>
       </div>
 
-      <div class="tool-group">
-        <span class="tool-label">Historial</span>
-        <button class="btn-tool" id="hist-undo" disabled>↩️ Deshacer</button>
-        <button class="btn-tool" id="hist-redo" disabled>↪️ Rehacer</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Aura de Bando</span>
-        <button class="btn-tool" id="aura-none">⚪ Ninguno</button>
-        <button class="btn-tool" id="aura-blue">🔵 Azul</button>
-        <button class="btn-tool" id="aura-red">🔴 Rojo</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Color Trazo</span>
-        <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
-        <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
-        <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
-      </div>
-
-      <div class="tool-group">
-        <button class="btn-tool" id="clear-all" style="border-color:#ef4444; color:#f87171;">🔄 Reset Todo</button>
-      </div>
-    </div>
-
-    <div class="map-viewport tool-move" id="mapZone">
-      <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK">
-      
-      <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
-    </div>
-
-    <div class="heroes-drawer">
-      <div class="drawer-header">
-        <div class="tabs">
-          <div class="tab active" data-role="all">Todo</div>
-          <div class="tab" data-role="Choque">Choque</div>
-          <div class="tab" data-role="Cazador">Cazador</div>
-          <div class="tab" data-role="Medio">Medio</div>
-          <div class="tab" data-role="Merodeo">Merodeo</div>
-          <div class="tab" data-role="Farmeo">Farmeo</div>
+      <div class="center-panel">
+        <div class="phase-header">
+          <div class="phase-title" id="phaseTitle">Fase de Selección (Pick)</div>
+          <div class="phase-turn" id="phaseTurn">Turno: Pick Azul 1</div>
         </div>
-        <div class="search-box">
-          <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
+
+        <div class="panels-container">
+          <div class="recom-box counters-box">
+            <div class="recom-title red-text">⚔️ COUNTERS (FUERTE VS RIVAL)</div>
+            <div class="recom-list" id="counterRecommendations"></div>
+          </div>
+          <div class="recom-box synergies-box">
+            <div class="recom-title green-text">🤝 SINERGIAS (BUEN COMBO)</div>
+            <div class="recom-list" id="synergyRecommendations"></div>
+          </div>
+        </div>
+
+        <div class="bans-row">
+          <div>BANS AZUL: <span style="color:#ccc">🔒 Configurado</span></div>
+          <div>BANS ROJO: <span style="color:#ccc">🔒 Configurado</span></div>
         </div>
       </div>
 
-      <div class="heroes-grid" id="available-heroes">
-        </div>
+      <div class="team-side" id="red-side">
+        <div class="pick-slot" id="slot-r1"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Rojo 1</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-r2"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Rojo 2</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-r3"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Rojo 3</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-r4"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Rojo 4</span></div><div class="slot-img"></div></div>
+        <div class="pick-slot" id="slot-r5"><div class="slot-info"><span class="slot-name">-</span><span class="slot-role">Rojo 5</span></div><div class="slot-img"></div></div>
+      </div>
     </div>
+  </div>
 
+  <div class="pool-box">
+    <div class="pool-header">
+      <div class="tabs">
+        <div class="tab active" data-role="all">Todo</div>
+        <div class="tab" data-role="Choque">Choque</div>
+        <div class="tab" data-role="Cazador">Cazador</div>
+        <div class="tab" data-role="Medio">Medio</div>
+        <div class="tab" data-role="Merodeo">Merodeo</div>
+        <div class="tab" data-role="Farmeo">Farmeo</div>
+      </div>
+      <div class="search-box">
+        <input type="text" id="poolSearch" placeholder="Buscar héroe...">
+      </div>
+    </div>
+    <div class="heroes-grid" id="poolGrid"></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
+const DATA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
-const mapZone = document.getElementById('mapZone');
-const svgLayer = document.getElementById('svgLayer');
+let heroesDatabase = [];
+let relationsDatabase = [];
 
-let heroesData = [];
-let currentTool = 'move';
-let currentAura = 'none';
-let currentStrokeColor = '#eab308';
+// Orden oficial del Draft de HoK (1-2-2-2-2-1)
+const draftOrder = [
+  { team: 'blue', slot: 'slot-b1', label: 'Pick Azul 1' },
+  { team: 'red',  slot: 'slot-r1', label: 'Pick Rojo 1' },
+  { team: 'red',  slot: 'slot-r2', label: 'Pick Rojo 2' },
+  { team: 'blue', slot: 'slot-b2', label: 'Pick Azul 2' },
+  { team: 'blue', slot: 'slot-b3', label: 'Pick Azul 3' },
+  { team: 'red',  slot: 'slot-r3', label: 'Pick Rojo 3' },
+  { team: 'red',  slot: 'slot-r4', label: 'Pick Rojo 4' },
+  { team: 'blue', slot: 'slot-b4', label: 'Pick Azul 4' },
+  { team: 'blue', slot: 'slot-b5', label: 'Pick Azul 5' },
+  { team: 'red',  slot: 'slot-r5', label: 'Pick Rojo 5' }
+];
 
-// Estado de dibujo general
-let isDrawing = false;
-let startX = 0, startY = 0;
-let activeArrowElement = null;
-let activePathElement = null;
-let currentPathPoints = "";
+let currentStep = 0;
+let selections = {}; 
+let activeRoleFilter = 'all';
+let currentSearchQuery = '';
 
-// 🗃️ MOTOR DE HISTORIAL (Deshacer / Rehacer)
-let undoStack = [];
-let redoStack = [];
-
-function saveState(actionType, element, extraData = null) {
-  undoStack.push({ type: actionType, element: element, extra: extraData });
-  redoStack = []; 
-  updateHistoryButtons();
-}
-
-function updateHistoryButtons() {
-  document.getElementById('hist-undo').disabled = undoStack.length === 0;
-  document.getElementById('hist-redo').disabled = redoStack.length === 0;
-}
-
-// Carga e integración de datos HoKstats
-Papa.parse(CSV_URL, {
+// Carga inicial
+Papa.parse(DATA_CSV, {
   download: true,
   skipEmptyLines: true,
   complete: function(results) {
     const rows = results.data.slice(1);
+    
+    // Guardar base limpia para renders
     rows.forEach(cols => {
       if (!cols[1]) return;
-      heroesData.push({
+      heroesDatabase.push({
         nombre: cols[1].trim(),
         imagen: cols[3] ? cols[3].trim() : "",
         roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim())
       });
-    });
-    heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
-    renderDrawer('all', '');
-  }
-});
-
-function renderDrawer(role, query) {
-  const grid = document.getElementById('available-heroes');
-  grid.innerHTML = '';
-  
-  heroesData.forEach(hero => {
-    if (role !== 'all' && !hero.roles.includes(role)) return;
-    if (query && !hero.nombre.toLowerCase().includes(query)) return;
-    
-    const div = document.createElement('div');
-    div.className = 'hero-avatar-item';
-    div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
-    
-    div.addEventListener('click', () => {
-      createHeroNode(hero.imagen, 300, 300, true);
-    });
-    grid.appendChild(div);
-  });
-}
-
-// 🖐️ Gestión de Héroes
-function createHeroNode(imgUrl, x, y, recordHistory = true) {
-  const el = document.createElement('div');
-  el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
-  el.style.left = `${x}px`;
-  el.style.top = `${y}px`;
-  el.innerHTML = `<img src="${imgUrl}">`;
-  
-  el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
-  el.addEventListener('touchstart', (e) => handleHeroClickOrDrag(e, el), {passive: false});
-  
-  mapZone.appendChild(el);
-  if (recordHistory) saveState('add', el);
-}
-
-function handleHeroClickOrDrag(e, element) {
-  if (currentTool === 'eraser') {
-    saveState('delete', element, { parent: mapZone });
-    element.remove();
-    return;
-  }
-  if (currentTool !== 'move') return;
-  e.preventDefault();
-  
-  const rect = mapZone.getBoundingClientRect();
-  const initialX = element.style.left;
-  const initialY = element.style.top;
-  let hasMoved = false;
-  
-  function moveHandler(evt) {
-    hasMoved = true;
-    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-    
-    let x = clientX - rect.left;
-    let y = clientY - rect.top;
-    
-    if(x < 0 || x > 600 || y < 0 || y > 600) {
-      saveState('delete', element, { parent: mapZone });
-      element.remove();
-      endHandler();
-      return;
-    }
-    
-    element.style.left = `${x}px`;
-    element.style.top = `${y}px`;
-  }
-  
-  function endHandler() {
-    window.removeEventListener('mousemove', moveHandler);
-    window.removeEventListener('mouseup', endHandler);
-    window.removeEventListener('touchmove', moveHandler);
-    window.removeEventListener('touchend', endHandler);
-    
-    if (hasMoved) {
-      saveState('move', element, { fromX: initialX, fromY: initialY, toX: element.style.left, toY: element.style.top });
-    }
-  }
-  
-  window.addEventListener('mousemove', moveHandler);
-  window.addEventListener('mouseup', endHandler);
-  window.addEventListener('touchmove', moveHandler, {passive: false});
-  window.addEventListener('touchend', endHandler);
-}
-
-// 🏹 Captura de Coordenadas Locales
-function getLocalCoords(e) {
-  const rect = mapZone.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
-  };
-}
-
-// Control Operativo del Tablero
-mapZone.addEventListener('mousedown', (e) => { handleStartContainer(e); });
-mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
-
-function handleStartContainer(e) {
-  const isBg = e.target === mapZone || e.target.className === 'map-background' || e.target === svgLayer;
-  
-  // 🧽 LÓGICA DE LA GOMA DE BORRAR CORREGIDA Y REORDENADA
-  if (currentTool === 'eraser' && !isBg) {
-    // 1. Detectar si es un trazo de lápiz SVG
-    if (e.target.classList.contains('free-path')) {
-      saveState('delete', e.target, { parent: svgLayer });
-      e.target.remove();
-      return;
-    }
-    
-    // 2. Detectar si es una flecha HTML
-    const targetEl = e.target.closest('.vector-arrow');
-    if (targetEl) {
-      saveState('delete', targetEl, { parent: targetEl.parentNode });
-      targetEl.remove();
-      return;
-    }
-    return;
-  }
-
-  if (!isBg) return;
-
-  if (currentTool === 'arrow') {
-    isDrawing = true;
-    const coords = getLocalCoords(e);
-    startX = coords.x; startY = coords.y;
-    
-    activeArrowElement = document.createElement('div');
-    activeArrowElement.className = 'vector-arrow';
-    activeArrowElement.style.backgroundColor = currentStrokeColor;
-    activeArrowElement.style.color = currentStrokeColor;
-    activeArrowElement.style.left = `${startX}px`;
-    activeArrowElement.style.top = `${startY}px`;
-    
-    mapZone.appendChild(activeArrowElement);
-  } 
-  else if (currentTool === 'draw') {
-    isDrawing = true;
-    const coords = getLocalCoords(e);
-    startX = coords.x; startY = coords.y;
-    
-    activePathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    activePathElement.setAttribute("class", "free-path");
-    activePathElement.setAttribute("stroke", currentStrokeColor);
-    
-    currentPathPoints = `M ${startX} ${startY}`;
-    activePathElement.setAttribute("d", currentPathPoints);
-    svgLayer.appendChild(activePathElement);
-  }
-}
-
-window.addEventListener('mousemove', (e) => { handleMoveContainer(e); });
-window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passive: false});
-
-function handleMoveContainer(e) {
-  if (!isDrawing) return;
-  const coords = getLocalCoords(e);
-  const currentX = Math.max(0, Math.min(600, coords.x));
-  const currentY = Math.max(0, Math.min(600, coords.y));
-
-  if (currentTool === 'arrow' && activeArrowElement) {
-    if (e.cancelable) e.preventDefault();
-    const dx = currentX - startX;
-    const dy = currentY - startY;
-    const distance = Math.hypot(dx, dy);
-    const angle = Math.atan2(dy, dx);
-    
-    activeArrowElement.style.width = `${distance}px`;
-    activeArrowElement.style.transform = `rotate(${angle}rad)`;
-  } 
-  else if (currentTool === 'draw' && activePathElement) {
-    if (e.cancelable) e.preventDefault();
-    currentPathPoints += ` L ${currentX} ${currentY}`;
-    activePathElement.setAttribute("d", currentPathPoints);
-  }
-}
-
-window.addEventListener('mouseup', () => { handleEndContainer(); });
-window.addEventListener('touchend', () => { handleEndContainer(); });
-
-function handleEndContainer() {
-  if (!isDrawing) return;
-  isDrawing = false;
-
-  if (currentTool === 'arrow' && activeArrowElement) {
-    if (parseFloat(activeArrowElement.style.width || 0) < 8) {
-      activeArrowElement.remove();
-    } else {
-      saveState('add', activeArrowElement);
-    }
-    activeArrowElement = null;
-  }
-  else if (currentTool === 'draw' && activePathElement) {
-    saveState('add', activePathElement);
-    activePathElement = null;
-  }
-}
-
-// ↩️ LÓGICA DE DESHACER Y REHACER (Undo / Redo)
-document.getElementById('hist-undo').addEventListener('click', () => {
-  if (undoStack.length === 0) return;
-  const action = undoStack.pop();
-  redoStack.push(action);
-  
-  if (action.type === 'add') {
-    action.element.remove();
-  } else if (action.type === 'delete') {
-    action.extra.parent.appendChild(action.element);
-  } else if (action.type === 'move') {
-    action.element.style.left = action.extra.fromX;
-    action.element.style.top = action.extra.fromY;
-  }
-  updateHistoryButtons();
-});
-
-document.getElementById('hist-redo').addEventListener('click', () => {
-  if (redoStack.length === 0) return;
-  const action = redoStack.pop();
-  undoStack.push(action);
-  
-  if (action.type === 'add') {
-    if (action.element.classList.contains('free-path')) {
-      svgLayer.appendChild(action.element);
-    } else {
-      mapZone.appendChild(action.element);
-    }
-  } else if (action.type === 'delete') {
-    action.element.remove();
-  } else if (action.type === 'move') {
-    action.element.style.left = action.extra.toX;
-    action.element.style.top = action.extra.toY;
-  }
-  updateHistoryButtons();
-});
-
-// Controladores visuales de la barra de herramientas
-document.querySelectorAll('.tool-group').forEach(group => {
-  group.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-tool');
-    if (!btn || btn.id.startsWith('hist-')) return;
-    
-    btn.parentElement.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    if (btn.id.startsWith('tool-')) {
-      currentTool = btn.id.replace('tool-', '');
-      mapZone.className = `map-viewport tool-${currentTool}`;
       
-      if (currentTool === 'draw') {
-        svgLayer.classList.add('active-drawing');
-      } else {
-        svgLayer.classList.remove('active-drawing');
-      }
-    }
-    if (btn.id.startsWith('aura-')) currentAura = btn.id.replace('aura-', '');
-    if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
-    if (btn.id === 'color-green') currentStrokeColor = '#22c55e';
-    if (btn.id === 'color-white') currentStrokeColor = '#ffffff';
+      // Indexar relaciones mapeadas
+      relationsDatabase.push({
+        nombre: cols[1].trim(),
+        fuertes: cols[11] ? cols[11].split(',').map(s => s.trim().toLowerCase()) : [],
+        debiles: cols[12] ? cols[12].split(',').map(s => s.trim().toLowerCase()) : [],
+        sinergias: cols[13] ? cols[13].split(',').map(s => s.trim().toLowerCase()) : []
+      });
+    });
+
+    heroesDatabase.sort((a,b) => a.nombre.localeCompare(b.nombre));
+    initDraft();
+  }
+});
+
+function initDraft() {
+  currentStep = 0;
+  selections = {};
+  draftOrder.forEach(step => {
+    const slotEl = document.getElementById(step.slot);
+    slotEl.className = 'pick-slot';
+    slotEl.querySelector('.slot-name').innerText = '-';
+    slotEl.querySelector('.slot-img').style.backgroundImage = 'none';
+    slotEl.querySelector('.slot-img').innerHTML = '';
   });
-});
+  renderPool();
+  updateRecommendations();
+}
 
-document.getElementById('clear-all').addEventListener('click', () => {
-  document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
-  document.querySelectorAll('.placed-hero').forEach(el => el.remove());
-  svgLayer.innerHTML = "";
-  undoStack = [];
-  redoStack = [];
-  updateHistoryButtons();
-});
+function renderPool() {
+  const grid = document.getElementById('poolGrid');
+  grid.innerHTML = '';
 
-// Controladores de filtros
-let currentRole = 'all';
-let currentSearch = '';
+  const pickedNames = Object.values(selections).map(h => h.nombre);
 
+  heroesDatabase.forEach(hero => {
+    if (activeRoleFilter !== 'all' && !hero.roles.includes(activeRoleFilter)) return;
+    if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return;
+
+    const card = document.createElement('div');
+    card.className = 'hero-card';
+    
+    const isAlreadyPicked = pickedNames.includes(hero.nombre);
+    if (isAlreadyPicked) card.classList.add('picked');
+
+    card.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
+
+    if (!isAlreadyPicked && currentStep < draftOrder.length) {
+      card.addEventListener('click', () => executePick(hero));
+    }
+    grid.appendChild(card);
+  });
+}
+
+function executePick(hero) {
+  const currentTurn = draftOrder[currentStep];
+  selections[currentTurn.slot] = hero;
+
+  const slotEl = document.getElementById(currentTurn.slot);
+  slotEl.querySelector('.slot-name').innerText = hero.nombre;
+  slotEl.querySelector('.slot-img').innerHTML = `<img src="${hero.imagen}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+
+  currentStep++;
+  renderPool();
+  updateRecommendations();
+}
+
+function verificarRelacion(heroeA, heroeB, tipo) {
+  if (!heroeA || !heroeB) return false;
+  const registro = relationsDatabase.find(r => r.nombre.toLowerCase() === heroeA.nombre.toLowerCase());
+  if (!registro) return false;
+  
+  const objetivo = heroeB.nombre.toLowerCase();
+  if (tipo === 'fuerte') return registro.fuertes.includes(objetivo);
+  if (tipo === 'debil') return registro.debiles.includes(objetivo);
+  if (tipo === 'sinergia') return registro.sinergias.includes(objetivo);
+  return false;
+}
+
+function updateRecommendations() {
+  const counterContainer = document.getElementById('counterRecommendations');
+  const synergyContainer = document.getElementById('synergyRecommendations');
+  
+  counterContainer.innerHTML = '';
+  synergyContainer.innerHTML = '';
+
+  if (currentStep >= draftOrder.length) {
+    document.getElementById('phaseTurn').innerText = "Draft Finalizado";
+    return;
+  }
+
+  const currentTurn = draftOrder[currentStep];
+  
+  // Resaltar visualmente el slot activo
+  draftOrder.forEach(step => document.getElementById(step.slot).classList.remove('active-turn', 'red-side'));
+  const activeSlotEl = document.getElementById(currentTurn.slot);
+  activeSlotEl.classList.add('active-turn');
+  if (currentTurn.team === 'red') activeSlotEl.classList.add('red-side');
+
+  document.getElementById('phaseTurn').innerText = `Turno: ${currentTurn.label}`;
+
+  // Clasificar aliados y enemigos actuales en mesa
+  let allies = [];
+  let enemies = [];
+
+  draftOrder.forEach((step, idx) => {
+    if (idx >= currentStep) return; // Ignorar futuros turnos
+    const heroSelected = selections[step.slot];
+    if (!heroSelected) return;
+
+    if (step.team === currentTurn.team) {
+      allies.push(heroSelected);
+    } else {
+      enemies.push(heroSelected);
+    }
+  });
+
+  const pickedNames = Object.values(selections).map(h => h.nombre);
+  let counterList = [];
+  let synergyList = [];
+
+  // Filtrar héroes disponibles
+  const pool = heroesDatabase.filter(h => !pickedNames.includes(h.nombre));
+
+  pool.forEach(hero => {
+    let counterScore = 0;
+    let synergyScore = 0;
+    let counterReasons = [];
+    let synergyReasons = [];
+
+    // ⚔️ ORIENTACIÓN CORRECTA DE COUNTERS
+    enemies.forEach(enemy => {
+      if (verificarRelacion(hero, enemy, 'fuerte')) {
+        counterScore += 25;
+        counterReasons.push(`Fuerte contra ${enemy.nombre}`);
+      }
+      else if (verificarRelacion(enemy, hero, 'debil')) {
+        counterScore += 25;
+        counterReasons.push(`Fuerte contra ${enemy.nombre}`);
+      }
+    });
+
+    // 🤝 ORIENTACIÓN DE SINERGIAS
+    allies.forEach(allied => {
+      if (verificarRelacion(allied, hero, 'sinergia') || verificarRelacion(hero, allied, 'sinergia')) {
+        synergyScore += 25;
+        synergyReasons.push(`Combo con ${allied.nombre}`);
+      }
+    });
+
+    if (counterScore > 0) {
+      counterList.push({ hero: hero, score: counterScore, desc: counterReasons.join(', ') });
+    }
+    if (synergyScore > 0) {
+      synergyList.push({ hero: hero, score: synergyScore, desc: synergyReasons.join(', ') });
+    }
+  });
+
+  // Ordenar de mayor a menor puntuación
+  counterList.sort((a, b) => b.score - a.score);
+  synergyList.sort((a, b) => b.score - a.score);
+
+  // Pintar recomendaciones de Counters
+  if (counterList.length === 0) {
+    counterContainer.innerHTML = '<div class="empty-state">Esperando elecciones del rival o sin counters específicos...</div>';
+  } else {
+    counterList.slice(0, 4).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'recom-item';
+      div.innerHTML = `
+        <img src="${item.hero.imagen}">
+        <div class="item-details">
+          <div class="item-name">${item.hero.nombre}</div>
+          <div class="item-desc">${item.desc}</div>
+        </div>
+        <div class="recom-score plus-red">+${item.score}</div>
+      `;
+      counterContainer.appendChild(div);
+    });
+  }
+
+  // Pintar recomendaciones de Sinergias
+  if (synergyList.length === 0) {
+    synergyContainer.innerHTML = '<div class="empty-state">Esperando elecciones de tu bando...</div>';
+  } else {
+    synergyList.slice(0, 4).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'recom-item';
+      div.innerHTML = `
+        <img src="${item.hero.imagen}">
+        <div class="item-details">
+          <div class="item-name">${item.hero.nombre}</div>
+          <div class="item-desc">${item.desc}</div>
+        </div>
+        <div class="recom-score plus-green">+${item.score}</div>
+      `;
+      synergyContainer.appendChild(div);
+    });
+  }
+}
+
+// Controladores de eventos para filtros
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    currentRole = tab.dataset.role;
-    renderDrawer(currentRole, currentSearch);
+    activeRoleFilter = tab.dataset.role;
+    renderPool();
   });
 });
 
-document.getElementById('drawerSearch').addEventListener('input', (e) => {
-  currentSearch = e.target.value.toLowerCase().trim();
-  renderDrawer(currentRole, currentSearch);
+document.getElementById('poolSearch').addEventListener('input', (e) => {
+  currentSearchQuery = e.target.value.toLowerCase().trim();
+  renderPool();
 });
-</script>
 
+document.getElementById('resetDraft').addEventListener('click', initDraft);
+</script>
 </body>
 </html>
