@@ -448,14 +448,21 @@ function drawArrow(x1, y1, x2, y2, color) {
 }
 
 // Mecánica interactiva (Ratón y Pantallas Táctiles)
+// 🛠️ FIX DEFINITIVO DE COORDENADAS (Reemplaza la función getCoords entera)
 function getCoords(e) {
   const rect = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: (clientX - rect.left) * (canvas.width / rect.width),
-    y: (clientY - rect.top) * (canvas.height / rect.height)
-  };
+  
+  // Obtenemos la escala real entre el dibujo interno y el tamaño visual en pantalla
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  
+  // Calculamos la posición exacta compensando el scroll y la posición de la caja
+  const x = (clientX - rect.left) * scaleX;
+  const y = (clientY - rect.top) * scaleY;
+  
+  return { x, y };
 }
 
 function handleStart(e) {
