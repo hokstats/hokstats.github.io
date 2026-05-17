@@ -14,24 +14,11 @@ body {
   user-select: none;
 }
 
-.container {
-  max-width: 1200px;
+/* Estructura de Tabla Base para alineación idéntica */
+table.main-layout {
+  width: 1000px;
   margin: auto;
-}
-
-.main-box {
-  background: #31313c;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 20px 0;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
+  border-collapse: collapse;
 }
 
 .logo-text {
@@ -46,6 +33,7 @@ body {
 .view-tabs {
   display: flex;
   gap: 6px;
+  justify-content: flex-end;
 }
 
 .view-tab {
@@ -63,7 +51,14 @@ body {
   color: white;
 }
 
-/* 📊 CONTENEDOR PRINCIPAL DEL SIMULADOR */
+.main-box-cell {
+  background: #31313c;
+  border-radius: 6px;
+  border: 1px solid #1c1c1f;
+  padding: 0 0 20px 0;
+}
+
+/* 📊 ARENA DEL BORRADOR */
 .draft-arena {
   display: flex;
   justify-content: space-between;
@@ -73,15 +68,13 @@ body {
   border-bottom: 1px solid #1c1c1f;
 }
 
-/* Columnas de Equipos */
 .team-side {
-  width: 22%;
+  width: 23%;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Bloques de Héroes Seleccionados (Picks) */
 .pick-slot {
   height: 75px;
   background: #2d2d37;
@@ -109,19 +102,15 @@ body {
 }
 .pick-avatar img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4); }
 
-.pick-info {
-  display: flex;
-  flex-direction: column;
-}
+.pick-info { display: flex; flex-direction: column; }
 .pick-name { color: white; font-weight: bold; font-size: 14px; }
 .pick-role { font-size: 11px; color: #7b7a8e; margin-top: 2px; }
 
-/* Inversión visual para el lado derecho (Rojo) */
 .red-side .pick-slot { flex-direction: row-reverse; text-align: right; }
 
-/* 🧠 PANEL CENTRAL: ASISTENTE RECOMENDADOR */
+/* PANEL CENTRAL */
 .center-panel {
-  width: 52%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -131,198 +120,214 @@ body {
 .status-display {
   text-align: center;
   background: #1c1c1f;
-  padding: 10px 35px;
+  padding: 10px 20px;
   border-radius: 20px;
   border: 1px solid #444452;
-}
-.status-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
-.status-turn { font-size: 18px; font-weight: bold; color: white; margin-top: 3px; }
-
-.recommender-box {
-  width: 100%;
-  background: #31313c;
-  border: 1px solid #4f6edb;
-  border-radius: 6px;
-  margin: 15px 0;
-  padding: 15px;
+  width: 85%;
   box-sizing: border-box;
 }
-.rec-header { color: #4f6edb; font-weight: bold; font-size: 13px; margin-bottom: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;}
+.status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
+.status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-.rec-list {
+/* ASISTENTE RECOMENDADOR SEPARADO */
+.recommender-container {
+  width: 100%;
   display: flex;
-  gap: 15px;
-  justify-content: space-around;
+  gap: 10px;
+  margin: 15px 0;
+  box-sizing: border-box;
 }
-.rec-item {
+
+.recommender-box {
+  flex: 1;
+  background: #31313c;
+  border-radius: 6px;
+  padding: 10px;
+  box-sizing: border-box;
+  min-height: 155px;
+}
+.recommender-box.box-counters { border: 1px solid #dc2626; }
+.recommender-box.box-synergies { border: 1px solid #22c55e; }
+
+.rec-header { font-weight: bold; font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+.box-counters .rec-header { color: #f87171; }
+.box-synergies .rec-header { color: #4ade80; }
+
+.rec-list-vertical { display: flex; flex-direction: column; gap: 6px; }
+
+.rec-row-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
   background: #282830;
-  padding: 8px;
-  border-radius: 6px;
-  width: 28%;
+  padding: 6px 8px;
+  border-radius: 4px;
   border: 1px solid #444452;
   cursor: pointer;
+  gap: 8px;
+  transition: transform 0.1s ease;
 }
-.rec-item:hover { border-color: #4f6edb; background: #2f2f39; }
-.rec-item img { width: 45px; height: 45px; border-radius: 6px; margin-bottom: 5px; }
-.rec-item-name { font-size: 12px; color: white; font-weight: bold; text-align: center; }
-.rec-item-reason { font-size: 10px; color: #22c55e; margin-top: 2px; text-align: center; }
+.rec-row-item:hover { background: #2f2f39; transform: translateX(2px); }
+.box-counters .rec-row-item:hover { border-color: #dc2626; }
+.box-synergies .rec-row-item:hover { border-color: #22c55e; }
 
-/* ZONA DE BANEOS (BLOQUEOS) */
-.bans-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 10px;
-}
-.ban-group { display: flex; gap: 8px; align-items: center; }
+.rec-row-item img { width: 30px; height: 30px; border-radius: 4px; object-fit: cover; }
+.rec-row-text { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
+.rec-row-name { font-size: 12px; color: white; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rec-row-desc { font-size: 10px; color: #a0a0b5; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rec-row-badge { font-size: 10px; font-weight: bold; padding: 2px 4px; border-radius: 3px; }
+.box-counters .rec-row-badge { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+.box-synergies .rec-row-badge { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
+/* BANEOS */
+.bans-container { display: flex; justify-content: space-between; width: 100%; padding: 0 5px; }
+.ban-group { display: flex; gap: 6px; align-items: center; }
 .ban-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #7b7a8e; }
-.ban-slot {
-  width: 38px;
-  height: 38px;
-  background: #1c1c1f;
-  border: 1px dashed #555;
-  border-radius: 4px;
-  overflow: hidden;
-}
+.ban-slot { width: 36px; height: 36px; background: #1c1c1f; border: 1px dashed #555; border-radius: 4px; overflow: hidden; }
 .ban-slot img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(0.6); }
 .blue-side-bans .ban-slot.active-turn { border: 1px solid #0ea5e9; box-shadow: 0 0 6px #0ea5e9; }
 .red-side-bans .ban-slot.active-turn { border: 1px solid #dc2626; box-shadow: 0 0 6px #dc2626; }
 
-/* 📦 CAJÓN INFERIOR SELECCIÓN DE HÉROES */
+/* CAJÓN INFERIOR DE SELECCIÓN */
 .drawer-section { padding: 15px 20px 0 20px; }
 .drawer-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
 .tabs { display: flex; border: 1px solid #444452; border-radius: 4px; overflow: hidden; }
 .tab {
-  padding: 6px 14px; cursor: pointer; background: #31313c; font-size: 11px;
+  padding: 6px 12px; cursor: pointer; background: #31313c; font-size: 11px;
   color: #a0a0b5; font-weight: bold; text-transform: uppercase; border-right: 1px solid #444452;
 }
 .tab:last-child { border-right: none; }
 .tab.active { color: white; background: #4f6edb; }
 .search-box input {
-  width: 180px; padding: 6px 10px; border-radius: 4px; border: 1px solid #444452;
+  width: 160px; padding: 6px 10px; border-radius: 4px; border: 1px solid #444452;
   background: #282830; color: #ccc; font-size: 11px; outline: none;
 }
 
 .heroes-grid {
-  display: flex; flex-wrap: wrap; gap: 10px; max-height: 180px;
+  display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px;
   overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f;
 }
-.hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; position: relative; }
+.hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; }
 .hero-item img { width: 100%; height: 100%; border-radius: 6px; object-fit: cover; }
-.hero-item.disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; }
+.hero-item.disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
-.control-bar {
-  display: flex; justify-content: flex-end; padding: 10px 20px 0 20px;
-}
+.control-bar { display: flex; justify-content: flex-end; padding: 10px 20px 0 20px; }
 </style>
 </head>
 <body>
 
-<div class="container">
-
-  <div class="top-bar">
-    <div class="logo-text">HoKstats</div>
-    <div class="view-tabs">
-      <a href="index.html" class="view-tab">Estadísticas</a>
-      <a href="counter.html" class="view-tab">Counters</a>
-      <a href="planner.html" class="view-tab">Planner</a>
-      <a href="draft.html" class="view-tab active">Draft</a>
-      <a href="acerca.html" class="view-tab">Acerca de</a>
-    </div>
-  </div>
-
-  <div class="main-box">
-
-    <div class="draft-arena">
+<table class="main-layout">
+  <tr>
+    <td>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+        <tr>
+          <td class="logo-text">HoKstats</td>
+          <td class="view-tabs">
+            <a href="index.html" class="view-tab">Estadísticas</a>
+            <a href="counter.html" class="view-tab">Counters</a>
+            <a href="planner.html" class="view-tab">Planner</a>
+            <a href="draft.html" class="view-tab active">Draft</a>
+            <a href="acerca.html" class="view-tab">Acerca de</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td class="main-box-cell">
       
-      <div class="team-side blue-side" id="blue-picks">
-        <div class="pick-slot" id="blue-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
-        <div class="pick-slot" id="blue-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
-        <div class="pick-slot" id="blue-p3"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 3</div></div></div>
-        <div class="pick-slot" id="blue-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
-        <div class="pick-slot" id="blue-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
-      </div>
-
-      <div class="center-panel">
+      <div class="draft-arena">
         
-        <div class="status-display">
-          <div class="status-title" id="phase-label">Fase de Bloqueo</div>
-          <div class="status-turn" id="turn-label">Turno del Equipo Azul</div>
+        <div class="team-side blue-side" id="blue-picks">
+          <div class="pick-slot" id="blue-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
+          <div class="pick-slot" id="blue-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
+          <div class="pick-slot" id="blue-p3"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 3</div></div></div>
+          <div class="pick-slot" id="blue-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
+          <div class="pick-slot" id="blue-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
         </div>
 
-        <div class="recommender-box">
-          <div class="rec-header">💡 Sugerencias del Asistente High Elo</div>
-          <div class="rec-list" id="recommendation-zone">
-            <div style="font-size:12px; color:#7b7a8e; text-align:center; width:100%; padding:10px;">
-              Las recomendaciones aparecerán cuando comience la fase de Picks.
+        <div class="center-panel">
+          
+          <div class="status-display">
+            <div class="status-title" id="phase-label">Fase de Bloqueo</div>
+            <div class="status-turn" id="turn-label">Turno del Equipo Azul</div>
+          </div>
+
+          <div class="recommender-container" id="rec-container-box">
+            
+            <div class="recommender-box box-counters">
+              <div class="rec-header">⚔️ Counters (Fuerte vs Rival)</div>
+              <div class="rec-list-vertical" id="counters-zone"></div>
+            </div>
+
+            <div class="recommender-box box-synergies">
+              <div class="rec-header">🤝 Sinergias (Buen Combo)</div>
+              <div class="rec-list-vertical" id="synergies-zone"></div>
+            </div>
+
+          </div>
+
+          <div class="bans-container">
+            <div class="ban-group blue-side-bans">
+              <span class="ban-label">Bans Azul:</span>
+              <div class="ban-slot" id="blue-b1"></div>
+              <div class="ban-slot" id="blue-b2"></div>
+              <div class="ban-slot" id="blue-b3"></div>
+            </div>
+            <div class="ban-group red-side-bans">
+              <span class="ban-label">Bans Rojo:</span>
+              <div class="ban-slot" id="red-b1"></div>
+              <div class="ban-slot" id="red-b2"></div>
+              <div class="ban-slot" id="red-b3"></div>
             </div>
           </div>
+
         </div>
 
-        <div class="bans-container">
-          <div class="ban-group blue-side-bans">
-            <span class="ban-label">Bans Azul:</span>
-            <div class="ban-slot" id="blue-b1"></div>
-            <div class="ban-slot" id="blue-b2"></div>
-            <div class="ban-slot" id="blue-b3"></div>
+        <div class="team-side red-side" id="red-picks">
+          <div class="pick-slot" id="red-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
+          <div class="pick-slot" id="red-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
+          <div class="pick-slot" id="red-p3"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 3</div></div></div>
+          <div class="pick-slot" id="red-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
+          <div class="pick-slot" id="red-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
+        </div>
+
+      </div>
+
+      <div class="control-bar">
+        <button class="view-tab" id="reset-draft" style="border-color:#ef4444; color:#f87171; border-radius:4px;">🔄 Reiniciar Draft</button>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-header">
+          <div class="tabs">
+            <div class="tab active" data-role="all">Todo</div>
+            <div class="tab" data-role="Choque">Choque</div>
+            <div class="tab" data-role="Cazador">Cazador</div>
+            <div class="tab" data-role="Medio">Medio</div>
+            <div class="tab" data-role="Merodeo">Merodeo</div>
+            <div class="tab" data-role="Farmeo">Farmeo</div>
           </div>
-          <div class="ban-group red-side-bans">
-            <span class="ban-label">Bans Rojo:</span>
-            <div class="ban-slot" id="red-b1"></div>
-            <div class="ban-slot" id="red-b2"></div>
-            <div class="ban-slot" id="red-b3"></div>
+          <div class="search-box">
+            <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
           </div>
         </div>
 
+        <div class="heroes-grid" id="available-heroes"></div>
       </div>
 
-      <div class="team-side red-side" id="red-picks">
-        <div class="pick-slot" id="red-p1"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 1</div></div></div>
-        <div class="pick-slot" id="red-p2"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 2</div></div></div>
-        <div class="pick-slot" id="red-p3"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 3</div></div></div>
-        <div class="pick-slot" id="red-p4"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 4</div></div></div>
-        <div class="pick-slot" id="red-p5"><div class="pick-avatar"></div><div class="pick-info"><div class="pick-name">-</div><div class="pick-role">Pick 5</div></div></div>
-      </div>
-
-    </div>
-
-    <div class="control-bar">
-      <button class="view-tab" id="reset-draft" style="border-color:#ef4444; color:#f87171; border-radius:4px;">🔄 Reiniciar Draft</button>
-    </div>
-
-    <div class="drawer-section">
-      <div class="drawer-header">
-        <div class="tabs">
-          <div class="tab active" data-role="all">Todo</div>
-          <div class="tab" data-role="Choque">Choque</div>
-          <div class="tab" data-role="Cazador">Cazador</div>
-          <div class="tab" data-role="Medio">Medio</div>
-          <div class="tab" data-role="Merodeo">Merodeo</div>
-          <div class="tab" data-role="Farmeo">Farmeo</div>
-        </div>
-        <div class="search-box">
-          <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
-        </div>
-      </div>
-
-      <div class="heroes-grid" id="available-heroes">
-        </div>
-    </div>
-
-  </div>
-</div>
+    </td>
+  </tr>
+</table>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 let heroesData = [];
-let selectedHeroes = new Set(); // Héroes ya elegidos o baneados
+let selectedHeroes = new Set(); 
+let blueTeamPicks = [];
+let redTeamPicks = [];
 
-// 📋 ORDEN ESTRICTO DE TURNOS DE DRAFT (Picks y Bans Competitivos de HoK)
 const DRAFT_SEQUENCE = [
   { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
   { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
@@ -345,7 +350,26 @@ const DRAFT_SEQUENCE = [
 
 let currentStepIndex = 0;
 
-// Cargar CSV
+// Relaciones estáticas provisionales (Cruces de Fuertes y Débiles)
+function obtenerCountersDe(nombreHeroe) {
+  const relaciones = {
+    'Hou Yi': ['Li Bai', 'Lian Po'],
+    'Marco Polo': ['Gongsun Li'],
+    'Li Bai': ['Donghuang Taiyi', 'Arli'],
+    'Guan Yu': ['Lian Po', 'Guo Jia']
+  };
+  return relaciones[nombreHeroe] || [];
+}
+
+function obtenerSinergiasDe(nombreHeroe) {
+  const relaciones = {
+    'Guo Jia': ['Lian Po', 'Allain'],
+    'Gongsun Li': ['Yaria', 'Zhuang Zhou'],
+    'Marco Polo': ['Yaria', 'Sun Bin']
+  };
+  return relaciones[nombreHeroe] || [];
+}
+
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -366,13 +390,21 @@ Papa.parse(CSV_URL, {
 
 function initDraft() {
   selectedHeroes.clear();
+  blueTeamPicks = [];
+  redTeamPicks = [];
   currentStepIndex = 0;
   
-  // Limpiar DOM de selecciones antiguas
   document.querySelectorAll('.pick-avatar').forEach(el => el.innerHTML = '');
   document.querySelectorAll('.pick-name').forEach(el => el.innerText = '-');
   document.querySelectorAll('.ban-slot').forEach(el => el.innerHTML = '');
   
+  DRAFT_SEQUENCE.forEach(step => {
+    if(step.type === 'pick') {
+      const slotEl = document.getElementById(step.slotId);
+      if(slotEl) slotEl.querySelector('.pick-role').innerText = step.label.replace('Pick ', '');
+    }
+  });
+
   renderDrawer('all', '');
   highlightActiveSlot();
 }
@@ -390,65 +422,54 @@ function renderDrawer(role, query) {
     if (selectedHeroes.has(hero.nombre)) div.classList.add('disabled');
     
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
-    
     div.addEventListener('click', () => {
-      if (!selectedHeroes.has(hero.nombre)) {
-        processSelection(hero);
-      }
+      if (!selectedHeroes.has(hero.nombre)) processSelection(hero);
     });
     grid.appendChild(div);
   });
 }
 
 function highlightActiveSlot() {
-  // Quitar clases activas de todos lados
   document.querySelectorAll('.pick-slot, .ban-slot').forEach(el => el.classList.remove('active-turn'));
-  
+  const containerBox = document.getElementById('rec-container-box');
+
   if (currentStepIndex >= DRAFT_SEQUENCE.length) {
     document.getElementById('phase-label').innerText = "Draft Finalizado";
     document.getElementById('turn-label').innerText = "Composiciones Listas";
-    document.getElementById('recommendation-zone').innerHTML = `<div style="color:#22c55e; font-size:13px; font-weight:bold;">¡Draft completado con éxito!</div>`;
+    containerBox.innerHTML = `<div style="color:#22c55e; font-size:13px; font-weight:bold; text-align:center; width:100%; padding:20px; background:#1c1c1f; border-radius:6px;">¡Draft completado con éxito!</div>`;
     return;
   }
   
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
-  
-  // Actualizar paneles superiores
   document.getElementById('phase-label').innerText = currentStep.type === 'ban' ? "Fase de Bloqueo (Ban)" : "Fase de Selección (Pick)";
   document.getElementById('turn-label').innerText = `Turno: ${currentStep.label}`;
   
-  // Iluminar ranura correspondiente
   const activeSlot = document.getElementById(currentStep.slotId);
   if (activeSlot) activeSlot.classList.add('active-turn');
   
-  // Actualizar Recomendador si estamos en fase de pick
-  if (currentStep.type === 'pick') {
+  if (currentStep.type === 'ban') {
+    containerBox.style.display = "none"; 
+  } else {
+    containerBox.style.display = "flex"; 
     updateRecommendations(currentStep);
   }
 }
 
 function processSelection(hero) {
   if (currentStepIndex >= DRAFT_SEQUENCE.length) return;
-  
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   selectedHeroes.add(hero.nombre);
-  
   const slotEl = document.getElementById(currentStep.slotId);
   
   if (currentStep.type === 'ban') {
-    // Es un baneo
     slotEl.innerHTML = `<img src="${hero.imagen}">`;
   } else {
-    // Es un pick
-    const avatarBox = slotEl.querySelector('.pick-avatar');
-    const nameBox = slotEl.querySelector('.pick-name');
-    
-    avatarBox.innerHTML = `<img src="${hero.imagen}">`;
-    nameBox.innerText = hero.nombre;
-    
-    // Mapear el rol del héroe (si tiene múltiples, mostrar combinados por ahora)
-    const roleBox = slotEl.querySelector('.pick-role');
-    roleBox.innerText = hero.roles.join(' / ');
+    if (currentStep.team === 'blue') blueTeamPicks.push(hero);
+    else redTeamPicks.push(hero);
+
+    slotEl.querySelector('.pick-avatar').innerHTML = `<img src="${hero.imagen}">`;
+    slotEl.querySelector('.pick-name').innerText = hero.nombre;
+    slotEl.querySelector('.pick-role').innerText = hero.roles.join(' / ');
   }
   
   currentStepIndex++;
@@ -456,40 +477,125 @@ function processSelection(hero) {
   highlightActiveSlot();
 }
 
-// 🧠 LOGICA PROVISIONAL DEL RECOMENDADOR (Estructura de puntos futura)
 function updateRecommendations(step) {
-  const zone = document.getElementById('recommendation-zone');
-  zone.innerHTML = ''; // Limpiar
+  const container = document.getElementById('rec-container-box');
   
-  // Filtrar héroes no seleccionados
+  if (blueTeamPicks.length === 0 && redTeamPicks.length === 0) {
+    container.style.display = "block";
+    container.innerHTML = `
+      <div style="font-size:12px; color:#a0a0b5; text-align:center; width:100%; padding:15px; background:#31313c; border-radius:6px; border:1px dashed #4f6edb; line-height:1.4;">
+        <span style="color:#eab308; font-weight:bold;">✨ Primer Pick Libre:</span><br>
+        Asegura un <strong>Flex Pick</strong> versátil o un héroe prioritario de Tier S para ocultar tu composición.
+      </div>`;
+    return;
+  } else {
+    if (container.querySelector('.box-counters') === null) {
+      container.innerHTML = `
+        <div class="recommender-box box-counters">
+          <div class="rec-header">⚔️ Counters (Fuerte vs Rival)</div>
+          <div class="rec-list-vertical" id="counters-zone"></div>
+        </div>
+        <div class="recommender-box box-synergies">
+          <div class="rec-header">🤝 Sinergias (Buen Combo)</div>
+          <div class="rec-list-vertical" id="synergies-zone"></div>
+        </div>`;
+    }
+  }
+
+  const countersZone = document.getElementById('counters-zone');
+  const synergiesZone = document.getElementById('synergies-zone');
+  countersZone.innerHTML = '';
+  synergiesZone.innerHTML = '';
+
+  const allies = (step.team === 'blue') ? blueTeamPicks : redTeamPicks;
+  const enemies = (step.team === 'blue') ? redTeamPicks : blueTeamPicks;
+
+  let alliedRolesCovered = new Set();
+  allies.forEach(h => { if (h.roles.length === 1) alliedRolesCovered.add(h.roles[0]); });
+
   let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
-  
-  // Tomamos 3 héroes de prueba para poblar visualmente el diseño
-  let muestra = pool.slice(0, 3);
-  
-  muestra.forEach((hero, index) => {
-    const item = document.createElement('div');
-    item.className = 'rec-item';
-    
-    // Aquí simularemos un puntaje de sinergia ficticio para la maqueta
-    let score = 95 - (index * 4);
-    let tagText = hero.roles.length > 1 ? "🔥 Buen Flex Pick" : "⚔️ Counter Pick";
-    
-    item.innerHTML = `
-      <img src="${hero.imagen}">
-      <div class="rec-item-name">${hero.nombre}</div>
-      <div class="rec-item-reason">${tagText} (${score}%)</div>
-    `;
-    
-    item.addEventListener('click', () => {
-      processSelection(hero);
+  let counterList = [];
+  let synergyList = [];
+
+  pool.forEach(hero => {
+    if (hero.roles.length === 1 && alliedRolesCovered.has(hero.roles[0])) return;
+
+    let counterScore = 0;
+    let synergyScore = 0;
+    let counterReason = "";
+    let synergyReason = "";
+
+    enemies.forEach(enemy => {
+      let countersDelEnemigo = obtenerCountersDe(enemy.nombre);
+      if (countersDelEnemigo.includes(hero.nombre)) {
+        counterScore += 25;
+        counterReason = `Fuerte contra ${enemy.nombre}`;
+      }
+      if (hero.roles.includes('Cazador') && enemy.roles.includes('Farmeo') && counterScore === 0) {
+        counterScore += 10;
+        counterReason = `Presión a línea de Farmeo`;
+      }
     });
-    
-    zone.appendChild(item);
+
+    allies.forEach(allied => {
+      let sinergiasDelAliado = obtenerSinergiasDe(allied.nombre);
+      if (sinergiasDelAliado.includes(hero.nombre)) {
+        synergyScore += 25;
+        synergyReason = `Excelente con ${allied.nombre}`;
+      }
+      if (hero.roles.includes('Merodeo') && allied.roles.includes('Farmeo') && synergyScore === 0) {
+        synergyScore += 10;
+        synergyReason = `Soporte de línea clásico`;
+      }
+    });
+
+    if (counterScore > 0) counterList.push({ hero: hero, score: counterScore, desc: counterReason });
+    if (synergyScore > 0) synergyList.push({ hero: hero, score: synergyScore, desc: synergyReason });
   });
+
+  counterList.sort((a, b) => b.score - a.score);
+  synergyList.sort((a, b) => b.score - a.score);
+
+  const finalCounters = counterList.slice(0, 3);
+  const finalSynergies = synergyList.slice(0, 3);
+
+  if (finalCounters.length === 0) {
+    countersZone.innerHTML = `<div style="font-size:11px; color:#7b7a8e; padding:5px;">No hay counters claros...</div>`;
+  } else {
+    finalCounters.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'rec-row-item';
+      row.innerHTML = `
+        <img src="${item.hero.imagen}">
+        <div class="rec-row-text">
+          <div class="rec-row-name">${item.hero.nombre}</div>
+          <div class="rec-row-desc">${item.desc}</div>
+        </div>
+        <div class="rec-row-badge">+${item.score}</div>`;
+      row.addEventListener('click', () => processSelection(item.hero));
+      countersZone.appendChild(row);
+    });
+  }
+
+  if (finalSynergies.length === 0) {
+    synergiesZone.innerHTML = `<div style="font-size:11px; color:#7b7a8e; padding:5px;">Esperando elecciones...</div>`;
+  } else {
+    finalSynergies.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'rec-row-item';
+      row.innerHTML = `
+        <img src="${item.hero.imagen}">
+        <div class="rec-row-text">
+          <div class="rec-row-name">${item.hero.nombre}</div>
+          <div class="rec-row-desc">${item.desc}</div>
+        </div>
+        <div class="rec-row-badge">+${item.score}</div>`;
+      row.addEventListener('click', () => processSelection(item.hero));
+      synergiesZone.appendChild(row);
+    });
+  }
 }
 
-// Controladores de filtros inferiores
 let currentRole = 'all';
 let currentSearch = '';
 
