@@ -296,6 +296,26 @@ table.main-layout {
 .control-bar { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 20px 0 20px; display: none; }
 .empty-state { font-size: 11px; color: #7b7a8e; padding: 5px; text-align: center; width: 100%; margin: auto; }
 
+/* 🔄 BOTÓN ESTILIZADO DE RECARGA DE HÉROES */
+.btn-refresh-heroes {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #a0a0b5;
+  transition: all 0.2s ease;
+}
+.btn-refresh-heroes:hover {
+  border-color: #4f6edb;
+  color: white;
+  background: #2b2b35;
+}
+.btn-refresh-heroes:active {
+  background: #1c1c1f;
+}
+
 /* MANEJO DE SCROLLBARS */
 .rec-list-vertical::-webkit-scrollbar, .heroes-grid::-webkit-scrollbar { width: 6px; }
 .rec-list-vertical::-webkit-scrollbar-track, .heroes-grid::-webkit-scrollbar-track { background: transparent; }
@@ -381,6 +401,7 @@ table.main-layout {
         </div>
 
         <div class="control-bar" id="control-box">
+          <button type="button" class="btn-refresh-heroes" id="refresh-heroes-action">🔄 Actualizar héroes en caso de que no se muestren</button>
           <button class="view-tab" id="undo-action" style="border-color:#eab308; color:#facc15; border-radius:4px; font-weight:bold;">↩️ Deshacer Último Cambio</button>
           <button class="view-tab" id="reset-draft" style="border-color:#ef4444; color:#f87171; border-radius:4px;">🔄 Cambiar de Bando / Reset</button>
         </div>
@@ -442,35 +463,46 @@ let currentStepIndex = 0;
 let currentRole = 'all';
 let currentSearch = '';
 
-Papa.parse(CSV_URL, {
-  download: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    const rows = results.data.slice(1);
-    rows.forEach(cols => {
-      if (!cols[1]) return;
-      
-      let fuertesNames = [cols[26], cols[29], cols[32], cols[35], cols[38], cols[41]]
-        .filter(Boolean).map(n => n.trim().toLowerCase());
+// Encapsulamos la lógica de carga en una función reusable
+function ejecutarParseCSV() {
+  heroesData = []; // Limpiamos para evitar duplicados
+  Papa.parse(CSV_URL, {
+    download: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      const rows = results.data.slice(1);
+      rows.forEach(cols => {
+        if (!cols[1]) return;
         
-      let debilesNames = [cols[44], cols[47], cols[50], cols[53], cols[54], cols[59]]
-        .filter(Boolean).map(n => n.trim().toLowerCase());
-        
-      let sinergiasNames = [cols[11], cols[14], cols[17], cols[20], cols[23]]
-        .filter(Boolean).map(n => n.trim().toLowerCase());
+        let fuertesNames = [cols[26], cols[29], cols[32], cols[35], cols[38], cols[41]]
+          .filter(Boolean).map(n => n.trim().toLowerCase());
+          
+        let debilesNames = [cols[44], cols[47], cols[50], cols[53], cols[54], cols[59]]
+          .filter(Boolean).map(n => n.trim().toLowerCase());
+          
+        let sinergiasNames = [cols[11], cols[14], cols[17], cols[20], cols[23]]
+          .filter(Boolean).map(n => n.trim().toLowerCase());
 
-      heroesData.push({
-        nombre: cols[1].trim(),
-        imagen: cols[3] ? cols[3].trim() : "",
-        roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
-        fuerteContra: fuertesNames, 
-        debilContra: debilesNames,
-        sinergiaCon: sinergiasNames
+        heroesData.push({
+          nombre: cols[1].trim(),
+          imagen: cols[3] ? cols[3].trim() : "",
+          roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
+          fuerteContra: fuertesNames, 
+          debilContra: debilesNames,
+          sinergiaCon: sinergiasNames
+        });
       });
-    });
-    heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
-  }
-});
+      heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
+      
+      // Forzar repintado tras la descarga exitosa
+      renderDrawer(currentRole, currentSearch);
+      updateRecommendations();
+    }
+  });
+}
+
+// Primera ejecución al cargar la app
+ejecutarParseCSV();
 
 function selectUserSide(side) {
   userSide = side;
@@ -498,6 +530,7 @@ function initDraft() {
 
 function renderDrawer(role, query) {
   const grid = document.getElementById('available-heroes');
+  if (!grid) return;
   grid.innerHTML = '';
   
   heroesData.forEach(hero => {
@@ -602,17 +635,12 @@ function undoLastAction() {
 function checkCompositionConflict(recHero, allies) {
   if (allies.length === 0) return false;
   
-  // Lista de los 5 roles base del juego
   const allGameRoles = ['Choque', 'Cazador', 'Medio', 'Merodeo', 'Farmeo'];
-  
-  // Creamos un arreglo con los sets de roles de todos los integrantes (incluyendo la sugerencia)
   let virtualTeam = allies.map(h => h.roles);
   virtualTeam.push(recHero.roles);
   
-  // Si con la sugerencia ya sumamos más de 5 campeones, es imposible mapear líneas únicas de por sí
   if (virtualTeam.length > 5) return true;
 
-  // Algoritmo de emparejamiento por fuerza bruta / backtracking para comprobar si hay alguna combinación válida de roles únicos para el equipo
   function canAssignUnique(index, assignedRoles) {
     if (index === virtualTeam.length) return true;
     
@@ -632,7 +660,6 @@ function checkCompositionConflict(recHero, allies) {
   let testSet = new Set();
   let hasValidComposition = canAssignUnique(0, testSet);
 
-  // Si NO existe NINGUNA forma válida de acomodar los roles únicos, significa que el rol del sugerido está 100% colapsado
   return !hasValidComposition;
 }
 
@@ -640,6 +667,8 @@ function updateRecommendations() {
   const containerBox = document.getElementById('rec-container-box');
   const countersZone = document.getElementById('counters-zone');
   const synergiesZone = document.getElementById('synergies-zone');
+
+  if (!countersZone || !synergiesZone) return;
 
   countersZone.innerHTML = '';
   synergiesZone.innerHTML = '';
@@ -723,7 +752,6 @@ function updateRecommendations() {
         iconCard.classList.add('disabled-click');
       }
 
-      // 🛠️ VALIDACIÓN REVISADA MEDIANTE ALGORITMO BACKTRACKING COMPLETO
       const isRoleConflict = checkCompositionConflict(recHero, allies);
       if (isRoleConflict) {
         iconCard.classList.add('role-covered');
@@ -771,7 +799,6 @@ function updateRecommendations() {
         iconCard.classList.add('disabled-click');
       }
 
-      // 🛠️ VALIDACIÓN REVISADA MEDIANTE ALGORITMO BACKTRACKING COMPLETO
       const isRoleConflict = checkCompositionConflict(recHero, allies);
       if (isRoleConflict) {
         iconCard.classList.add('role-covered');
@@ -814,6 +841,12 @@ document.getElementById('reset-draft').addEventListener('click', () => {
   document.getElementById('arena-box').style.display = 'none';
   document.getElementById('control-box').style.display = 'none';
   document.getElementById('drawer-box').style.display = 'none';
+});
+
+// Vinculamos la acción al nuevo botón de actualización
+document.getElementById('refresh-heroes-action').addEventListener('click', () => {
+  console.log("Forzando recarga manual de la base de datos de héroes...");
+  ejecutarParseCSV();
 });
 </script>
 </body>
