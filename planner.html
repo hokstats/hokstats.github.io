@@ -62,7 +62,7 @@ body {
   color: white;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS */
+/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA */
 .planner-toolbar {
   background: #282830;
   padding: 12px 20px;
@@ -113,6 +113,11 @@ body {
   border-color: #4f6edb;
 }
 
+.btn-tool:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .color-dot {
   width: 12px;
   height: 12px;
@@ -120,7 +125,7 @@ body {
   display: inline-block;
 }
 
-/* 🗺️ ÁREA OPERATIVA DEL MAPA DEFINITIVO */
+/* 🗺️ ÁREA OPERATIVA DEL MAPA */
 .map-viewport {
   position: relative;
   width: 600px;
@@ -138,7 +143,43 @@ body {
   pointer-events: none;
 }
 
-/* 🎯 ELEMENTOS INTERACTIVOS (Héroes y Flechas Nativas) */
+/* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
+.svg-draw-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none; /* Dejamos que los clics pasen a través excepto cuando dibujamos */
+}
+
+.svg-draw-layer.active-drawing {
+  pointer-events: auto; /* Se activa al usar el lápiz */
+}
+
+.free-path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  cursor: pointer;
+}
+
+/* Modo Goma sobre elementos borrables */
+.map-viewport.tool-eraser .placed-hero,
+.map-viewport.tool-eraser .vector-arrow,
+.map-viewport.tool-eraser .free-path {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
+}
+.map-viewport.tool-eraser .placed-hero:hover,
+.map-viewport.tool-eraser .vector-arrow:hover,
+.map-viewport.tool-eraser .free-path:hover {
+  filter: drop-shadow(0 0 8px #ef4444) brightness(1.2);
+  opacity: 0.7;
+}
+
+/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
 .placed-hero {
   position: absolute;
   width: 40px;
@@ -155,22 +196,21 @@ body {
   height: 100%;
   border-radius: 50%;
   display: block;
+  pointer-events: none;
 }
 
-/* Contornos premium de bando */
 .placed-hero.aura-blue { border: 3px solid #4f6edb; }
 .placed-hero.aura-red { border: 3px solid #ef4444; }
 
-/* 🏹 Flecha Nativa por CSS (100% Precisa) */
 .vector-arrow {
   position: absolute;
   height: 4px;
   transform-origin: top left;
   z-index: 5;
   border-radius: 2px;
+  cursor: pointer;
 }
 
-/* Punta de la flecha usando pseudo-elemento */
 .vector-arrow::after {
   content: '';
   position: absolute;
@@ -288,7 +328,15 @@ body {
       <div class="tool-group">
         <span class="tool-label">Acciones</span>
         <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
+        <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
         <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
+        <button class="btn-tool" id="tool-eraser">🧽 Goma</button>
+      </div>
+
+      <div class="tool-group">
+        <span class="tool-label">Historial</span>
+        <button class="btn-tool" id="hist-undo" disabled>↩️ Deshacer</button>
+        <button class="btn-tool" id="hist-redo" disabled>↪️ Rehacer</button>
       </div>
 
       <div class="tool-group">
@@ -299,21 +347,22 @@ body {
       </div>
 
       <div class="tool-group">
-        <span class="tool-label">Color Flecha</span>
+        <span class="tool-label">Color Trazo</span>
         <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
         <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
         <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
       </div>
 
       <div class="tool-group">
-        <button class="btn-tool" id="clear-drawings" style="border-color:#ef4444; color:#f87171;">🗑️ Limpiar Trazos</button>
-        <button class="btn-tool" id="clear-all">🔄 Reset Todo</button>
+        <button class="btn-tool" id="clear-all" style="border-color:#ef4444; color:#f87171;">🔄 Reset Todo</button>
       </div>
     </div>
 
     <div class="map-viewport" id="mapZone">
-      <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK">
-      </div>
+      <img src="mapa.png" class="map-background" alt="Grieta HoK">
+      
+      <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
+    </div>
 
     <div class="heroes-drawer">
       <div class="drawer-header">
@@ -342,18 +391,36 @@ body {
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 const mapZone = document.getElementById('mapZone');
+const svgLayer = document.getElementById('svgLayer');
 
 let heroesData = [];
 let currentTool = 'move';
 let currentAura = 'none';
 let currentStrokeColor = '#eab308';
 
-// Estado del trazo de vectores
+// Estado de dibujo general
 let isDrawing = false;
 let startX = 0, startY = 0;
 let activeArrowElement = null;
+let activePathElement = null;
+let currentPathPoints = "";
 
-// Extracción e integración de datos
+// 🗃️ MOTOR DE HISTORIAL (Deshacer / Rehacer)
+let undoStack = [];
+let redoStack = [];
+
+function saveState(actionType, element, extraData = null) {
+  undoStack.push({ type: actionType, element: element, extra: extraData });
+  redoStack = []; // Limpiamos el rehecho al hacer una nueva acción
+  updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+  document.getElementById('hist-undo').disabled = undoStack.length === 0;
+  document.getElementById('hist-redo').disabled = redoStack.length === 0;
+}
+
+// Carga e integración de datos HoKstats
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -384,45 +451,53 @@ function renderDrawer(role, query) {
     div.className = 'hero-avatar-item';
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
     
-    // Inyectar un nuevo héroe nativo en el centro exacto
     div.addEventListener('click', () => {
-      createHeroNode(hero.imagen, 300, 300);
+      createHeroNode(hero.imagen, 300, 300, true);
     });
     grid.appendChild(div);
   });
 }
 
-// 🖐️ Función para generar e interactuar con héroes (HTML Puro)
-function createHeroNode(imgUrl, x, y) {
+// 🖐️ Gestión de Héroes
+function createHeroNode(imgUrl, x, y, recordHistory = true) {
   const el = document.createElement('div');
   el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
   el.innerHTML = `<img src="${imgUrl}">`;
   
-  // Agregar soporte para arrastrar (Mouse y Táctil)
-  el.addEventListener('mousedown', (e) => startDrag(e, el));
-  el.addEventListener('touchstart', (e) => startDrag(e, el), {passive: false});
+  el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
+  el.addEventListener('touchstart', (e) => handleHeroClickOrDrag(e, el), {passive: false});
   
   mapZone.appendChild(el);
+  if (recordHistory) saveState('add', el);
 }
 
-function startDrag(e, element) {
+function handleHeroClickOrDrag(e, element) {
+  if (currentTool === 'eraser') {
+    saveState('delete', element, { parent: mapZone });
+    element.remove();
+    return;
+  }
   if (currentTool !== 'move') return;
   e.preventDefault();
   
   const rect = mapZone.getBoundingClientRect();
+  const initialX = element.style.left;
+  const initialY = element.style.top;
+  let hasMoved = false;
   
   function moveHandler(evt) {
+    hasMoved = true;
     const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     
     let x = clientX - rect.left;
     let y = clientY - rect.top;
     
-    // Límites de la caja operativa
     if(x < 0 || x > 600 || y < 0 || y > 600) {
-      element.remove(); // Se elimina si se arrastra hacia afuera
+      saveState('delete', element, { parent: mapZone });
+      element.remove();
       endHandler();
       return;
     }
@@ -436,6 +511,10 @@ function startDrag(e, element) {
     window.removeEventListener('mouseup', endHandler);
     window.removeEventListener('touchmove', moveHandler);
     window.removeEventListener('touchend', endHandler);
+    
+    if (hasMoved) {
+      saveState('move', element, { fromX: initialX, fromY: initialY, toX: element.style.left, toY: element.style.top });
+    }
   }
   
   window.addEventListener('mousemove', moveHandler);
@@ -444,7 +523,7 @@ function startDrag(e, element) {
   window.addEventListener('touchend', endHandler);
 }
 
-// 🏹 Sistema de Control de Vectores HTML5/CSS3 (Garantía de precisión de un 100%)
+// 🏹 Captura de Coordenadas Locales
 function getLocalCoords(e) {
   const rect = mapZone.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -455,73 +534,156 @@ function getLocalCoords(e) {
   };
 }
 
-mapZone.addEventListener('mousedown', (e) => {
-  if (currentTool !== 'arrow' || e.target !== mapZone && e.target.className !== 'map-background') return;
-  initArrow(e);
-});
-mapZone.addEventListener('touchstart', (e) => {
-  if (currentTool !== 'arrow' || e.target !== mapZone && e.target.className !== 'map-background') return;
-  initArrow(e);
-}, {passive: false});
+// Control Operativo del Tablero
+mapZone.addEventListener('mousedown', (e) => { handleStartContainer(e); });
+mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
 
-function initArrow(e) {
-  isDrawing = true;
-  const coords = getLocalCoords(e);
-  startX = coords.x;
-  startY = coords.y;
+function handleStartContainer(e) {
+  const isBg = e.target === mapZone || e.target.className === 'map-background' || e.target === svgLayer;
   
-  activeArrowElement = document.createElement('div');
-  activeArrowElement.className = 'vector-arrow';
-  activeArrowElement.style.backgroundColor = currentStrokeColor;
-  activeArrowElement.style.color = currentStrokeColor; // Para la punta nativa
-  activeArrowElement.style.left = `${startX}px`;
-  activeArrowElement.style.top = `${startY}px`;
-  
-  mapZone.appendChild(activeArrowElement);
+  if (currentTool === 'eraser' && !isBg) {
+    const targetEl = e.target.closest('.vector-arrow') || e.target;
+    if (targetEl.classList.contains('vector-arrow') || targetEl.classList.contains('free-path')) {
+      saveState('delete', targetEl, { parent: targetEl.parentNode });
+      targetEl.remove();
+    }
+    return;
+  }
+
+  if (!isBg) return;
+
+  if (currentTool === 'arrow') {
+    isDrawing = true;
+    const coords = getLocalCoords(e);
+    startX = coords.x; startY = coords.y;
+    
+    activeArrowElement = document.createElement('div');
+    activeArrowElement.className = 'vector-arrow';
+    activeArrowElement.style.backgroundColor = currentStrokeColor;
+    activeArrowElement.style.color = currentStrokeColor;
+    activeArrowElement.style.left = `${startX}px`;
+    activeArrowElement.style.top = `${startY}px`;
+    
+    mapZone.appendChild(activeArrowElement);
+  } 
+  else if (currentTool === 'draw') {
+    isDrawing = true;
+    const coords = getLocalCoords(e);
+    startX = coords.x; startY = coords.y;
+    
+    activePathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    activePathElement.setAttribute("class", "free-path");
+    activePathElement.setAttribute("stroke", currentStrokeColor);
+    
+    currentPathPoints = `M ${startX} ${startY}`;
+    activePathElement.setAttribute("d", currentPathPoints);
+    svgLayer.appendChild(activePathElement);
+  }
 }
 
-window.addEventListener('mousemove', (e) => { if (isDrawing) updateArrow(e); });
-window.addEventListener('touchmove', (e) => { if (isDrawing) updateArrow(e); }, {passive: false});
+window.addEventListener('mousemove', (e) => { handleMoveContainer(e); });
+window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passive: false});
 
-function updateArrow(e) {
-  if (!activeArrowElement) return;
+function handleMoveContainer(e) {
+  if (!isDrawing) return;
   const coords = getLocalCoords(e);
-  
-  // Forzamos límites internos para la punta operativa
   const currentX = Math.max(0, Math.min(600, coords.x));
   const currentY = Math.max(0, Math.min(600, coords.y));
-  
-  const dx = currentX - startX;
-  const dy = currentY - startY;
-  const distance = Math.hypot(dx, dy);
-  const angle = Math.atan2(dy, dx);
-  
-  // Rotación y estiramiento nativo por hardware (CSS3)
-  activeArrowElement.style.width = `${distance}px`;
-  activeArrowElement.style.transform = `rotate(${angle}js)`.replace('js', 'rad');
-}
 
-window.addEventListener('mouseup', () => { if (isDrawing) cleanArrowDraw(); });
-window.addEventListener('touchend', () => { if (isDrawing) cleanArrowDraw(); });
-
-function cleanArrowDraw() {
-  if (activeArrowElement && parseFloat(activeArrowElement.style.width || 0) < 8) {
-    activeArrowElement.remove(); // Borra flechas fantasmas de un solo click
+  if (currentTool === 'arrow' && activeArrowElement) {
+    if (e.cancelable) e.preventDefault();
+    const dx = currentX - startX;
+    const dy = currentY - startY;
+    const distance = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
+    
+    activeArrowElement.style.width = `${distance}px`;
+    activeArrowElement.style.transform = `rotate(${angle}rad)`;
+  } 
+  else if (currentTool === 'draw' && activePathElement) {
+    if (e.cancelable) e.preventDefault();
+    currentPathPoints += ` L ${currentX} ${currentY}`;
+    activePathElement.setAttribute("d", currentPathPoints);
   }
-  isDrawing = false;
-  activeArrowElement = null;
 }
 
-// Controladores estructurales de la botonera
+window.addEventListener('mouseup', () => { handleEndContainer(); });
+window.addEventListener('touchend', () => { handleEndContainer(); });
+
+function handleEndContainer() {
+  if (!isDrawing) return;
+  isDrawing = false;
+
+  if (currentTool === 'arrow' && activeArrowElement) {
+    if (parseFloat(activeArrowElement.style.width || 0) < 8) {
+      activeArrowElement.remove();
+    } else {
+      saveState('add', activeArrowElement);
+    }
+    activeArrowElement = null;
+  }
+  else if (currentTool === 'draw' && activePathElement) {
+    saveState('add', activePathElement);
+    activePathElement = null;
+  }
+}
+
+// ↩️ LÓGICA DE DESHACER Y REHACER (Undo / Redo)
+document.getElementById('hist-undo').addEventListener('click', () => {
+  if (undoStack.length === 0) return;
+  const action = undoStack.pop();
+  redoStack.push(action);
+  
+  if (action.type === 'add') {
+    action.element.remove();
+  } else if (action.type === 'delete') {
+    action.extra.parent.appendChild(action.element);
+  } else if (action.type === 'move') {
+    action.element.style.left = action.extra.fromX;
+    action.element.style.top = action.extra.fromY;
+  }
+  updateHistoryButtons();
+});
+
+document.getElementById('hist-redo').addEventListener('click', () => {
+  if (redoStack.length === 0) return;
+  const action = redoStack.pop();
+  undoStack.push(action);
+  
+  if (action.type === 'add') {
+    if (action.element.classList.contains('free-path')) {
+      svgLayer.appendChild(action.element);
+    } else {
+      mapZone.appendChild(action.element);
+    }
+  } else if (action.type === 'delete') {
+    action.element.remove();
+  } else if (action.type === 'move') {
+    action.element.style.left = action.extra.toX;
+    action.element.style.top = action.extra.toY;
+  }
+  updateHistoryButtons();
+});
+
+// Controladores visuales de la barra de herramientas
 document.querySelectorAll('.tool-group').forEach(group => {
   group.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn-tool');
-    if (!btn) return;
+    if (!btn || btn.id.startsWith('hist-')) return;
     
     btn.parentElement.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
-    if (btn.id.startsWith('tool-')) currentTool = btn.id.replace('tool-', '');
+    if (btn.id.startsWith('tool-')) {
+      currentTool = btn.id.replace('tool-', '');
+      mapZone.className = `map-viewport tool-${currentTool}`;
+      
+      if (currentTool === 'draw') {
+        svgLayer.classList.add('active-drawing');
+      } else {
+        svgLayer.classList.remove('active-drawing');
+      }
+    }
     if (btn.id.startsWith('aura-')) currentAura = btn.id.replace('aura-', '');
     if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
     if (btn.id === 'color-green') currentStrokeColor = '#22c55e';
@@ -529,16 +691,16 @@ document.querySelectorAll('.tool-group').forEach(group => {
   });
 });
 
-document.getElementById('clear-drawings').addEventListener('click', () => {
-  document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
-});
-
 document.getElementById('clear-all').addEventListener('click', () => {
   document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
   document.querySelectorAll('.placed-hero').forEach(el => el.remove());
+  svgLayer.innerHTML = "";
+  undoStack = [];
+  redoStack = [];
+  updateHistoryButtons();
 });
 
-// Controladores del sistema de filtros
+// Controladores de filtros
 let currentRole = 'all';
 let currentSearch = '';
 
