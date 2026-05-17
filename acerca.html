@@ -18,20 +18,48 @@ body {
   margin: auto;
 }
 
-/* 📊 Caja principal idéntica a las otras pestañas */
+/* 📊 Caja principal con las dimensiones exactas de las otras dos páginas */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0;
+  padding: 0 0 30px 0; /* 0 arriba y lados, 30px abajo */
 }
 
-/* 🎛️ Contenedor de simulación de barra de filtros para mantener la altura exacta */
+/* 🎛️ Contenedor de la barra superior de filtros */
 .tabs-container {
   padding: 15px 30px;
   background: #31313c;
+  border-bottom: none;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Mismo modo de control de anchura que index y counter */
+}
+
+thead {
+  background: #282830;
+}
+
+thead tr {
+  border-bottom: 1px solid #1c1c1f;
+}
+
+thead th {
+  padding: 8px 4px;    
+  font-size: 11px;    
+  color: #b3b2bf;
+  font-weight: bold !important;  
+}
+
+/* Fijamos las mismas columnas de control iniciales para clonar el esqueleto */
+.col-pos  { width: 4%; text-align: center; }
+.col-hero { width: 13%; }
+.col-tier { width: 5%; text-align: center; }
+.col-rol  { width: 10%; text-align: center; }
 
 .logo-text {
   font-family: monospace;
@@ -68,16 +96,15 @@ body {
   color: white;
 }
 
-/* 📝 Contenedor interno exclusivo para el texto informativo */
+/* 📝 El texto informativo se acopla abajo con márgenes internos simétricos */
 .about-content {
-  padding: 10px 30px 0 30px;
+  padding: 25px 30px 0 30px;
 }
 
-/* 🔥 TÍTULOS EN MAYÚSCULAS */
 h2 {
   color: white;
   font-size: 18px;
-  margin-top: 10px;
+  margin-top: 0;
   margin-bottom: 20px;
   border-bottom: 1px solid #444452;
   padding-bottom: 10px;
@@ -122,7 +149,6 @@ strong {
   color: white;
 }
 
-/* 🔥 CORRECCIÓN: Eliminado el estilo de círculo, ahora es una etiqueta rectangular limpia con fondo de color */
 .level-badge {
   display: inline-block;
   padding: 2px 6px;
@@ -161,11 +187,23 @@ strong {
     
     <div class="tabs-container"></div>
 
+    <table>
+      <thead>
+        <tr>
+          <th class="col-pos">&nbsp;</th>
+          <th class="col-hero">&nbsp;</th>
+          <th class="col-tier">&nbsp;</th>
+          <th class="col-rol">&nbsp;</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
+    </table>
+
     <div class="about-content">
       <h2>ACERCA DE HOKSTATS</h2>
       
       <h3>DECLARACIÓN DE INDEPENDENCIA Y PROPÓSITO</h3>
-      <p><strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad competitiva.</p>
+      <p><strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad.</p>
 
       <h3>ORIGEN DE DATOS: SECCIÓN ESTADÍSTICAS</h3>
       <p>Los indicadores cuantitativos de la sección de <strong>Estadísticas</strong> se extraen directamente de las fuentes oficiales del servidor global a través de la plataforma <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">https://camp.honorofkings.com</a>). Con el fin de garantizar la vigencia de las métricas de rendimiento (<em>Win Rate, Pick Rate, Ban Rate</em>), el set de datos se actualiza periódicamente cada <strong>7 días</strong>.</p>
