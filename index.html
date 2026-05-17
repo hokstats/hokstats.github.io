@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Portal Principal - HoKstats</title>
+<title>Portal Principal - HoKstats Hub</title>
 <style>
-/* 📊 ESTILOS GLOBALES - COPIADOS EXACTAMENTE DE TU WEB */
+/* 📊 ESTILOS GLOBALES - RESPETANDO TU ADN VISUAL */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -55,7 +55,7 @@ body {
   color: white;
 }
 
-/* 📦 ESTRUCTURA DE CAJA PRINCIPAL IDENTICA */
+/* 📦 ESTRUCTURA DE CAJA PRINCIPAL IDENTICA CON ALINEACIÓN PERFECTA */
 table.main-layout {
   width: 100%;
   border-collapse: collapse;
@@ -65,7 +65,7 @@ table.main-layout {
   background: #31313c;
   border-radius: 6px;
   border: 1px solid #1c1c1f;
-  padding: 30px; /* Espaciado interno cómodo para las tarjetas */
+  padding: 30px; 
 }
 
 .welcome-title {
@@ -83,16 +83,16 @@ table.main-layout {
   text-align: center;
 }
 
-/* 🎴 GRID DE SELECCIÓN TÁCTICA (4 HERRAMIENTAS) */
+/* 🎴 GRID DE SELECCIÓN TÁCTICA MEJORADO (4 HERRAMIENTAS) */
 .hub-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 columnas */
-  gap: 20px; /* Espacio idéntico a las zonas de draft */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
-/* Tarjetas interactivas con el estilo de HoKstats */
+/* Tarjetas interactivas con estilo nativo integrado */
 .hub-card {
-  background: #24242b; /* Fondo oscuro secundario como los bloques internos */
+  background: #24242b;
   border: 2px solid #444452;
   border-radius: 8px;
   overflow: hidden;
@@ -102,19 +102,19 @@ table.main-layout {
   color: #a0a0b5;
   transition: all 0.2s ease;
   cursor: pointer;
-  height: 240px; /* Altura perfecta para albergar la imagen y la info */
+  height: 280px; /* Un poco más altas para dar aire */
 }
 
-/* Efecto hover azulado característico */
+/* Efecto hover azulado HoKstats */
 .hub-card:hover {
   border-color: #4f6edb;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(79, 110, 219, 0.15);
+  box-shadow: 0 6px 20px rgba(79, 110, 219, 0.2);
 }
 
-/* Contenedor de la foto de la herramienta */
+/* Contenedor de la CAPTURA REAL de la herramienta */
 .card-image-box {
-  height: 140px;
+  height: 160px; /* Área más grande para la captura */
   background: #1c1c1f;
   border-bottom: 1px solid #444452;
   position: relative;
@@ -124,20 +124,29 @@ table.main-layout {
 .card-image-box img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Muestra la captura completa adaptada */
   transition: transform 0.3s ease;
+  filter: brightness(0.8); /* Ligeramente más oscura por defecto */
 }
 
 .hub-card:hover .card-image-box img {
-  transform: scale(1.03); /* Suave zoom al pasar el mouse */
+  transform: scale(1.02);
+  filter: brightness(1); /* Se ilumina completamente al hover */
 }
 
-/* Contenido de texto inferior */
+/* Contenido de texto inferior con estilo integrado */
 .card-info {
   padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  border-top: 1px solid rgba(222, 255, 154, 0.1); /* Sutil línea de acento */
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card-title {
@@ -146,10 +155,19 @@ table.main-layout {
   font-weight: bold;
 }
 
+.card-role-badge {
+  font-size: 10px;
+  color: #deff9a; /* Color de acento de HoKstats */
+  background: rgba(222, 255, 154, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
 .card-desc {
   font-size: 12px;
   color: #7b7a8e;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 </style>
 </head>
@@ -158,9 +176,10 @@ table.main-layout {
 <div class="container">
 
   <div class="top-bar">
-    <div class="logo-text">HoKstats</div>
+    <div class="logo-text">HoKstats Hub</div>
     <div class="view-tabs">
-      <a href="index.html" class="view-tab active">General</a> <a href="stats.html" class="view-tab">Estadísticas</a>
+      <a href="index.html" class="view-tab active">General</a>
+      <a href="stats.html" class="view-tab">Estadísticas</a>
       <a href="counter.html" class="view-tab">Counters</a>
       <a href="planner.html" class="view-tab">Planner</a>
       <a href="draft.html" class="view-tab">Draft</a>
@@ -172,48 +191,60 @@ table.main-layout {
     <tr>
       <td class="main-box-cell">
         
-        <div class="welcome-title">Bienvenido a HoKstats</div>
-        <div class="welcome-subtitle">Selecciona la herramienta analítica que deseas utilizar para tu partida</div>
+        <div class="welcome-title">Bienvenido a HoKstats Hub</div>
+        <div class="welcome-subtitle">Selecciona la herramienta analítica que necesitas para dominar la grieta</div>
 
         <div class="hub-grid">
           
           <a href="stats.html" class="hub-card">
             <div class="card-image-box">
-              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=500" alt="Estadísticas">
+              <img src="tu-imagen-de-stats.png" alt="Captura Estadísticas">
             </div>
             <div class="card-info">
-              <div class="card-title">📊 Tabla de Estadísticas</div>
-              <div class="card-desc">Analiza los porcentajes de victoria (Winrate), popularidad y bloqueos del meta actual.</div>
+              <div class="card-title-row">
+                <div class="card-title">📊 Estadísticas Globales</div>
+                <div class="card-role-badge">Meta</div>
+              </div>
+              <div class="card-desc">Análisis de Winrate, Pickrate y Banrate dinámico filtrado por liga y rol.</div>
             </div>
           </a>
 
           <a href="counter.html" class="hub-card">
             <div class="card-image-box">
-              <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&q=80&w=500" alt="Counters">
+              <img src="tu-imagen-de-counters.png" alt="Captura Counters">
             </div>
             <div class="card-info">
-              <div class="card-title">⚔️ Matriz de Counters</div>
-              <div class="card-desc">Descubre de forma cruzada qué héroes destrozan o son débiles frente a las elecciones del rival.</div>
+              <div class="card-title-row">
+                <div class="card-title">⚔️ Counters Matriz 2D</div>
+                <div class="card-role-badge">Versus</div>
+              </div>
+              <div class="card-desc">Cruce interactivo de datos para identificar debilidades asimétricas y picos de poder.</div>
             </div>
           </a>
 
           <a href="planner.html" class="hub-card">
             <div class="card-image-box">
-              <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&q=80&w=500" alt="Map Planner">
+              <img src="tu-imagen-de-planner.png" alt="Captura Map Planner">
             </div>
             <div class="card-info">
-              <div class="card-title">🗺️ Map Planner Táctico</div>
-              <div class="card-desc">Dibuja tus estrategias, rutas de la jungla y posicionamiento de objetivos en tiempo real.</div>
+              <div class="card-title-row">
+                <div class="card-title">🗺️ Map Planner Táctico</div>
+                <div class="card-role-badge">Estrategia</div>
+              </div>
+              <div class="card-desc">Diagrama rotaciones, visión y objetivos interactivos con exportación HD crisp.</div>
             </div>
           </a>
 
           <a href="draft.html" class="hub-card">
             <div class="card-image-box">
-              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=500" alt="Draft Simulator">
+              <img src="tu-imagen-de-draft.png" alt="Captura Draft Simulator">
             </div>
             <div class="card-info">
-              <div class="card-title">🎭 Simulador de Draft Profesional</div>
-              <div class="card-desc">Simula bloqueos y selecciones competitivas con sugerencias dinámicas de sinergia libres de colisión.</div>
+              <div class="card-title-row">
+                <div class="card-title">🎭 Simulador e-Sports</div>
+                <div class="card-role-badge">Draft</div>
+              </div>
+              <div class="card-desc">Simula bloqueos/selecciones con motor de sinergias y bloqueo de roles cubiertos.</div>
             </div>
           </a>
 
