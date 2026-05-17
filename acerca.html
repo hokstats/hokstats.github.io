@@ -22,8 +22,20 @@ body {
 .main-box {
   background: #31313c;
   border-radius: 6px;
-  padding: 30px;
+  overflow: hidden;
   border: 1px solid #1c1c1f;
+  padding: 0 0 30px 0; /* 👈 Cambiado: 0 arriba, 0 lados, 30px abajo para mantener el contorno */
+}
+
+/* 🆕 Agregamos esta regla para que el texto de "Acerca de" tenga un colchón cómodo por dentro y no choque con los bordes de la caja */
+.main-box h2, .main-box h3, .main-box p, .main-box ul {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+/* Ajustamos los títulos para que no se duplique el espacio */
+.main-box h2 {
+  margin-top: 30px; /* 👈 Le da el "aire" necesario al inicio del texto */
 }
 
 .logo-text {
