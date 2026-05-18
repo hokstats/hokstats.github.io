@@ -14,8 +14,9 @@ body {
   font-family: Arial, sans-serif;
   color: #7b7a8e;
   margin: 0;
-  padding: 24px 0; /* Relleno superior/inferior para despegado de pantalla */
+  padding: 24px 0;
   user-select: none;
+  min-height: 101vh;
 }
 
 /* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
@@ -219,10 +220,20 @@ body {
   line-height: 1.6;
   text-align: center;
 }
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #1c1c1f; }
-::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
+/* SCROLLBAR GLOBAL UNIFICADA */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1c1c1f;
+}
+::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a6b;
+}
 
 html {
   scrollbar-width: thin;
