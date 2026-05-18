@@ -64,50 +64,79 @@ body {
   padding: 0 0 30px 0;
 }
 
-/* 🔍 CONTENEDOR DE FILTROS ORIGINAL DE STATS.HTML (SIN CONTENEDORES INVENTADOS) */
+/* 🔍 CONTENEDOR DE FILTROS IMPORTADO DE STATS.HTML */
 .tabs-container {
   padding: 15px 30px;
   background: #31313c;
 }
 
+.tabs-wrapper {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+
 .tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px; /* Mantiene la separación limpia antes del buscador o grilla */
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .role-tab {
-  background: #282830;
-  border: 1px solid #444452;
-  color: #7b7a8e;
-  padding: 6px 16px;
-  font-size: 12px;
-  font-weight: bold;
-  border-radius: 20px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  padding: 8px 10px;
   cursor: pointer;
+  border: none;
+  border-right: 1px solid #444452;
+  background: #31313c;
+  font-size: 12px;
+  font-weight: 500;
+  color: #7b7a8e;
+  outline: none;
   transition: all 0.2s ease;
 }
-.role-tab:hover { background: #383844; color: #fff; }
-.role-tab.active { background: #4f6edb; color: #fff; border-color: #4f6edb; }
 
-.search-wrapper {
-  margin-bottom: 15px;
-  display: flex;
-  justify-content: flex-end; /* Alinea el buscador a la derecha como en tu diseño */
+.role-tab:last-child {
+  border-right: none;
 }
 
-.search-wrapper input {
-  background: #282830;
-  border: 1px solid #444452;
-  color: #fff;
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 4px;
+.role-tab:hover {
+  color: white;
+  background: #3a3a46;
+}
+
+.role-tab.active {
+  color: white;
+  background: #4f6edb;
+}
+
+/* 🔍 buscador */
+.search-box {
   width: 180px;
+  flex: 0 0 180px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 4px;
+  border: 1px solid #444452;
+  background: #282830;
+  color: #ccc;
+  box-sizing: border-box;
+  font-size: 12px;
   outline: none;
 }
-.search-wrapper input::placeholder { color: #555565; }
+
+.search-box input::placeholder {
+  color: #777;
+}
 
 /* 🎴 GRILLA DEL CATÁLOGO */
 .catalog-padding-zone {
@@ -371,16 +400,18 @@ body {
   <div class="main-box">
     
     <div class="tabs-container" id="filtersBlock">
-      <div class="tabs">
-        <button class="role-tab active" data-role="all">Todo</button>
-        <button class="role-tab" data-role="Choque">Choque</button>
-        <button class="role-tab" data-role="Cazador">Cazador</button>
-        <button class="role-tab" data-role="Medio">Medio</button>
-        <button class="role-tab" data-role="Merodeo">Merodeo</button>
-        <button class="role-tab" data-role="Farmeo">Farmeo</button>
-      </div>
-      <div class="search-wrapper">
-        <input type="text" id="searchHero" placeholder="Buscar héroe por nombre...">
+      <div class="tabs-wrapper">
+        <div class="tabs">
+          <button class="role-tab active" data-role="all">Todo</button>
+          <button class="role-tab" data-role="Choque">Choque</button>
+          <button class="role-tab" data-role="Cazador">Cazador</button>
+          <button class="role-tab" data-role="Medio">Medio</button>
+          <button class="role-tab" data-role="Merodeo">Merodeo</button>
+          <button class="role-tab" data-role="Farmeo">Farmeo</button>
+        </div>
+        <div class="search-box">
+          <input type="text" id="searchHero" placeholder="Buscar héroe...">
+        </div>
       </div>
     </div>
 
