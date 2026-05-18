@@ -68,6 +68,15 @@ body {
 }
 
 /* LA FAKE-TABLA COMIENZA AQUÍ, SOLO PARA EL CUERPO PRINCIPAL */
+/* CAJA MAESTRA: réplica de counter.html — el border-radius vive aquí */
+.main-box {
+  background: #31313c;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #444452;
+  width: 100%;
+}
+
 table.main-layout {
   width: 100%;
   border-collapse: collapse;
@@ -75,10 +84,8 @@ table.main-layout {
 
 .main-box-cell {
   background: #31313c;
-  border-radius: 6px;
-  border: 1px solid #444452; /* Unificado con counter.html .main-box */
   padding: 0 0 20px 0;
-  overflow: hidden; 
+  /* border-radius y overflow se delegan al .main-box padre */
 }
 
 /* 🎭 OVERLAY DE SELECCIÓN DE BANDO */
@@ -425,6 +432,7 @@ table.main-layout {
     </div>
   </div>
 
+  <div class="main-box">
   <table class="main-layout">
     <tr>
       <td class="main-box-cell">
@@ -516,6 +524,7 @@ table.main-layout {
       </td>
     </tr>
   </table>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
