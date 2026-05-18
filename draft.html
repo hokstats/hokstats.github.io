@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" style="scrollbar-gutter: stable;">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>Simulador de Draft - HoKstats</title>
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA - RÉPLICA EXACTA COUNTERS / INDEX */
 * {
   box-sizing: border-box;
 }
@@ -12,37 +12,34 @@
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
-  color: #7b7a8e; /* Color exacto heredado de Counters */
+  color: #7b7a8e;
   margin: 0;
-  padding: 24px 0; /* Relleno superior/inferior idéntico */
+  padding: 24px 0;
   user-select: none;
-  overflow-x: hidden; /* Evita que fugas de pixeles rompan el layout global */
 }
 
-/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
+/* MARCO MAESTRO: Sin alteraciones de gutters ni reservas de espacio */
 .container {
   width: 100%;
-  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
+  max-width: 1160px; /* 1100px útiles + 60px padding lateral acumulado */
   margin: 0 auto;
   padding: 0 30px;
 }
 
-/* BARRA SUPERIOR ESTÁTICA */
+/* BARRA SUPERIOR ESTRUCTURA ORIGINAL (CORREGIDA DESALINEACIÓN) */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  align-items: center; /* Alineación vertical idéntica al resto de las páginas */
   margin-bottom: 20px;
-  padding: 0 4px;
 }
 
 .logo-text {
   font-family: monospace;
   font-size: 22px;
   color: white;
-  margin: 0;
+  margin: 0 0 10px 4px; /* Margen exacto original de index/counter */
   letter-spacing: 1px;
-  line-height: 1;
 }
 
 .view-tabs {
@@ -68,20 +65,19 @@ body {
   border-color: #4f6edb;
 }
 
-/* LA CAJA MAESTRA UNIVERSAL (RÉPLICA CON BORDE DE COUNTERS) */
+/* LA CAJA MAESTRA UNIVERSAL */
 .main-box-layout {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #444452; /* Borde unificado de alta visibilidad */
+  border: 1px solid #444452;
 }
 
-/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
 .content-padding-zone {
-  padding: 40px 30px; /* Relleno lateral idéntico de 30px */
+  padding: 40px 30px;
 }
 
-/* 🎭 OVERLAY DE SELECCIÓN DE BANDO ORIGINAL */
+/* 🎭 OVERLAY DE SELECCIÓN DE BANDO */
 .setup-overlay {
   padding: 30px;
   text-align: center;
@@ -112,7 +108,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* Columnas de bando forzadas a un ancho rígido que no empuje el centro */
 .team-side {
   flex: 0 0 220px;
   display: flex;
@@ -121,17 +116,16 @@ body {
   min-width: 0;
 }
 
-/* Panel central matemático que ocupa el espacio exacto sobrante */
 .center-panel {
   flex: 1; 
-  min-width: 0; /* Rompe el ancho mínimo intrínseco de flexbox */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
 }
 
-/* 🎨 TARJETAS DE EQUIPOS ORIGINALES CON TU LÓGICA DE TRASLACIÓN ALTERNA */
+/* 🎨 TARJETAS DE EQUIPOS */
 .blue-side .pick-slot {
   height: 75px;
   background: #1e293b; 
@@ -162,7 +156,6 @@ body {
   text-align: right;
 }
 
-/* 🌟 CAPA BLANCA REFLECTIVA EN SELECCIÓN ACTIVA ORIGINAL */
 .blue-side .pick-slot.active-turn { 
   border-color: #ffffff; 
   background-image: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)), linear-gradient(#1e293b, #1e293b);
@@ -218,7 +211,7 @@ body {
   height: 380px; 
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Crucial para evitar ensanchamiento de celdas internas */
+  min-width: 0;
 }
 
 .recommender-box.box-counters { border: 1px solid #f97316; }
@@ -237,7 +230,7 @@ body {
   padding-right: 4px;
 }
 
-/* SECCIONES AGRUPADAS DINÁMICAMENTE NATIVAS */
+/* SECCIONES AGRUPADAS DINÁMICAMENTE */
 .rec-group-container {
   display: flex;
   flex-direction: column;
@@ -272,7 +265,7 @@ body {
   gap: 8px;
 }
 
-/* MINI ICONOS DE RECOMENDADOS ORIGINALES */
+/* MINI ICONOS DE RECOMENDADOS */
 .rec-icon-card {
   width: 44px;
   height: 44px;
@@ -348,7 +341,7 @@ body {
 
 .heroes-grid {
   display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px;
-  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f;
+  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1f1c;
 }
 .hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; transition: transform 0.1s ease; }
 .hero-item:hover { transform: scale(1.05); }
@@ -371,7 +364,7 @@ body {
 }
 .btn-refresh-heroes:hover { border-color: #4f6edb; color: white; background: #2b2b35; }
 
-/* CONTROL EXCLUSIVO DE SCROLLBARS INTERNAS REPETIDAS DE COUNTERS */
+/* 🖌️ FORMATO DE SCROLLBAR UNIFICADO (CALCO FIEL DE COUNTERS) */
 .rec-list-vertical::-webkit-scrollbar, .heroes-grid::-webkit-scrollbar { width: 6px; }
 .rec-list-vertical::-webkit-scrollbar-track, .heroes-grid::-webkit-scrollbar-track { background: transparent; }
 .rec-list-vertical::-webkit-scrollbar-thumb, .heroes-grid::-webkit-scrollbar-thumb { background: #444452; border-radius: 3px; }
