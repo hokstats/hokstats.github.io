@@ -132,7 +132,7 @@ body {
   cursor: crosshair;
 }
 
-/* 📌 FIJACIÓN TOTAL DE NODOS INTERACTIVOS (Tanto <img> como <div> de hitmarks) */
+/* 📌 FIJACIÓN TOTAL DE NODOS INTERACTIVOS EN EL MAPA */
 .map-container .map-node {
   position: absolute !important;
   width: 32px !important;
@@ -337,11 +337,11 @@ body {
   outline: none;
 }
 
-/* CUADRÍCULA DE SELECCIÓN DE HÉROES (Pool de cartas) */
+/* 🛠️ CORRECCIÓN TOTAL: CUADRÍCULA DE AUTO-LLENADO RESPONSIVA CON RELACIÓN 1:1 ABSOLUTA */
 .heroes-pool {
-  height: 200px;
+  height: 220px;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); /* Evita que las celdas se estiren a lo ancho */
   gap: 10px;
   overflow-y: auto;
   background: #1c1c1f;
@@ -351,8 +351,9 @@ body {
 }
 
 .pool-item {
-  aspect-ratio: 1;
-  border-radius: 4px;
+  width: 100%;
+  aspect-ratio: 1 / 1 !important; /* Fuerza un cuadrado perfecto sin importar el ancho */
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid #444452;
   cursor: grab;
@@ -360,9 +361,9 @@ body {
 }
 
 .pool-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important; /* Recorta la imagen centrada sin deformarla */
   display: block;
 }
 
@@ -400,7 +401,7 @@ body {
         
         <div class="map-wrapper-block">
           <div class="map-container" id="mapZone">
-            <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" draggable="false" crossorigin="anonymous">
+            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" draggable="false" crossorigin="anonymous">
             <canvas id="drawingCanvas" width="540" height="540"></canvas>
             <div class="trash-bin" id="trashBin">🗑️</div>
           </div>
@@ -482,7 +483,6 @@ let catalogData = [];
 let draggingSrc = null;
 let activeNode = null;
 
-// Configuración del canvas de dibujo técnico original
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 let currentTool = 'move';
@@ -556,12 +556,10 @@ function setLineWidth(width) {
   drawWidth = parseInt(width);
 }
 
-// Limpia el canvas de dibujo
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// Mecánicas de dibujo en canvas
 canvas.addEventListener('mousedown', startDrawingAction);
 canvas.addEventListener('mousemove', executeDrawingAction);
 canvas.addEventListener('mouseup', stopDrawingAction);
@@ -643,7 +641,6 @@ function drawVectorArrow(fromx, fromy, tox, toy) {
   ctx.fill();
 }
 
-// Drag & Drop de héroes al mapa
 mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 mapZone.addEventListener('drop', (e) => {
   e.preventDefault();
@@ -680,7 +677,6 @@ function spawnNode(src, x, y, side) {
   mapZone.appendChild(img);
 }
 
-// Seguimiento global de arrastre
 window.addEventListener('mousemove', (e) => {
   if (!activeNode) return;
   const rect = mapZone.getBoundingClientRect();
@@ -747,7 +743,6 @@ window.addEventListener('touchend', (e) => {
   trashBin.classList.remove('drag-over');
 });
 
-// Soporte para clics planos (Puntos de bando sin imagen)
 mapZone.addEventListener('click', (e) => {
   if (currentTool !== 'move') return;
   if (e.target !== mapZone && e.target !== canvas) return;
@@ -778,7 +773,6 @@ mapZone.addEventListener('click', (e) => {
   mapZone.appendChild(dot);
 });
 
-// Exportación a PNG
 document.getElementById('btnExport').addEventListener('click', () => {
   const btn = document.getElementById('btnExport');
   btn.innerText = "⏳ Procesando...";
@@ -804,7 +798,6 @@ document.getElementById('btnExport').addEventListener('click', () => {
   });
 });
 
-// Control de Filtros
 let selectedRole = 'all';
 let searchKeyword = '';
 
