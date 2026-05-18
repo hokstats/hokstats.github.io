@@ -1,38 +1,47 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
 <title>Map Planner - HoKstats</title>
-
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA (REPLICA EXACTA DEL INDEX) */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT (CALCO DE COUNTERS) */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
   color: #7b7a8e;
   margin: 0;
-  padding: 20px;
+  padding: 24px 0; /* Relleno superior/inferior idéntico */
   user-select: none;
 }
 
+/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
 .container {
-  max-width: 1100px;
-  margin: auto;
+  width: 100%;
+  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
+  margin: 0 auto;
+  padding: 0 30px;
 }
 
+/* BARRA SUPERIOR ESTÁTICA */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .logo-text {
   font-family: monospace;
   font-size: 22px;
   color: white;
-  margin-bottom: 10px;
-  margin-left: 4px;
+  margin: 0;
   letter-spacing: 1px;
+  line-height: 1;
 }
 
 .view-tabs {
@@ -49,25 +58,27 @@ body {
   color: #a0a0b5;
   text-decoration: none;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .view-tab.active {
   background: #4f6edb;
   color: white;
+  border-color: #4f6edb;
 }
 
-/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA DEL INDEX) */
+/* 📦 CAJA MAESTRA UNIVERSAL (RÉPLICA EXACTA EN TODAS LAS PÁGINAS) */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0;
+  border: 1px solid #444452; /* Borde unificado de alta visibilidad recuperado */
+  width: 100%;
 }
 
-/* CONTENEDOR INTERNO (REPLICA EXACTA DEL INDEX) */
+/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
 .content-padding-zone {
-  padding: 40px 30px 10px 30px;
+  padding: 40px 30px 40px 30px; /* Relleno lateral idéntico de 30px */
 }
 
 /* 🛠️ COMPONENTES INTERNOS DEL PLANNER (AISLADOS DEL FLUJO SUPERIOR) */
@@ -135,7 +146,7 @@ body {
   display: inline-block;
 }
 
-/* 🗺️ AREA DEL MAPA TÁCTICO */
+/* 🗺️ ÁREA DEL MAPA TÁCTICO FIJO */
 .map-viewport {
   position: relative;
   width: 600px;
@@ -246,7 +257,7 @@ body {
   border-left: 12px solid currentColor;
 }
 
-/* CAJÓN INFERIOR DE HÉROES */
+/* CAJÓN INFERIOR DE SELECCIÓN */
 .heroes-drawer {
   margin-top: 10px;
 }
@@ -283,14 +294,19 @@ body {
   background: #4f6edb;
 }
 
-.search-box input {
+.search-box {
   width: 180px;
-  padding: 6px 10px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 7px 10px;
   border-radius: 4px;
   border: 1px solid #444452;
   background: #282830;
   color: #ccc;
-  font-size: 11px;
+  box-sizing: border-box;
+  font-size: 12px;
   outline: none;
 }
 
@@ -325,15 +341,26 @@ body {
   object-fit: cover;
 }
 
-/* SCROLLBAR REPLICA INDENTICA */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #1c1c1f; }
-::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
+/* SCROLLBAR NATIVA MODO OSCURO (CALCO IDÉNTICO) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1c1c1f;
+}
+::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a6b;
+}
 </style>
 </head>
 <body>
 
 <div class="container">
+
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
     <div class="view-tabs">
@@ -414,7 +441,7 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
-// El core JavaScript del Planner se mantiene intacto y óptimo
+// El JavaScript del Planner se conserva intacto y funcional
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 const mapZone = document.getElementById('mapZone');
