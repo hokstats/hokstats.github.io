@@ -19,7 +19,7 @@ body {
   user-select: none;
 }
 
-/* MARCO MAESTRO */
+/* MARCO MAESTRO (1100px útiles + 60px de padding acumulado) */
 .container {
   width: 100%;
   max-width: 1160px;
@@ -81,17 +81,20 @@ body {
   padding: 40px 30px;
 }
 
-/* 🗺️ INTERFAZ DEL PLANNER ORIGINAL CON SUS LÁPICES Y CONTROLES */
-.planner-layout {
+/* 🗺️ INTERFAZ APILADA VÉRTICALMENTE (Cajón debajo del mapa) */
+.planner-vertical-layout {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center; /* Centra los bloques principales */
 }
 
-/* CONTENEDOR DEL MAPA Y LIENZOS */
+/* CONTENEDOR DEL MAPA Y SU PROPIA BARRA DE HERRAMIENTAS */
 .map-wrapper-block {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 540px; /* Ancho estricto del mapa */
 }
 
 .map-container {
@@ -105,7 +108,8 @@ body {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.map-container img {
+/* Asegura que SOLO la imagen de fondo se estire a todo el contenedor */
+.map-container > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -117,7 +121,7 @@ body {
   z-index: 1;
 }
 
-/* Lienzo de dibujo para los lápices y flechas */
+/* Lienzo de dibujo técnico */
 #drawingCanvas {
   position: absolute;
   top: 0;
@@ -128,24 +132,29 @@ body {
   cursor: crosshair;
 }
 
-.map-node {
+/* 📌 CORRECCIÓN TOTAL: Nodos dinámicos en el mapa con escala estricta */
+.map-container .map-node {
   position: absolute;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
-.map-node:active {
+.map-container .map-node:active {
   cursor: grabbing;
 }
 
-.map-node.azul { border: 2px solid #4f6edb; }
-.map-node.rojo { border: 2px solid #ef4444; }
+.map-container .map-node.azul { border: 2px solid #4f6edb !important; }
+.map-container .map-node.rojo { border: 2px solid #ef4444 !important; }
 
+/* Papelera interactiva */
 .trash-bin {
   position: absolute;
   bottom: 15px;
@@ -168,7 +177,7 @@ body {
   transform: scale(1.1);
 }
 
-/* 🎨 BARRA DE HERRAMIENTAS DE DIBUJO ORIGINAL */
+/* BARRA DE HERRAMIENTAS DE DIBUJO */
 .drawing-toolbar {
   background: #24242b;
   border: 1px solid #444452;
@@ -209,28 +218,28 @@ body {
 }
 .color-picker-dot.selected { border-color: white; }
 
-/* CAJÓN / SIDEBAR ORIGINAL INTEGRAL */
+/* 🎚️ CAJÓN / SIDEBAR REUBICADO ABAJO (Ancho completo del contenedor útil) */
 .drawer {
-  flex: 1;
+  width: 100%;
+  max-width: 1100px; /* Ocupa todo el ancho alineado con el contenedor maestro */
   background: #24242b;
   border-radius: 6px;
   border: 1px solid #444452;
-  padding: 15px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 594px; /* Ajustado perfectamente al alto combinado de mapa + barra de dibujo */
+  gap: 16px;
 }
 
 .drawer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
 }
 
 .drawer-title {
   color: white;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
 }
 
@@ -238,18 +247,26 @@ body {
   background: #4f6edb;
   border: none;
   color: white;
-  padding: 6px 12px;
-  font-size: 11px;
+  padding: 8px 16px;
+  font-size: 12px;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
 }
 .btn-download:hover { background: #3b55b8; }
 
+/* Sección superior de controles del cajón */
+.drawer-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
 .side-selector {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
+  flex: 1;
 }
 
 .side-option { flex: 1; }
@@ -277,9 +294,9 @@ body {
 
 .filter-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
   align-items: center;
+  flex: 1;
 }
 
 .role-tabs {
@@ -293,7 +310,7 @@ body {
 .role-tab {
   flex: 1;
   text-align: center;
-  padding: 6px 2px;
+  padding: 8px 4px;
   background: #31313c;
   font-size: 11px;
   color: #a0a0b5;
@@ -305,28 +322,29 @@ body {
 .role-tab:last-child { border-right: none; }
 .role-tab.active { background: #4f6edb; color: white; }
 
-.search-field { width: 140px; }
+.search-field { width: 180px; }
 .search-field input {
   width: 100%;
-  padding: 6px 10px;
+  padding: 8px 12px;
   background: #1c1c1f;
   border: 1px solid #444452;
   border-radius: 4px;
   color: white;
-  font-size: 11px;
+  font-size: 12px;
   outline: none;
 }
 
+/* CUADRÍCULA PANORÁMICA DE HÉROES */
 .heroes-pool {
-  flex: 1;
+  height: 200px; /* Reducido el alto al ser más ancho para visualización limpia */
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(12, 1fr); /* 12 columnas aprovechando el espacio horizontal */
+  gap: 10px;
   overflow-y: auto;
   background: #1c1c1f;
   border: 1px solid #444452;
   border-radius: 4px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .pool-item {
@@ -344,6 +362,12 @@ body {
 
 .heroes-pool::-webkit-scrollbar { width: 4px; }
 .heroes-pool::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
+
+/* scrollbar general */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #1c1c1f; }
+::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
 </style>
 </head>
 
@@ -366,11 +390,11 @@ body {
   <div class="main-box">
     <div class="content-padding-zone">
 
-      <div class="planner-layout">
+      <div class="planner-vertical-layout">
         
         <div class="map-wrapper-block">
           <div class="map-container" id="mapZone">
-            <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" draggable="false" crossorigin="anonymous">
+            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" draggable="false" crossorigin="anonymous">
             <canvas id="drawingCanvas" width="540" height="540"></canvas>
             <div class="trash-bin" id="trashBin">🗑️</div>
           </div>
@@ -405,28 +429,30 @@ body {
             <button class="btn-download" id="btnExport">💾 Guardar PNG</button>
           </div>
 
-          <div class="side-selector">
-            <div class="side-option">
-              <input type="radio" name="sideGroup" id="sideBlue" value="azul" checked>
-              <label for="sideBlue" class="side-label blue-side">🔵 Bando Azul</label>
+          <div class="drawer-controls-row">
+            <div class="side-selector">
+              <div class="side-option">
+                <input type="radio" name="sideGroup" id="sideBlue" value="azul" checked>
+                <label for="sideBlue" class="side-label blue-side">🔵 Bando Azul</label>
+              </div>
+              <div class="side-option">
+                <input type="radio" name="sideGroup" id="sideRed" value="rojo">
+                <label for="sideRed" class="side-label red-side">🔴 Bando Rojo</label>
+              </div>
             </div>
-            <div class="side-option">
-              <input type="radio" name="sideGroup" id="sideRed" value="rojo">
-              <label for="sideRed" class="side-label red-side">🔴 Bando Rojo</label>
-            </div>
-          </div>
 
-          <div class="filter-row">
-            <div class="role-tabs">
-              <button class="role-tab active" data-role="all">Todo</button>
-              <button class="role-tab" data-role="Choque">Choque</button>
-              <button class="role-tab" data-role="Cazador">Cazador</button>
-              <button class="role-tab" data-role="Medio">Medio</button>
-              <button class="role-tab" data-role="Merodeo">Merodeo</button>
-              <button class="role-tab" data-role="Farmeo">Farmeo</button>
-            </div>
-            <div class="search-field">
-              <input type="text" id="heroSearch" placeholder="Buscar...">
+            <div class="filter-row">
+              <div class="role-tabs">
+                <button class="role-tab active" data-role="all">Todo</button>
+                <button class="role-tab" data-role="Choque">Choque</button>
+                <button class="role-tab" data-role="Cazador">Cazador</button>
+                <button class="role-tab" data-role="Medio">Medio</button>
+                <button class="role-tab" data-role="Merodeo">Merodeo</button>
+                <button class="role-tab" data-role="Farmeo">Farmeo</button>
+              </div>
+              <div class="search-field">
+                <input type="text" id="heroSearch" placeholder="Buscar...">
+              </div>
             </div>
           </div>
 
@@ -453,14 +479,13 @@ let activeNode = null;
 // Configuración del canvas de dibujo técnico original
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
-let currentTool = 'move'; // move, pencil, arrow
+let currentTool = 'move';
 let drawColor = '#ffffff';
 let drawWidth = 6;
 let isDrawing = false;
 let startX = 0, startY = 0;
-let drawingHistory = [];
 
-// Carga de base de datos
+// Carga de base de datos analítica mediante PapaParse
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -529,10 +554,9 @@ function setLineWidth(width) {
 
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawingHistory = [];
 }
 
-// Mecánicas del canvas interactivo (Pencil / Arrow / Canvas drag)
+// Mecánicas del canvas interactivo
 canvas.addEventListener('mousedown', startDrawingAction);
 canvas.addEventListener('mousemove', executeDrawingAction);
 canvas.addEventListener('mouseup', stopDrawingAction);
@@ -651,7 +675,7 @@ function spawnNode(src, x, y, side) {
   mapZone.appendChild(img);
 }
 
-// Control global de arrastre de fichas (Mouse y Touch)
+// Control global de arrastre de fichas
 window.addEventListener('mousemove', (e) => {
   if (!activeNode) return;
   const rect = mapZone.getBoundingClientRect();
