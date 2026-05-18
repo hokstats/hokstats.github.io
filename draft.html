@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Simulador de Draft - HoKstats</title>
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA - RÉPLICA EXACTA COUNTERS / INDEX */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
 * {
   box-sizing: border-box;
 }
@@ -14,32 +14,35 @@ body {
   font-family: Arial, sans-serif;
   color: #7b7a8e;
   margin: 0;
-  padding: 24px 0;
+  padding: 24px 0; /* Relleno superior/inferior idéntico a Counters */
   user-select: none;
+  overflow-x: hidden; /* Garantiza que nada rompa el marco general */
 }
 
-/* MARCO MAESTRO: Sin alteraciones de gutters ni reservas de espacio */
+/* MARCO MAESTRO: Límites idénticos a counter.html */
 .container {
   width: 100%;
-  max-width: 1160px; /* 1100px útiles + 60px padding lateral acumulado */
+  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
   margin: 0 auto;
   padding: 0 30px;
 }
 
-/* BARRA SUPERIOR ESTRUCTURA ORIGINAL (CORREGIDA DESALINEACIÓN) */
+/* BARRA SUPERIOR ESTATICA (Calco exacto de counter.html) */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Alineación vertical idéntica al resto de las páginas */
+  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
   margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .logo-text {
   font-family: monospace;
   font-size: 22px;
   color: white;
-  margin: 0 0 10px 4px; /* Margen exacto original de index/counter */
+  margin: 0;
   letter-spacing: 1px;
+  line-height: 1;
 }
 
 .view-tabs {
@@ -73,8 +76,9 @@ body {
   border: 1px solid #444452;
 }
 
+/* ZONA DE RELLENO CORREGIDA PARA EVITAR DESBORDAMIENTOS PARÁSITOS */
 .content-padding-zone {
-  padding: 40px 30px;
+  padding: 40px 20px; /* Reducido a 20px laterales para dar aire y evitar scrolls */
 }
 
 /* 🎭 OVERLAY DE SELECCIÓN DE BANDO */
@@ -96,7 +100,7 @@ body {
 .btn-red-side { background: #dc2626; }
 .btn-red-side:hover { background: #b91c1c; }
 
-/* 📊 ARENA DEL DRAFT MATEMÁTICAMENTE CONTROLADA */
+/* 📊 ARENA DEL DRAFT PROTEGIDA ANTE DESBORDES */
 .draft-arena {
   display: none; 
   justify-content: space-between;
@@ -106,10 +110,11 @@ body {
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 20px;
+  overflow: hidden; /* Evita scrolls accidentales internos */
 }
 
 .team-side {
-  flex: 0 0 220px;
+  flex: 0 0 210px; /* Ajuste milimétrico de seguridad */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -195,7 +200,7 @@ body {
 .status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
 .status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-/* RECOMENDADOR COMPACTO */
+/* RECOMENDADOR FLEXIBLE INTELIGENTE */
 .recommender-container {
   width: 100%;
   display: flex;
@@ -204,7 +209,7 @@ body {
 }
 
 .recommender-box {
-  width: 50%;
+  flex: 1; /* Distribución matemática perfecta basada en el espacio real libre */
   background: #31313c;
   border-radius: 6px;
   padding: 10px;
@@ -341,7 +346,7 @@ body {
 
 .heroes-grid {
   display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px;
-  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1f1c;
+  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f;
 }
 .hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; transition: transform 0.1s ease; }
 .hero-item:hover { transform: scale(1.05); }
@@ -364,7 +369,7 @@ body {
 }
 .btn-refresh-heroes:hover { border-color: #4f6edb; color: white; background: #2b2b35; }
 
-/* 🖌️ FORMATO DE SCROLLBAR UNIFICADO (CALCO FIEL DE COUNTERS) */
+/* 🖌️ FORMATO DE SCROLLBAR INTERNO (RÉPLICA FIEL DE COUNTERS) */
 .rec-list-vertical::-webkit-scrollbar, .heroes-grid::-webkit-scrollbar { width: 6px; }
 .rec-list-vertical::-webkit-scrollbar-track, .heroes-grid::-webkit-scrollbar-track { background: transparent; }
 .rec-list-vertical::-webkit-scrollbar-thumb, .heroes-grid::-webkit-scrollbar-thumb { background: #444452; border-radius: 3px; }
