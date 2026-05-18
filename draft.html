@@ -264,14 +264,14 @@ table.main-layout {
 .bans-container { display: flex; justify-content: space-between; width: 100%; padding: 0 5px; margin-top: 5px; }
 .ban-group { display: flex; gap: 6px; align-items: center; }
 .ban-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #7b7a8e; }
-.ban-slot { width: 36px; height: 36px; background: #1c1c1f; border: 1px dashed #555; border-radius: 4px; overflow: hidden; }
+.ban-slot { width: 36px; height: 36px; background: #1c1c1f; border: 1px dashed #555; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .ban-slot img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(0.7); }
 .blue-side-bans .ban-slot.active-turn { border: 1px solid #0ea5e9; box-shadow: 0 0 6px #0ea5e9; }
 .red-side-bans .ban-slot.active-turn { border: 1px solid #dc2626; box-shadow: 0 0 6px #dc2626; }
 
 /* COMPARTIMENTO DE CAJÓN DE HÉROES DISPONIBLES */
 .drawer-section { padding: 15px 20px 0 20px; display: none; }
-.drawer-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+.drawer-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
 .tabs { display: flex; border: 1px solid #444452; border-radius: 4px; overflow: hidden; }
 .tab {
   padding: 6px 12px; cursor: pointer; background: #31313c; font-size: 11px;
@@ -279,9 +279,32 @@ table.main-layout {
 }
 .tab:last-child { border-right: none; }
 .tab.active { color: white; background: #4f6edb; }
+
+.right-header-controls { display: flex; gap: 10px; align-items: center; }
+
 .search-box input {
   width: 160px; padding: 6px 10px; border-radius: 4px; border: 1px solid #444452;
   background: #282830; color: #ccc; font-size: 11px; outline: none;
+}
+
+/* ❌ BOTÓN DE NO BAN MEDIO */
+.btn-no-ban {
+  background: #5c1d1d;
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  display: none; /* Se activa dinámicamente solo en fases de ban */
+}
+.btn-no-ban:hover {
+  background: #7f1d1d;
+  color: white;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
 }
 
 .heroes-grid {
@@ -416,8 +439,11 @@ table.main-layout {
               <div class="tab" data-role="Merodeo">Merodeo</div>
               <div class="tab" data-role="Farmeo">Farmeo</div>
             </div>
-            <div class="search-box">
-              <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
+            <div class="right-header-controls">
+              <button type="button" class="btn-no-ban" id="no-ban-action" onclick="registrarNoBan()">❌ No Banear</button>
+              <div class="search-box">
+                <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
+              </div>
             </div>
           </div>
           <div class="heroes-grid" id="available-heroes"></div>
@@ -463,9 +489,8 @@ let currentStepIndex = 0;
 let currentRole = 'all';
 let currentSearch = '';
 
-// Encapsulamos la lógica de carga en una función reusable
 function ejecutarParseCSV() {
-  heroesData = []; // Limpiamos para evitar duplicados
+  heroesData = []; 
   Papa.parse(CSV_URL, {
     download: true,
     skipEmptyLines: true,
@@ -494,14 +519,12 @@ function ejecutarParseCSV() {
       });
       heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
       
-      // Forzar repintado tras la descarga exitosa
       renderDrawer(currentRole, currentSearch);
       updateRecommendations();
     }
   });
 }
 
-// Primera ejecución al cargar la app
 ejecutarParseCSV();
 
 function selectUserSide(side) {
@@ -539,11 +562,14 @@ function renderDrawer(role, query) {
     
     const div = document.createElement('div');
     div.className = 'hero-item';
-    if (selectedHeroes.has(hero.nombre)) div.classList.add('disabled');
+    
+    // MEJORA 1: Solo se deshabilita visualmente si el héroe ya fue "Pickeado" (No bloquea bans repetidos)
+    const estaEnPicks = blueTeamPicks.some(h => h.nombre === hero.nombre) || redTeamPicks.some(h => h.nombre === hero.nombre);
+    if (estaEnPicks) div.classList.add('disabled');
     
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}">`;
     div.addEventListener('click', () => {
-      if (!selectedHeroes.has(hero.nombre)) processSelection(hero);
+      if (!estaEnPicks) processSelection(hero);
     });
     grid.appendChild(div);
   });
@@ -557,13 +583,22 @@ function highlightActiveSlot() {
     document.getElementById('turn-label').innerText = "Composiciones Listas";
     document.getElementById('counters-zone').innerHTML = `<div style="color:#22c55e; font-size:12px; font-weight:bold; text-align:center; width:100%;">Draft completado con éxito</div>`;
     document.getElementById('synergies-zone').innerHTML = `<div style="color:#4ade80; font-size:12px; font-weight:bold; text-align:center; width:100%;">Estrategia lista para la arena.</div>`;
+    document.getElementById('no-ban-action').style.display = 'none';
     return;
   }
   
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   const isMyTurn = currentStep.team === userSide;
   
-  document.getElementById('phase-label').innerText = currentStep.type === 'ban' ? "Fase de Bloqueo (Ban)" : "Fase de Selección (Pick)";
+  // MEJORA 3: Mostrar el botón "No Banear" únicamente cuando estemos en fase de ban
+  if (currentStep.type === 'ban') {
+    document.getElementById('no-ban-action').style.display = 'block';
+    document.getElementById('phase-label').innerText = "Fase de Bloqueo (Ban)";
+  } else {
+    document.getElementById('no-ban-action').style.display = 'none';
+    document.getElementById('phase-label').innerText = "Fase de Selección (Pick)";
+  }
+  
   document.getElementById('turn-label').innerText = isMyTurn ? `👉 TU TURNO: ${currentStep.label}` : `⏳ REGISTRA ELECCIÓN DEL RIVAL: ${currentStep.label}`;
   
   const activeSlot = document.getElementById(currentStep.slotId);
@@ -576,17 +611,21 @@ function processSelection(hero) {
   if (currentStepIndex >= DRAFT_SEQUENCE.length) return;
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   
-  selectedHeroes.add(hero.nombre);
+  // Guardamos en el set general solo si es un Pick para bloquear su uso definitivo
+  if (currentStep.type === 'pick') {
+    selectedHeroes.add(hero.nombre);
+  }
   
   actionHistory.push({
     stepIndex: currentStepIndex,
-    hero: hero
+    hero: hero,
+    isNoBan: false
   });
 
+  // MEJORA 2: Se pinta secuencial e inmediatamente en su casilla correspondiente
   const slotEl = document.getElementById(currentStep.slotId);
-  
   if (currentStep.type === 'ban') {
-    slotEl.innerHTML = `<img src="${hero.imagen}">`;
+    slotEl.innerHTML = `<img src="${hero.imagen}" title="Baneado: ${hero.nombre}">`;
   } else {
     if (currentStep.team === 'blue') blueTeamPicks.push(hero);
     else redTeamPicks.push(hero);
@@ -600,6 +639,27 @@ function processSelection(hero) {
   highlightActiveSlot();
 }
 
+// MEJORA 3: Función para saltarse un baneo sin seleccionar ningún personaje
+function registrarNoBan() {
+  if (currentStepIndex >= DRAFT_SEQUENCE.length) return;
+  const currentStep = DRAFT_SEQUENCE[currentStepIndex];
+  if (currentStep.type !== 'ban') return;
+
+  actionHistory.push({
+    stepIndex: currentStepIndex,
+    hero: null,
+    isNoBan: true
+  });
+
+  const slotEl = document.getElementById(currentStep.slotId);
+  // Dibujamos un indicador visual limpio y elegante dentro de la caja de baneo
+  slotEl.innerHTML = `<span style="color:#ef4444; font-size:16px; font-weight:bold; font-family:monospace;">X</span>`;
+
+  currentStepIndex++;
+  renderDrawer(currentRole, currentSearch);
+  highlightActiveSlot();
+}
+
 function undoLastAction() {
   if (actionHistory.length === 0) return;
   
@@ -607,13 +667,14 @@ function undoLastAction() {
   const stepConfig = DRAFT_SEQUENCE[lastAction.stepIndex];
   const heroObj = lastAction.hero;
 
-  selectedHeroes.delete(heroObj.nombre);
-
-  if (stepConfig.type === 'pick') {
-    if (stepConfig.team === 'blue') {
-      blueTeamPicks = blueTeamPicks.filter(h => h.nombre !== heroObj.nombre);
-    } else {
-      redTeamPicks = redTeamPicks.filter(h => h.nombre !== heroObj.nombre);
+  if (!lastAction.isNoBan && heroObj) {
+    if (stepConfig.type === 'pick') {
+      selectedHeroes.delete(heroObj.nombre);
+      if (stepConfig.team === 'blue') {
+        blueTeamPicks = blueTeamPicks.filter(h => h.nombre !== heroObj.nombre);
+      } else {
+        redTeamPicks = redTeamPicks.filter(h => h.nombre !== heroObj.nombre);
+      }
     }
   }
 
@@ -631,7 +692,6 @@ function undoLastAction() {
   highlightActiveSlot();
 }
 
-// 🧮 FUNCIÓN DE ALGORITMO COMPLETO PARA EVALUAR CONFLICTOS RE REALES DE LÍNEA
 function checkCompositionConflict(recHero, allies) {
   if (allies.length === 0) return false;
   
@@ -651,7 +711,7 @@ function checkCompositionConflict(recHero, allies) {
         if (canAssignUnique(index + 1, assignedRoles)) {
           return true; 
         }
-        assignedRoles.delete(role); // Backtrack
+        assignedRoles.delete(role); 
       }
     }
     return false;
@@ -687,7 +747,10 @@ function updateRecommendations() {
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   const isMyTurn = currentStep ? (currentStep.team === userSide) : false;
 
-  let pool = heroesData.filter(h => !selectedHeroes.has(h.nombre));
+  // En las recomendaciones filtramos únicamente héroes que ya estén tomados en Picks reales
+  let pool = heroesData.filter(h => {
+    return !blueTeamPicks.some(p => p.nombre === h.nombre) && !redTeamPicks.some(p => p.nombre === h.nombre);
+  });
 
   let countersGrouped = {};
   let synergiesGrouped = {};
@@ -843,7 +906,6 @@ document.getElementById('reset-draft').addEventListener('click', () => {
   document.getElementById('drawer-box').style.display = 'none';
 });
 
-// Vinculamos la acción al nuevo botón de actualización
 document.getElementById('refresh-heroes-action').addEventListener('click', () => {
   console.log("Forzando recarga manual de la base de datos de héroes...");
   ejecutarParseCSV();
