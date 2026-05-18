@@ -2,17 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Counter List HoK</title>
-
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
+<title>Counters - HoKstats</title>
 <style>
+/* 📊 REGLAS GLOBALES ESTRUCTURALES (INMUTABLES) */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
-  color: #7b7a8e;
+  color: #a0a0b5;
   margin: 0;
   padding: 20px;
+  user-select: none;
 }
 
 .container {
@@ -20,164 +19,12 @@ body {
   margin: auto;
 }
 
-.main-box {
-  background: #31313c;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0; /* 👈 Cero arriba para que la tabla pegue perfectamente */
-}
-
-.tabs-container {
-  padding: 15px 30px; /* 👈 Alinea los filtros con el mismo margen de la tabla */
-  background: #31313c;
-  border-bottom: none; /* 👈 Elimina la línea divisoria */
-}
-
-.tabs-wrapper {
+/* TOP-BAR IDÉNTICO */
+.top-bar {
   display: flex;
-  gap: 10px;
-  width: 100%;
+  justify-content: space-between;
   align-items: center;
 }
-
-.tabs {
-  display: flex;
-  flex: 1 1 auto;
-  min-width: 0;
-  border: 1px solid #444452;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.tab {
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-  padding: 8px 10px;
-  cursor: pointer;
-  border-right: 1px solid #444452;
-  background: #31313c;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.tab:last-child {
-  border-right: none;
-}
-
-.tab.active {
-  color: white;
-  background: #4f6edb;
-}
-
-.search-box {
-  width: 180px;
-  flex: 0 0 180px;
-}
-
-.search-box input {
-  width: 100%;
-  padding: 7px 10px;
-  border-radius: 4px;
-  border: 1px solid #444452;
-  background: #282830;
-  color: #ccc;
-  box-sizing: border-box;
-  font-size: 12px;
-  outline: none;
-}
-
-.search-box input::placeholder {
-  color: #777;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; 
-}
-
-thead {
-  background: #282830;
-}
-
-thead tr {
-  border-bottom: 1px solid #1c1c1f;
-}
-
-thead th {
-  padding: 10px 4px;    
-  font-size: 11px;    
-  color: #7b7a8e;
-  font-weight: bold !important;  
-  cursor: pointer;
-}
-
-tbody tr {
-  background: #31313c;
-  border-top: 1px solid #1c1c1f;
-  border-bottom: 1px solid #1c1c1f;
-}
-
-tbody tr:hover {
-  background: #3a3a46;
-}
-
-td {
-  padding: 8px 4px;   
-}
-
-/* Anchos limpios de columnas */
-.col-pos  { width: 6%; text-align: center; }
-.col-hero { width: 22%; }
-.col-rel  { width: 24%; text-align: center; } 
-
-/* 🎨 CORRECCIÓN AQUÍ: Fondos translúcidos temáticos asignados correctamente */
-.bg-fuerte {
-  background-color: rgba(34, 197, 94, 0.12);  /* Verde translúcido para Fuertes */
-}
-.bg-debil {
-  background-color: rgba(239, 68, 68, 0.12);  /* Rojo translúcido para Débiles */
-}
-.bg-sinergia {
-  background-color: rgba(168, 85, 247, 0.12); /* Lila translúcido para Sinergias */
-}
-
-.champion {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: white;
-  padding-left: 8px;
-}
-
-.champion img {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-}
-
-.champion span {
-  font-size: 11px; 
-  font-weight: bold;
-}
-
-.relation-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: nowrap;
-}
-
-.relation-cell img {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%; 
-  object-fit: cover;
-  border: none !important; 
-}  
 
 .logo-text {
   font-family: monospace;
@@ -186,12 +33,6 @@ td {
   margin-bottom: 10px;
   margin-left: 4px;
   letter-spacing: 1px;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .view-tabs {
@@ -214,19 +55,249 @@ td {
   color: white;
 }
 
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #1c1c1f; }
-::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
+/* FAKE-TABLA MANTENIDA PARA EL ANCHO PERFECTO */
+table.main-layout {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.main-box-cell {
+  background: #31313c;
+  border-radius: 6px;
+  border: 1px solid #1c1c1f;
+  padding: 20px; /* Unificado acolchado interno */
+  box-sizing: border-box;
+}
+
+/* 🔍 CONTROLES DE BÚSQUEDA Y SELECCIÓN MODERNOS */
+.search-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-input-wrapper input:focus {
+  border-color: #4f6edb;
+}
+
+/* Lista desplegable para autocompletar */
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #24242b;
+  border: 1px solid #444452;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  display: none;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #ccc;
+  font-size: 13px;
+}
+
+.suggestion-item:hover {
+  background: #31313c;
+  color: white;
+}
+
+.suggestion-item img {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* 🎴 TARJETA DEL HÉROE EN FOCO */
+.focus-hero-card {
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  display: none; /* Se muestra dinámicamente */
+}
+
+.focus-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #4f6edb;
+}
+
+.focus-details h2 {
+  margin: 0;
+  color: white;
+  font-size: 20px;
+}
+
+.focus-roles {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.role-badge {
+  background: #31313c;
+  color: #a0a0b5;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #444452;
+  text-transform: uppercase;
+}
+
+/* 🏢 DASHBOARD DE COLUMNAS DE RELACIONES (TARJETAS NUEVAS) */
+.relationships-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  display: none; /* Se activa al buscar */
+}
+
+.column-card {
+  background: #24242b;
+  border-radius: 6px;
+  padding: 14px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+}
+
+/* Variaciones de borde sutiles por tipo de relación */
+.col-strong { border: 1px solid #f97316; }   /* Naranja competitiva */
+.col-weak { border: 1px solid #ef4444; }     /* Rojo debilidad */
+.col-synergy { border: 1px solid #22c55e; }  /* Verde combo */
+
+.column-header {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #31313c;
+}
+
+.col-strong .column-header { color: #fb923c; }
+.col-weak .column-header { color: #f87171; }
+.col-synergy .column-header { color: #4ade80; }
+
+.cards-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 4px;
+}
+
+/* 🎴 MINI TARJETA INDIVIDUAL DE HÉROE RELACIONADO */
+.mini-hero-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1c1c1f;
+  border: 1px solid #31313c;
+  border-radius: 6px;
+  padding: 8px;
+  transition: transform 0.1s ease, border-color 0.1s ease;
+}
+
+.mini-hero-card:hover {
+  transform: translateX(2px);
+  border-color: #555;
+}
+
+.mini-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #444452;
+}
+
+.mini-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mini-name {
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-roles {
+  font-size: 10px;
+  color: #7b7a8e;
+  margin-top: 1px;
+}
+
+.empty-column-state {
+  font-size: 11px;
+  color: #555566;
+  text-align: center;
+  margin: auto;
+}
+
+/* Scrollbars limpios para las columnas */
+.cards-list-container::-webkit-scrollbar { width: 4px; }
+.cards-list-container::-webkit-scrollbar-track { background: transparent; }
+.cards-list-container::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
+
+/* Estado inicial agradable */
+.initial-welcome {
+  text-align: center;
+  padding: 6px 0;
+  color: #7b7a8e;
+  font-size: 13px;
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
 
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
-
     <div class="view-tabs">
       <a href="index.html" class="view-tab">General</a>
       <a href="stats.html" class="view-tab">Estadísticas</a>
@@ -235,201 +306,204 @@ td {
       <a href="draft.html" class="view-tab">Draft</a>
       <a href="acerca.html" class="view-tab">Acerca de</a>
     </div>
-    
   </div>
 
-  <div class="main-box">
-    <div class="tabs-container">
-      <div class="tabs-wrapper">
-
-        <div class="tabs">
-          <div class="tab active" data-role="all">Todo</div>
-          <div class="tab" data-role="Choque">Choque</div>
-          <div class="tab" data-role="Cazador">Cazador</div>
-          <div class="tab" data-role="Medio">Medio</div>
-          <div class="tab" data-role="Merodeo">Merodeo</div>
-          <div class="tab" data-role="Farmeo">Farmeo</div>
+  <table class="main-layout">
+    <tr>
+      <td class="main-box-cell">
+        
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <input type="text" id="heroSearchInput" placeholder="Escribe el nombre de un héroe para ver sus interacciones..." autocomplete="off">
+            <div class="suggestions-list" id="suggestionsBox"></div>
+          </div>
         </div>
 
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Buscar héroe...">
+        <div class="initial-welcome" id="welcome-message">
+          🔍 Ingresa un héroe en el buscador para desplegar su ficha técnica analítica de emparejamientos.
         </div>
 
-      </div>
-    </div>
+        <div class="focus-hero-card" id="focus-card">
+          <img src="" class="focus-avatar" id="focus-img">
+          <div class="focus-details">
+            <h2 id="focus-name">Nombre del Héroe</h2>
+            <div class="focus-roles" id="focus-roles-zone"></div>
+          </div>
+        </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th class="col-pos" onclick="sortTable('pos')">Pos</th>
-          <th class="col-hero">Héroe</th>
+        <div class="relationships-grid" id="relations-grid">
           
-          <th class="col-rel bg-fuerte">Fuerte contra</th>
-          <th class="col-rel bg-debil">Débil contra</th>
-          <th class="col-rel bg-sinergia">Sinergia con</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-      
+          <div class="column-card col-strong">
+            <div class="column-header">⚔️ Es Fuerte Contra</div>
+            <div class="cards-list-container" id="strong-list"></div>
+          </div>
+
+          <div class="column-card col-weak">
+            <div class="column-header">⚠️ Es Débil Contra</div>
+            <div class="cards-list-container" id="weak-list"></div>
+          </div>
+
+          <div class="column-card col-synergy">
+            <div class="column-header">🤝 Excelentes Sinergias</div>
+            <div class="cards-list-container" id="synergy-list"></div>
+          </div>
+
+        </div>
+
+      </td>
+    </tr>
+  </table>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
-let allData = [];
-let currentSort = { key: null, asc: false };
-let currentRole = "all";
-let currentSearch = "";
+let heroesData = [];
 
-function cleanNumber(val){
-  if (!val) return 0;
-  return parseFloat(val.toString().replace(/,/g, '').replace('%', '').trim()) || 0;
+// Extracción directa e inteligente calzada con tu hoja actual
+function cargarBaseDatosCSV() {
+  Papa.parse(CSV_URL, {
+    download: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      const rows = results.data.slice(1);
+      rows.forEach(cols => {
+        if (!cols[1]) return;
+        
+        let fuertesNames = [cols[26], cols[29], cols[32], cols[35], cols[38], cols[41]]
+          .filter(Boolean).map(n => n.trim().toLowerCase());
+          
+        let debilesNames = [cols[44], cols[47], cols[50], cols[53], cols[54], cols[59]]
+          .filter(Boolean).map(n => n.trim().toLowerCase());
+          
+        let sinergiasNames = [cols[11], cols[14], cols[17], cols[20], cols[23]]
+          .filter(Boolean).map(n => n.trim().toLowerCase());
+
+        heroesData.push({
+          nombre: cols[1].trim(),
+          imagen: cols[3] ? cols[3].trim() : "",
+          roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
+          fuerteContra: fuertesNames, 
+          debilContra: debilesNames,
+          sinergiaCon: sinergiasNames
+        });
+      });
+      heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
+    }
+  });
 }
+
+cargarBaseDatosCSV();
+
+// Lógica de interacción del input buscador
+const inputSearch = document.getElementById('heroSearchInput');
+const suggestionsBox = document.getElementById('suggestionsBox');
+
+inputSearch.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  if (!query) {
+    suggestionsBox.style.display = 'none';
+    return;
+  }
+
+  const filtrados = heroesData.filter(h => h.nombre.toLowerCase().includes(query)).slice(0, 6);
   
-function parseCSV(text) {
-  return Papa.parse(text.trim(), { skipEmptyLines: true }).data;
-}
+  if (filtrados.length === 0) {
+    suggestionsBox.style.display = 'none';
+    return;
+  }
 
-fetch(CSV_URL)
-.then(r => r.text())
-.then(csv => {
-  const data = parseCSV(csv).slice(1);
-
-  data.forEach(cols => {
-    if (!cols[1]) return;
-
-    allData.push({
-      nombre: cols[1],
-      imagen: cols[3],
-      roles: [cols[5], cols[6], cols[7]].filter(Boolean),
-      pos: cleanNumber(cols[63]),
-
-      // ⚔️ Fuerte contra (6 Máximos)
-      counter: [
-        { name: cols[26], img: cols[28] }, 
-        { name: cols[29], img: cols[31] }, 
-        { name: cols[32], img: cols[34] }, 
-        { name: cols[35], img: cols[37] }, 
-        { name: cols[38], img: cols[40] }, 
-        { name: cols[41], img: cols[43] }  
-      ],
-
-      // 🛡️ Débil contra (6 Máximos)
-      weak: [
-        { name: cols[44], img: cols[46] }, 
-        { name: cols[47], img: cols[49] }, 
-        { name: cols[50], img: cols[52] }, 
-        { name: cols[53], img: cols[55] }, 
-        { name: cols[54], img: cols[58] }, 
-        { name: cols[59], img: cols[61] }  
-      ],
-
-      // 🤝 Sinergia con (5 Máximos)
-      syn: [
-        { name: cols[11], img: cols[13] }, 
-        { name: cols[14], img: cols[16] }, 
-        { name: cols[17], img: cols[19] }, 
-        { name: cols[20], img: cols[22] }, 
-        { name: cols[23], img: cols[25] }  
-      ]
+  suggestionsBox.innerHTML = '';
+  filtrados.forEach(hero => {
+    const item = document.createElement('div');
+    item.className = 'suggestion-item';
+    item.innerHTML = `<img src="${hero.imagen}"> <span>${hero.nombre}</span>`;
+    item.addEventListener('click', () => {
+      inputSearch.value = hero.nombre;
+      suggestionsBox.style.display = 'none';
+      desplegarFichaHeroe(hero);
     });
+    suggestionsBox.appendChild(item);
   });
-
-  currentSort = { key: 'pos', asc: true };
-  allData.sort((a, b) => a.pos - b.pos);
-
-  applyFilters();
+  suggestionsBox.style.display = 'block';
 });
 
-function renderIcons(arr){
-  return arr
-    .filter(x => x.img && x.img !== "#N/A" && x.img.trim() !== "")
-    .map(x => `<img src="${x.img.trim()}" title="${x.name ? x.name.trim() : ''}">`)
-    .join("");
-}
-
-function applyFilters() {
-  let data = [...allData];
-
-  if (currentRole !== "all") {
-    data = data.filter(i => i.roles.includes(currentRole));
-  }
-
-  if (currentSearch) {
-    data = data.filter(i => i.nombre.toLowerCase().includes(currentSearch));
-  }
-
-  renderTable(data);
-}
-
-function renderTable(data) {
-  const tbody = document.querySelector("tbody");
-  tbody.innerHTML = "";
-
-  data.forEach(item => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td class="col-pos" style="font-size:11px; color:#a0a0b5; text-align:center;">${item.pos}</td>
-    
-      <td class="col-hero">
-        <div class="champion">
-          <img src="${item.imagen}">
-          <span>${item.nombre}</span>
-        </div>
-      </td>
-
-      <td class="col-rel bg-fuerte">
-        <div class="relation-cell">${renderIcons(item.counter)}</div>
-      </td>
-      <td class="col-rel bg-debil">
-        <div class="relation-cell">${renderIcons(item.weak)}</div>
-      </td>
-      <td class="col-rel bg-sinergia">
-        <div class="relation-cell">${renderIcons(item.syn)}</div>
-      </td>
-    `;
-
-    tbody.appendChild(tr);
-  });
-}
-
-/* Eventos Filtros por Rol */
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    currentRole = tab.dataset.role;
-    applyFilters();
-  });
+// Cerrar sugerencias al hacer clic afuera
+document.addEventListener('click', (e) => {
+  if (e.target !== inputSearch) suggestionsBox.style.display = 'none';
 });
 
-/* Buscador interactivo */
-document.getElementById("searchInput").addEventListener("input", e => {
-  currentSearch = e.target.value.toLowerCase();
-  applyFilters();
-});
-
-/* Algoritmo de ordenamiento por Pos */
-function sortTable(key) {
-  let asc = false;
-  if (currentSort.key === key) {
-    asc = !currentSort.asc;
-  } else {
-    asc = (key === 'pos'); 
-  }
+// Renderizador del nuevo sistema visual de Tarjetas
+function desplegarFichaHeroe(targetHero) {
+  document.getElementById('welcome-message').style.display = 'none';
   
-  currentSort = { key, asc };
-
-  allData.sort((a, b) => {
-    return asc ? a[key] - b[key] : b[key] - a[key];
+  // 1. Configurar Tarjeta de Foco Superior
+  document.getElementById('focus-card').style.display = 'flex';
+  document.getElementById('focus-img').src = targetHero.imagen;
+  document.getElementById('focus-name').innerText = targetHero.nombre;
+  
+  const rolesZone = document.getElementById('focus-roles-zone');
+  rolesZone.innerHTML = '';
+  targetHero.roles.forEach(role => {
+    rolesZone.innerHTML += `<span class="role-badge">${role}</span>`;
   });
 
-  applyFilters();
+  // Mostrar contenedor de cuadrantes
+  document.getElementById('relations-grid').style.display = 'grid';
+
+  const strongList = document.getElementById('strong-list');
+  const weakList = document.getElementById('weak-list');
+  const synergyList = document.getElementById('synergy-list');
+
+  strongList.innerHTML = '';
+  weakList.innerHTML = '';
+  synergyList.innerHTML = '';
+
+  const targetNombreLower = targetHero.nombre.toLowerCase();
+
+  // Buscar relaciones bidireccionales cruzando el pool entero
+  heroesData.forEach(hero => {
+    if (hero.nombre === targetHero.nombre) return; // No compararse consigo mismo
+    const loopNombreLower = hero.nombre.toLowerCase();
+
+    // Determinar si Target es FUERTE CONTRA el héroe del loop
+    let esFuerte = targetHero.fuerteContra.includes(loopNombreLower) || hero.debilContra.includes(targetNombreLower);
+    
+    // Determinar si Target es DÉBIL CONTRA el héroe del loop
+    let esDebil = targetHero.debilContra.includes(loopNombreLower) || hero.fuerteContra.includes(targetNombreLower);
+    
+    // Determinar si tienen SINERGIA
+    let tieneSinergia = targetHero.sinergiaCon.includes(loopNombreLower) || hero.sinergiaCon.includes(targetNombreLower);
+
+    if (esFuerte) buildingMiniCard(hero, strongList);
+    if (esDebil) buildingMiniCard(hero, weakList);
+    if (tieneSinergia) buildingMiniCard(hero, synergyList);
+  });
+
+  // Mensajes de error en caso de celdas vacías
+  if (strongList.children.length === 0) strongList.innerHTML = '<div class="empty-column-state">Sin información directa registrada.</div>';
+  if (weakList.children.length === 0) weakList.innerHTML = '<div class="empty-column-state">Sin información directa registrada.</div>';
+  if (synergyList.children.length === 0) synergyList.innerHTML = '<div class="empty-column-state">Sin información directa registrada.</div>';
+}
+
+function buildingMiniCard(hero, containerElement) {
+  const card = document.createElement('div');
+  card.className = 'mini-hero-card';
+  card.innerHTML = `
+    <img src="${hero.imagen}" class="mini-avatar">
+    <div class="mini-info">
+      <div class="mini-name">${hero.nombre}</div>
+      <div class="mini-roles">${hero.roles.join(' / ')}</div>
+    </div>
+  `;
+  // Si haces clic en una mini-tarjeta, ¡puedes navegar directo a la ficha de ese héroe!
+  card.addEventListener('click', () => {
+    inputSearch.value = hero.nombre;
+    desplegarFichaHeroe(hero);
+  });
+  containerElement.appendChild(card);
 }
 </script>
-
 </body>
 </html>
