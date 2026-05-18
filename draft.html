@@ -890,21 +890,21 @@ function updateRecommendations() {
     });
   });
 
-  // LÓGICA DEBILIDADES BIDIRECCIONALES:
-  // Para cada enemigo, busco aliados YA pickeados que lo counteen en ambas direcciones
+  // LÓGICA DEBILIDADES: para cada enemigo pickeado, mostrar héroes del pool
+  // que ese enemigo tiene en su fuerteContra — héroes que deberías evitar pickear
   enemies.forEach(enemy => {
     const enemigoNombre = enemy.nombre.toLowerCase();
-    allies.forEach(allied => {
-      const aliadoNombre = allied.nombre.toLowerCase();
-      const aliadoHero = heroesData.find(h => h.nombre === allied.nombre);
-      if (!aliadoHero) return;
 
-      // Bidireccional: el aliado aparece en fuerteContra del enemigo Y el enemigo aparece en debilContra del aliado
-      const aliadoEsFuerteVsEnemigo = aliadoHero.fuerteContra.includes(enemigoNombre);
-      const enemigoEsDebilVsAliado = enemy.debilContra.includes(aliadoNombre);
+    pool.forEach(hero => {
+      const miNombre = hero.nombre.toLowerCase();
 
-      if (aliadoEsFuerteVsEnemigo && enemigoEsDebilVsAliado) {
-        weaknessesGrouped[enemy.nombre].list.push(allied);
+      // El enemigo es fuerte contra este héroe (aparece en su fuerteContra)
+      // O este héroe tiene al enemigo en su debilContra — ambas direcciones
+      const enemyEsFuerteVsHero = enemy.fuerteContra.includes(miNombre);
+      const heroEsDebilVsEnemy = hero.debilContra.includes(enemigoNombre);
+
+      if (enemyEsFuerteVsHero || heroEsDebilVsEnemy) {
+        weaknessesGrouped[enemy.nombre].list.push(hero);
       }
     });
   });
@@ -969,7 +969,7 @@ function updateRecommendations() {
     groupBlock.innerHTML = `
       <div class="rec-group-title-row">
         <img src="${group.target.imagen}">
-        <span>Débil: ${group.target.nombre}</span>
+        <span>Débil ante: ${group.target.nombre}</span>
       </div>
       <div class="rec-items-horizontal-grid"></div>
     `;
@@ -979,13 +979,13 @@ function updateRecommendations() {
     group.list.forEach(allyHero => {
       const iconCard = document.createElement('div');
       iconCard.className = 'rec-icon-card disabled-click';
-      iconCard.innerHTML = `<img src="${allyHero.imagen}" class="hero-main-thumb" title="${allyHero.nombre} es fuerte vs ${group.target.nombre} (bidireccional)">`;
+      iconCard.innerHTML = `<img src="${allyHero.imagen}" class="hero-main-thumb" title="${allyHero.nombre} es débil ante ${group.target.nombre}">`;
       grid.appendChild(iconCard);
     });
   }
 
   if (totalWeaknessesRendered === 0) {
-    weaknessesZone.innerHTML = `<div class="empty-state" style="color:#c084fc;">Sin debilidades bidireccionales confirmadas aún.</div>`;
+    weaknessesZone.innerHTML = `<div class="empty-state" style="color:#c084fc;">Sin héroes débiles ante el rival detectados.</div>`;
   }
 
   let totalSynergiesRendered = 0;
