@@ -104,11 +104,12 @@ table.main-layout {
   gap: 10px;
 }
 
-.pick-slot {
+/* 🎨 TARJETAS DE EQUIPOS IDENTIFICADAS POR COLOR REAL */
+.blue-side .pick-slot {
   height: 75px;
-  background: #2d2d37;
+  background: #1e293b; /* Fondo Azul Sutil */
   border-radius: 6px;
-  border: 2px solid #444452;
+  border: 2px solid #0ea5e9; /* Borde Azul */
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -118,8 +119,31 @@ table.main-layout {
   transition: all 0.2s ease;
 }
 
-.blue-side .pick-slot.active-turn { border-color: #0ea5e9; box-shadow: 0 0 10px rgba(14, 165, 233, 0.4); }
-.red-side .pick-slot.active-turn { border-color: #dc2626; box-shadow: 0 0 10px rgba(220, 38, 38, 0.4); }
+.red-side .pick-slot {
+  height: 75px;
+  background: #3f1616; /* Fondo Rojo Sutil */
+  border-radius: 6px;
+  border: 2px solid #dc2626; /* Borde Rojo */
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* Brillo dinámico de Turno Activo */
+.blue-side .pick-slot.active-turn { 
+  border-color: #38bdf8; 
+  box-shadow: 0 0 14px rgba(14, 165, 233, 0.6); 
+}
+.red-side .pick-slot.active-turn { 
+  border-color: #f87171; 
+  box-shadow: 0 0 14px rgba(220, 38, 38, 0.6); 
+}
 
 .pick-avatar {
   width: 55px;
@@ -133,9 +157,7 @@ table.main-layout {
 
 .pick-info { display: flex; flex-direction: column; min-width: 0; }
 .pick-name { color: white; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pick-role { font-size: 11px; color: #7b7a8e; margin-top: 2px; }
-
-.red-side .pick-slot { flex-direction: row-reverse; text-align: right; }
+.pick-role { font-size: 11px; color: #a0a0b5; margin-top: 2px; opacity: 0.8; }
 
 /* PANEL CENTRAL INTERMEDIO */
 .center-panel {
@@ -178,11 +200,13 @@ table.main-layout {
   display: flex;
   flex-direction: column;
 }
-.recommender-box.box-counters { border: 1px solid #dc2626; }
+
+/* 🍊 ACTUALIZACIÓN A CAJA NARANJA */
+.recommender-box.box-counters { border: 1px solid #f97316; }
 .recommender-box.box-synergies { border: 1px solid #22c55e; }
 
 .rec-header { font-weight: bold; font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-.box-counters .rec-header { color: #f87171; }
+.box-counters .rec-header { color: #fb923c; }
 .box-synergies .rec-header { color: #4ade80; }
 
 .rec-list-vertical { 
@@ -246,7 +270,7 @@ table.main-layout {
   transform: none;
 }
 
-/* 🎨 REGLA VISUAL GRIS */
+/* 🎨 REGLA VISUAL GRIS EN CASO DE COLAPSO DE ROL */
 .rec-icon-card.role-covered img.hero-main-thumb {
   filter: grayscale(1) opacity(0.35);
   border-color: #2a2a35;
@@ -388,12 +412,12 @@ table.main-layout {
 
             <div class="recommender-container" id="rec-container-box">
               <div class="recommender-box box-counters">
-                <div class="rec-header">⚔️ Counters vs Rival</div>
+                <div class="rec-header">⚔️ Fuertes vs Rival</div>
                 <div class="rec-list-vertical" id="counters-zone"></div>
               </div>
 
               <div class="recommender-box box-synergies">
-                <div class="rec-header">🤝 Sinergias para tu Combo</div>
+                <div class="rec-header">🤝 Sinergias para tu Equipo</div>
                 <div class="rec-list-vertical" id="synergies-zone"></div>
               </div>
             </div>
@@ -465,7 +489,7 @@ let redTeamPicks = [];
 let userSide = 'blue';
 let actionHistory = []; 
 
-// Secuencias base de Picks (se mantienen fijas y tradicionales)
+// Secuencias fijas tradicionales de Selección
 const PICKS_SEQUENCE = [
   { type: 'pick', team: 'blue', slotId: 'blue-p1', label: 'Pick Azul 1' },
   { type: 'pick', team: 'red', slotId: 'red-p1', label: 'Pick Rojo 1' },
@@ -479,7 +503,6 @@ const PICKS_SEQUENCE = [
   { type: 'pick', team: 'red', slotId: 'red-p5', label: 'Pick Rojo 5' }
 ];
 
-// Este array se armará de forma dinámica según el bando seleccionado
 let DRAFT_SEQUENCE = [];
 
 let currentStepIndex = 0;
@@ -527,10 +550,8 @@ ejecutarParseCSV();
 function selectUserSide(side) {
   userSide = side;
   
-  // MEJORA FLUJO SUCESIVO: Armamos la secuencia de baneo en bloques continuos por equipo
   let bansOrdenados = [];
   if (userSide === 'blue') {
-    // Si soy Azul, vacio primero mis 3 bloqueos sucesivos rápido, luego registro los 3 del rival de golpe
     bansOrdenados = [
       { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
       { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
@@ -540,7 +561,6 @@ function selectUserSide(side) {
       { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' }
     ];
   } else {
-    // Si soy Rojo, registro primero los 3 del rival de golpe sucesivos, luego meto mis 3 bans seguidos
     bansOrdenados = [
       { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
       { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
@@ -551,7 +571,6 @@ function selectUserSide(side) {
     ];
   }
 
-  // Concatenamos la fase de bloqueo optimizada en bloque con los picks tradicionales intercalados
   DRAFT_SEQUENCE = [...bansOrdenados, ...PICKS_SEQUENCE];
 
   document.getElementById('setup-box').style.display = 'none';
@@ -605,7 +624,7 @@ function highlightActiveSlot() {
   if (currentStepIndex >= DRAFT_SEQUENCE.length) {
     document.getElementById('phase-label').innerText = "Draft Finalizado";
     document.getElementById('turn-label').innerText = "Composiciones Listas";
-    document.getElementById('counters-zone').innerHTML = `<div style="color:#22c55e; font-size:12px; font-weight:bold; text-align:center; width:100%;">Draft completado con éxito</div>`;
+    document.getElementById('counters-zone').innerHTML = `<div style="color:#fb923c; font-size:12px; font-weight:bold; text-align:center; width:100%;">Draft completado con éxito</div>`;
     document.getElementById('synergies-zone').innerHTML = `<div style="color:#4ade80; font-size:12px; font-weight:bold; text-align:center; width:100%;">Estrategia lista para la arena.</div>`;
     document.getElementById('no-ban-action').style.display = 'none';
     return;
@@ -817,7 +836,7 @@ function updateRecommendations() {
     groupBlock.innerHTML = `
       <div class="rec-group-title-row">
         <img src="${group.target.imagen}">
-        <span>Counter de ${group.target.nombre}</span>
+        <span>Fuerte vs ${group.target.nombre}</span>
       </div>
       <div class="rec-items-horizontal-grid"></div>
     `;
@@ -849,7 +868,7 @@ function updateRecommendations() {
   }
 
   if (totalCountersRendered === 0) {
-    countersZone.innerHTML = `<div class="empty-state">Sin counters directos contra la mesa.</div>`;
+    countersZone.innerHTML = `<div class="empty-state">Sin héroes fuertes directos contra la mesa.</div>`;
   }
 
   let totalSynergiesRendered = 0;
