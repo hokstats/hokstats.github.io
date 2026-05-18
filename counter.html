@@ -467,7 +467,7 @@ body {
           <div class="analysis-control-panel">
             <div class="control-action-row">
               <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver</button>
-              <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">Modo Cruzado: OFF</button>
+              <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">MODO CRUZADO: OFF</button>
             </div>
             <div class="analysis-explanation-text" id="explanationText"></div>
           </div>
@@ -499,8 +499,8 @@ body {
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
-const TXT_MODO_NORMAL = `<strong>Modo Normal:</strong> Muestra las relaciones analíticas oficiales registradas en el servidor de origen (China), optimizadas con métricas de rendimiento del servidor global y variaciones específicas del metajuego actual.`;
-const TXT_MODO_CRUZADO = `<strong>Modo Cruzado:</strong> Ejecuta un escaneo inverso bidireccional en la matriz de datos. Descubre y añade automáticamente interacciones ocultas de héroes que impactan a este personaje desde sus propios perfiles competitivos.`;
+const TXT_MODO_NORMAL = `<strong>MODO NORMAL:</strong> Muestra las relaciones analíticas oficiales registradas en el servidor de origen (China), optimizadas con métricas de rendimiento del servidor global y variaciones específicas del metajuego actual.`;
+const TXT_MODO_CRUZADO = `<strong>MODO CRUZADO:</strong> Ejecuta un escaneo inverso bidireccional en la matriz de datos. Descubre y añade automáticamente interacciones ocultas de héroes que impactan a este personaje desde sus propios perfiles competitivos.`;
 
 let heroesData = [];
 let currentRoleFilter = 'all';
