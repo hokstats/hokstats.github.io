@@ -107,9 +107,9 @@ table.main-layout {
 /* 🎨 TARJETAS DE EQUIPOS IDENTIFICADAS POR COLOR REAL */
 .blue-side .pick-slot {
   height: 75px;
-  background: #1e293b; /* Fondo Azul Sutil */
+  background: #1e293b; 
   border-radius: 6px;
-  border: 2px solid #0ea5e9; /* Borde Azul */
+  border: 2px solid #0ea5e9; 
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -121,9 +121,9 @@ table.main-layout {
 
 .red-side .pick-slot {
   height: 75px;
-  background: #3f1616; /* Fondo Rojo Sutil */
+  background: #3f1616; 
   border-radius: 6px;
-  border: 2px solid #dc2626; /* Borde Rojo */
+  border: 2px solid #dc2626; 
   display: flex;
   align-items: center;
   padding: 0 10px;
@@ -135,14 +135,17 @@ table.main-layout {
   text-align: right;
 }
 
-/* Brillo dinámico de Turno Activo */
+/* 🌟 CAPA BLANCA REFLECTIVA Y MEJORA DE VISIBILIDAD EN SELECCIÓN ACTIVA 🌟 */
 .blue-side .pick-slot.active-turn { 
-  border-color: #38bdf8; 
-  box-shadow: 0 0 14px rgba(14, 165, 233, 0.6); 
+  border-color: #ffffff; /* Borde blanco para máximo contraste */
+  background-image: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)), linear-gradient(#1e293b, #1e293b);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2); 
 }
+
 .red-side .pick-slot.active-turn { 
-  border-color: #f87171; 
-  box-shadow: 0 0 14px rgba(220, 38, 38, 0.6); 
+  border-color: #ffffff; /* Borde blanco para máximo contraste */
+  background-image: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)), linear-gradient(#3f1616, #3f1616);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2); 
 }
 
 .pick-avatar {
@@ -155,7 +158,7 @@ table.main-layout {
 }
 .pick-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.pick-info { display: flex; flex-direction: column; min-width: 0; }
+.pick-info { display: flex; flex-direction: column; min-width: 0; z-index: 2; }
 .pick-name { color: white; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pick-role { font-size: 11px; color: #a0a0b5; margin-top: 2px; opacity: 0.8; }
 
@@ -201,7 +204,7 @@ table.main-layout {
   flex-direction: column;
 }
 
-/* 🍊 ACTUALIZACIÓN A CAJA NARANJA */
+/* 🍊 CAJA NARANJA */
 .recommender-box.box-counters { border: 1px solid #f97316; }
 .recommender-box.box-synergies { border: 1px solid #22c55e; }
 
@@ -290,8 +293,18 @@ table.main-layout {
 .ban-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #7b7a8e; }
 .ban-slot { width: 36px; height: 36px; background: #1c1c1f; border: 1px dashed #555; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .ban-slot img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(0.7); }
-.blue-side-bans .ban-slot.active-turn { border: 1px solid #0ea5e9; box-shadow: 0 0 6px #0ea5e9; }
-.red-side-bans .ban-slot.active-turn { border: 1px solid #dc2626; box-shadow: 0 0 6px #dc2626; }
+
+/* 🌟 TAMBIÉN AÑADIMOS RESALTE BLANCO EXTRA A LOS BANS CUANDO ESTÁN ACTIVOS 🌟 */
+.blue-side-bans .ban-slot.active-turn { 
+  border: 1px solid #ffffff; 
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); 
+}
+.red-side-bans .ban-slot.active-turn { 
+  border: 1px solid #ffffff; 
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); 
+}
 
 /* COMPARTIMENTO DE CAJÓN DE HÉROES DISPONIBLES */
 .drawer-section { padding: 15px 20px 0 20px; display: none; }
@@ -489,7 +502,6 @@ let redTeamPicks = [];
 let userSide = 'blue';
 let actionHistory = []; 
 
-// Secuencias fijas tradicionales de Selección
 const PICKS_SEQUENCE = [
   { type: 'pick', team: 'blue', slotId: 'blue-p1', label: 'Pick Azul 1' },
   { type: 'pick', team: 'red', slotId: 'red-p1', label: 'Pick Rojo 1' },
