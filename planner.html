@@ -320,8 +320,17 @@ body {
   border: 1px solid #444452;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  overflow: hidden;
+  overflow: auto;
   flex-shrink: 0;
+}
+
+/* Contenedor interno que escala */
+.map-inner {
+  position: relative;
+  width: 700px;
+  height: 700px;
+  transform-origin: top left;
+  transition: transform 0.15s ease;
 }
 
 .map-background {
@@ -331,14 +340,13 @@ body {
   display: block;
   pointer-events: none;
   object-fit: cover;
-  transform-origin: center center;
-  transition: transform 0.2s ease;
 }
 
 .svg-draw-layer {
   position: absolute;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 700px;
+  height: 700px;
   z-index: 4;
   pointer-events: none;
 }
@@ -446,16 +454,16 @@ body {
       <div class="planner-toolbar">
 
         <!-- Herramientas -->
-        <span class="toolbar-label">Herramienta</span>
-        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe">🖐️ Mover</button>
-        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria">✏️ Lápiz</button>
-        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha">🏹 Flecha</button>
-        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento">🧽 Goma</button>
+        <span class="toolbar-label">Herr.</span>
+        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe">🖐️</button>
+        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria">✏️</button>
+        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha">🏹</button>
+        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento">🧽</button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Historial -->
-        <span class="toolbar-label">Historial</span>
+        <span class="toolbar-label">Hist.</span>
         <button class="btn-tool" id="hist-undo" disabled data-tip="Deshacer">↩️</button>
         <button class="btn-tool" id="hist-redo" disabled data-tip="Rehacer">↪️</button>
 
@@ -463,14 +471,14 @@ body {
 
         <!-- Zoom -->
         <span class="toolbar-label">Zoom</span>
-        <button class="btn-tool" id="zoom-out" data-tip="Alejar">🔍−</button>
-        <span class="zoom-indicator" id="zoom-level">100%</span>
-        <button class="btn-tool" id="zoom-in" data-tip="Acercar">🔍+</button>
+        <button class="btn-tool" id="zoom-out" data-tip="Alejar">−</button>
+        <button class="btn-tool" id="zoom-in" data-tip="Acercar">+</button>
+        <button class="btn-tool" id="zoom-reset" data-tip="Restablecer vista" style="font-size:10px; color:#a0a0b5;">⌂</button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Aura -->
-        <span class="toolbar-label">Bando</span>
+        <span class="toolbar-label">Bdo.</span>
         <button class="btn-tool" id="aura-none" data-tip="Sin aura">⚪</button>
         <button class="btn-tool" id="aura-blue" data-tip="Azul">🔵</button>
         <button class="btn-tool" id="aura-red" data-tip="Rojo">🔴</button>
@@ -478,16 +486,15 @@ body {
         <div class="toolbar-divider"></div>
 
         <!-- Color trazo -->
-        <span class="toolbar-label">Trazo</span>
+        <span class="toolbar-label">Trz.</span>
         <button class="btn-tool active" id="color-yellow" data-tip="Amarillo"><span class="color-dot" style="background:#eab308"></span></button>
         <button class="btn-tool" id="color-green" data-tip="Verde"><span class="color-dot" style="background:#22c55e"></span></button>
-        <button class="btn-tool" id="color-white" data-tip="Blanco"><span class="color-dot" style="background:#ffffff"></span></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Acciones -->
-        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG">💾 Guardar</button>
-        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo">🔄 Reset</button>
+        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG">💾</button>
+        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo">🔄</button>
 
       </div>
 
@@ -518,8 +525,10 @@ body {
         <!-- MAPA DERECHA -->
         <div class="planner-right">
           <div class="map-viewport tool-move" id="mapZone">
-            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
-            <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600"></svg>
+            <div class="map-inner" id="mapInner">
+              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
+              <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 700 700"></svg>
+            </div>
           </div>
         </div>
 
@@ -894,14 +903,8 @@ const ZOOM_MIN  = 0.5;
 const ZOOM_MAX  = 2.5;
 
 function applyZoom() {
-  const mapBg  = document.getElementById('mapBg');
-  const svg    = document.getElementById('svgLayer');
-  const label  = document.getElementById('zoom-level');
-  const scale  = `scale(${mapZoom})`;
-  mapBg.style.transform = scale;
-  svg.style.transform   = scale;
-  svg.style.transformOrigin = 'center center';
-  label.textContent = Math.round(mapZoom * 100) + '%';
+  const inner = document.getElementById('mapInner');
+  inner.style.transform = `scale(${mapZoom})`;
 }
 
 document.getElementById('zoom-in').addEventListener('click', () => {
@@ -912,7 +915,13 @@ document.getElementById('zoom-out').addEventListener('click', () => {
   if (mapZoom > ZOOM_MIN) { mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2)); applyZoom(); }
 });
 
-// Zoom con rueda del ratón sobre el mapa
+document.getElementById('zoom-reset').addEventListener('click', () => {
+  mapZoom = 1;
+  applyZoom();
+  document.getElementById('mapZone').scrollTop = 0;
+  document.getElementById('mapZone').scrollLeft = 0;
+});
+
 document.getElementById('mapZone').addEventListener('wheel', (e) => {
   e.preventDefault();
   if (e.deltaY < 0) {
