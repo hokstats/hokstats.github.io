@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Simulador de Draft - HoKstats</title>
 <style>
-/* 📊 REGLAS GLOBALES CALZADAS CON PLANNER / INDEX (MANTENIENDO ANCHOS UNIFICADOS) */
+/* 📊 REGLAS MAESTRAS UNIFICADAS (CALCO EXACTO DE COUNTERS / INDEX) */
 * {
   box-sizing: border-box;
 }
@@ -14,11 +14,11 @@ body {
   font-family: Arial, sans-serif;
   color: #a0a0b5;
   margin: 0;
-  padding: 24px 0; /* Relleno superior/inferior idéntico */
+  padding: 24px 0; /* Relleno vertical idéntico para evitar Layout Shift */
   user-select: none;
 }
 
-/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente */
+/* MARCO MAESTRO: Copia exacta milimétrica del ancho global de tu ecosistema */
 .container {
   width: 100%;
   max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
@@ -26,11 +26,11 @@ body {
   padding: 0 30px;
 }
 
-/* ESTRUCTURA TOP-BAR EXTRACCIÓN DIRECTA DE PLANNER */
+/* BARRA SUPERIOR ESTÁTICA */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  align-items: flex-end; /* Alineación perfecta al piso de la pestaña activa */
   margin-bottom: 20px;
   padding: 0 4px;
 }
@@ -67,7 +67,7 @@ body {
   border-color: #4f6edb;
 }
 
-/* LA CAJA MAESTRA UNIVERSAL (RÉPLICA EXACTA CON BORDE DE COUNTERS) */
+/* LA CAJA MAESTRA UNIVERSAL (RÉPLICA CON BORDE DE COUNTERS) */
 .main-box-layout {
   background: #31313c;
   border-radius: 6px;
@@ -78,7 +78,7 @@ body {
 
 /* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
 .content-padding-zone {
-  padding: 40px 30px; /* Relleno lateral idéntico de 30px */
+  padding: 40px 30px; /* Relleno lateral idéntico de 30px en todo el sitio */
 }
 
 /* 🎭 OVERLAY DE SELECCIÓN DE BANDO ORIGINAL */
@@ -100,23 +100,35 @@ body {
 .btn-red-side { background: #dc2626; }
 .btn-red-side:hover { background: #b91c1c; }
 
-/* 📊 ARENA DEL DRAFT ORIGINAL (INTEGRAL) */
+/* 📊 ARENA DEL DRAFT CORREGIDA (OCUPA EL 100% DEL ANCHO DISPONIBLE MEDIANTE FLEXBOX) */
 .draft-arena {
   display: none; 
   justify-content: space-between;
-  gap: 15px;
+  gap: 20px;
   background: #24242b;
   border: 1px solid #444452;
   border-radius: 6px;
   padding: 20px;
   margin-bottom: 20px;
+  width: 100%; /* Ajuste forzado al contenedor maestro */
 }
 
+/* Columnas de bando proporcionales fluidas */
 .team-side {
-  width: 23%;
+  flex: 0 0 240px; /* Ancho fijo óptimo para las tarjetas de héroes laterales */
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Panel central fluido que absorbe el resto del espacio del contenedor */
+.center-panel {
+  flex: 1; 
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 /* 🎨 TARJETAS DE EQUIPOS ORIGINALES CON TU LÓGICA DE TRASLACIÓN ALTERNA */
@@ -150,7 +162,7 @@ body {
   text-align: right;
 }
 
-/* 🌟 CAPA BLANCA REFLECTIVA Y MEJORA DE VISIBILIDAD EN SELECCIÓN ACTIVA ORIGINAL */
+/* 🌟 CAPA BLANCA REFLECTIVA EN SELECCIÓN ACTIVA ORIGINAL */
 .blue-side .pick-slot.active-turn { 
   border-color: #ffffff; 
   background-image: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)), linear-gradient(#1e293b, #1e293b);
@@ -178,15 +190,6 @@ body {
 .pick-name { color: white; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pick-role { font-size: 11px; color: #a0a0b5; margin-top: 2px; opacity: 0.8; }
 
-/* PANEL CENTRAL INTERMEDIO ORIGINAL */
-.center-panel {
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-}
-
 .status-display {
   text-align: center;
   background: #1c1c1f;
@@ -200,7 +203,7 @@ body {
 .status-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e; }
 .status-turn { font-size: 16px; font-weight: bold; color: white; margin-top: 3px; }
 
-/* RECOMENDADOR COMPACTO ORIGINAL */
+/* RECOMENDADOR COMPACTO ORIGINAL FLUIDO */
 .recommender-container {
   width: 100%;
   display: flex;
@@ -283,7 +286,7 @@ body {
 .rec-icon-card.disabled-click { cursor: not-allowed; }
 .rec-icon-card.disabled-click:hover { transform: none; }
 
-/* 🎨 REGLA VISUAL GRIS EN CASO DE COLAPSO DE ROL RECUPERADA */
+/* RENDER GRIS EN CASO DE COLAPSO DE ROL */
 .rec-icon-card.role-covered img.hero-main-thumb {
   filter: grayscale(1) opacity(0.35);
   border-color: #2a2a35;
@@ -310,8 +313,8 @@ body {
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); 
 }
 
-/* COMPARTIMENTO DE CAJÓN DE HÉROES DISPONIBLES */
-.drawer-section { padding: 0; display: none; margin-top: 20px; }
+/* COMPARTIMENTO DE CAJÓN DE HÉROES DISPONIBLES EN EL ANCHO GLOBAL */
+.drawer-section { padding: 0; display: none; margin-top: 20px; width: 100%; }
 .drawer-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
 .tabs { display: flex; border: 1px solid #444452; border-radius: 4px; overflow: hidden; }
 .tab {
@@ -349,7 +352,7 @@ body {
 
 .heroes-grid {
   display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px;
-  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f;
+  overflow-y: auto; background: #282830; padding: 12px; border-radius: 6px; border: 1px solid #1c1c1f; width: 100%;
 }
 .hero-item { width: 44px; height: 44px; border-radius: 6px; cursor: pointer; transition: transform 0.1s ease; }
 .hero-item:hover { transform: scale(1.05); }
@@ -357,7 +360,7 @@ body {
 .hero-item.disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
 
 /* BARRA DE BOTONES DE ACCIÓN */
-.control-bar { display: none; justify-content: flex-end; gap: 8px; padding: 0; margin-top: 15px; }
+.control-bar { display: none; justify-content: flex-end; gap: 8px; padding: 0; margin-top: 15px; width: 100%; }
 .empty-state { font-size: 11px; color: #7b7a8e; padding: 5px; text-align: center; width: 100%; margin: auto; }
 
 .btn-refresh-heroes {
@@ -414,7 +417,7 @@ body {
 
           <div class="center-panel">
             <div class="status-display">
-              <div class="status-title" id="phase-label">Fase de Bloqueo (Ban)</div>
+              <div class="phase-label" id="phase-label" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7b7a8e;">Fase de Bloqueo (Ban)</div>
               <div class="status-turn" id="turn-label">Cargando...</div>
             </div>
 
@@ -556,26 +559,14 @@ ejecutarParseCSV();
 function selectUserSide(side) {
   userSide = side;
   
-  let bansOrdenados = [];
-  if (userSide === 'blue') {
-    bansOrdenados = [
-      { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
-      { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
-      { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
-      { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
-      { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
-      { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' }
-    ];
-  } else {
-    bansOrdenados = [
-      { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
-      { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
-      { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
-      { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
-      { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
-      { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' }
-    ];
-  }
+  let bansOrdenados = [
+    { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
+    { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
+    { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
+    { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
+    { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
+    { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' }
+  ];
 
   DRAFT_SEQUENCE = [...bansOrdenados, ...PICKS_SEQUENCE];
 
