@@ -600,7 +600,7 @@ function desplegarFichaDetalle(targetHero) {
   
   bidireccionalMode = false;
   const btn = document.getElementById('toggleAnalysisMode');
-  btn.innerText = "Modo Cruzado: OFF";
+  btn.innerText = "MODO CRUZADO: OFF";
   btn.classList.remove('active');
   document.getElementById('explanationText').innerHTML = TXT_MODO_NORMAL;
 
@@ -663,11 +663,11 @@ function cambiarModoAnalisis() {
   const exp = document.getElementById('explanationText');
   
   if (bidireccionalMode) {
-    btn.innerText = "Modo Cruzado: ON";
+    btn.innerText = "MODO CRUZADO: ON";
     btn.classList.add('active');
     exp.innerHTML = TXT_MODO_CRUZADO;
   } else {
-    btn.innerText = "Modo Cruzado: OFF";
+    btn.innerText = "MODO CRUZADO: OFF";
     btn.classList.remove('active');
     exp.innerHTML = TXT_MODO_NORMAL;
   }
