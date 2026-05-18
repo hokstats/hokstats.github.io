@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Counters - HoKstats</title>
 <style>
-/* 📊 REGLAS GLOBALES ESTRUCTURALES DE HOKSTATS */
+/* 📊 COHESIÓN VISUAL ESTRICTA CON HOKSTATS */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -19,7 +19,7 @@ body {
   margin: auto;
 }
 
-/* TOP-BAR COMPARTIDO */
+/* TOP-BAR ORIGINAL */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -55,7 +55,7 @@ body {
   color: white;
 }
 
-/* CONTENEDOR FAKE-TABLA INMUTABLE */
+/* ENCAPSULAMIENTO FAKE-TABLA INMUTABLE */
 table.main-layout {
   width: 100%;
   border-collapse: collapse;
@@ -69,8 +69,8 @@ table.main-layout {
   box-sizing: border-box;
 }
 
-/* 🔍 CONTROLES DE FILTRADO Y BÚSQUEDA */
-.controls-row {
+/* 🔍 CABECERA DE FILTROS MINIMALISTA */
+.filter-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -78,7 +78,6 @@ table.main-layout {
   margin-bottom: 20px;
 }
 
-/* PESTAÑAS DE ROLES ESTILO DRAFT */
 .tabs {
   display: flex;
   border: 1px solid #444452;
@@ -87,7 +86,7 @@ table.main-layout {
 }
 
 .tab {
-  padding: 6px 12px;
+  padding: 6px 14px;
   cursor: pointer;
   background: #24242b;
   font-size: 11px;
@@ -95,64 +94,66 @@ table.main-layout {
   font-weight: bold;
   text-transform: uppercase;
   border-right: 1px solid #444452;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .tab:last-child { border-right: none; }
 .tab.active { color: white; background: #4f6edb; }
+.tab:hover:not(.active) { background: #31313c; color: white; }
 
 .search-box input {
-  width: 220px;
+  width: 200px;
   padding: 6px 12px;
   border-radius: 4px;
   border: 1px solid #444452;
   background: #24242b;
   color: white;
-  font-size: 12px;
+  font-size: 11px;
   outline: none;
 }
 .search-box input:focus { border-color: #4f6edb; }
 
-/* 🎴 REJILLA DE CATÁLOGO GENERAL INITIAL */
+/* 🎴 GRILLA DE CATÁLOGO MINIMALISTA (3 COLUMNAS SIMÉTRICAS) */
 .catalog-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-/* TARJETA COMPACTA DE HÉROE (VISTA GENERAL) */
-.hero-catalog-card {
+/* TARJETA PROFESIONAL COMPACTA */
+.hero-compact-card {
   background: #24242b;
   border: 1px solid #444452;
   border-radius: 6px;
   padding: 10px;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.hero-catalog-card:hover {
-  transform: translateY(-2px);
+.hero-compact-card:hover {
   border-color: #4f6edb;
+  background: #292932;
 }
 
-.catalog-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 6px;
+.card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
   object-fit: cover;
   border: 1px solid #444452;
 }
 
-.catalog-info {
+.card-meta-info {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  flex-grow: 1;
+  gap: 3px;
   min-width: 0;
 }
 
-.catalog-name {
+.card-hero-name {
   color: white;
   font-weight: bold;
   font-size: 13px;
@@ -161,42 +162,18 @@ table.main-layout {
   text-overflow: ellipsis;
 }
 
-/* Métricas sutiles WR/PR/BR */
-.catalog-stats-row {
+.card-stats-row {
   display: flex;
-  gap: 8px;
-  font-size: 10px;
+  gap: 10px;
+  font-size: 11px;
   color: #7b7a8e;
-  margin-top: 2px;
 }
-.stat-item span { color: #ccc; font-weight: bold; }
-.stat-wr span { color: #4ade80; } /* Verde para destacar Winrate */
+.stat-wr span { color: #4ade80; font-weight: bold; }
+.stat-normal span { color: #ccc; }
 
-/* Bloques de Fase Temporal Early / Mid / Late */
-.catalog-phases {
-  display: flex;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.phase-badge {
-  font-size: 8px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  font-weight: bold;
-  background: #1c1c1f;
-  color: #555566;
-}
-/* Colores de rendimiento según el dato */
-.phase-badge.perf-alto { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
-.phase-badge.perf-medio { color: #eab308; background: rgba(234, 179, 8, 0.1); }
-.phase-badge.perf-bajo { color: #f87171; background: rgba(248, 113, 113, 0.1); }
-
-
-/* 🎚️ ESTADO ACTIVO: DETALLE AMPLIADO DEL HÉROE SELECCIONADO */
+/* 🎚️ PANEL DE DETALLE EXPANDIDO (ESTADO ACTIVO) */
 .detail-view-container {
-  display: none; /* Oculto inicialmente */
+  display: none;
 }
 
 .back-bar {
@@ -207,40 +184,39 @@ table.main-layout {
   border: 1px solid #444452;
   color: white;
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
 }
 .btn-back:hover { background: #31313c; border-color: #7b7a8e; }
 
-/* Tarjeta de Foco Superior */
 .focus-hero-card {
   background: #24242b;
   border: 1px solid #444452;
   border-radius: 6px;
-  padding: 16px;
+  padding: 14px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   margin-bottom: 20px;
 }
 
 .focus-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 6px;
+  width: 55px;
+  height: 55px;
+  border-radius: 4px;
   object-fit: cover;
   border: 2px solid #4f6edb;
 }
 
-.focus-details h2 { margin: 0; color: white; font-size: 18px; }
-.focus-roles { display: flex; gap: 6px; margin-top: 5px; }
+.focus-details h2 { margin: 0; color: white; font-size: 16px; }
+.focus-roles { display: flex; gap: 6px; margin-top: 4px; }
 .role-badge {
   background: #31313c; color: #a0a0b5; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #444452; text-transform: uppercase;
 }
 
-/* Rejilla de 3 Columnas */
+/* Rejilla Analítica Superior de Relaciones */
 .relationships-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -250,21 +226,21 @@ table.main-layout {
 .column-card {
   background: #24242b;
   border-radius: 6px;
-  padding: 14px;
+  padding: 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 460px;
+  height: 440px;
 }
 
-.col-strong { border: 1px solid #f97316; }
-.col-weak { border: 1px solid #ef4444; }
-.col-synergy { border: 1px solid #22c55e; }
+.col-strong { border: 1px solid #dc2626; } /* Rojo Competitivo */
+.col-weak { border: 1px solid #ef4444; opacity: 0.95; }
+.col-synergy { border: 1px solid #22c55e; } /* Verde Combo */
 
 .column-header {
   font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #31313c;
 }
-.col-strong .column-header { color: #fb923c; }
+.col-strong .column-header { color: #f87171; }
 .col-weak .column-header { color: #f87171; }
 .col-synergy .column-header { color: #4ade80; }
 
@@ -272,12 +248,11 @@ table.main-layout {
   display: flex; flex-direction: column; gap: 6px; overflow-y: auto; flex-grow: 1; padding-right: 2px;
 }
 
-/* Mini tarjetas internas de relaciones */
 .mini-hero-card {
-  display: flex; align-items: center; gap: 10px; background: #1c1c1f; border: 1px solid #31313c; border-radius: 6px; padding: 6px; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; background: #1c1c1f; border: 1px solid #31313c; border-radius: 4px; padding: 6px; cursor: pointer;
 }
 .mini-hero-card:hover { border-color: #555; }
-.mini-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.mini-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 .mini-name { color: white; font-weight: bold; font-size: 12px; }
 .mini-roles { font-size: 10px; color: #7b7a8e; }
 
@@ -307,7 +282,7 @@ table.main-layout {
       <td class="main-box-cell">
         
         <div id="catalog-view">
-          <div class="controls-row">
+          <div class="filter-header-row">
             <div class="tabs">
               <div class="tab active" data-role="all">Todo</div>
               <div class="tab" data-role="Choque">Choque</div>
@@ -369,15 +344,6 @@ let heroesData = [];
 let currentRoleFilter = 'all';
 let currentSearchQuery = '';
 
-// Helper para formatear las clases de rendimiento temporal (Early, Mid, Late)
-function obtenerClaseRendimiento(valor) {
-  if (!valor) return 'perf-medio';
-  const val = valor.trim().toLowerCase();
-  if (val === 'alto' || val === 'fuerte') return 'perf-alto';
-  if (val === 'bajo' || val === 'débil' || val === 'debil') return 'perf-bajo';
-  return 'perf-medio';
-}
-
 function cargarBaseDatos() {
   Papa.parse(CSV_URL, {
     download: true,
@@ -387,7 +353,6 @@ function cargarBaseDatos() {
       rows.forEach(cols => {
         if (!cols[1]) return;
         
-        // Mapeo sutil de tus columnas de relaciones
         let fuertesNames = [cols[26], cols[29], cols[32], cols[35], cols[38], cols[41]]
           .filter(Boolean).map(n => n.trim().toLowerCase());
           
@@ -401,15 +366,9 @@ function cargarBaseDatos() {
           nombre: cols[1].trim(),
           imagen: cols[3] ? cols[3].trim() : "",
           roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
-          // Estadísticas generales integradas para el Catálogo
           winrate: cols[8] ? cols[8].trim() : "0%",
           pickrate: cols[9] ? cols[9].trim() : "0%",
           banrate: cols[10] ? cols[10].trim() : "0%",
-          // Rendimiento temporal (Calzado aproximado a tus columnas de tiempos)
-          early: cols[62] ? cols[62].trim() : "Medio",
-          mid: cols[63] ? cols[63].trim() : "Medio",
-          late: cols[64] ? cols[64].trim() : "Medio",
-          // Relaciones cruzadas
           fuerteContra: fuertesNames, 
           debilContra: debilesNames,
           sinergiaCon: sinergiasNames
@@ -421,37 +380,29 @@ function cargarBaseDatos() {
   });
 }
 
-// Renderizador del Catálogo Inicial
+// Renderizado limpio de catálogo en 3 columnas puras
 function renderCatalogo() {
   const grid = document.getElementById('catalogGridZone');
   grid.innerHTML = '';
 
   heroesData.forEach(hero => {
-    // Aplicar Filtro de Rol
     if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return;
-    // Aplicar Filtro de Búsqueda por Input
     if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return;
 
     const card = document.createElement('div');
-    card.className = 'hero-catalog-card';
+    card.className = 'hero-compact-card';
     card.innerHTML = `
-      <img src="${hero.imagen}" class="catalog-avatar">
-      <div class="catalog-info">
-        <div class="catalog-name">${hero.nombre}</div>
-        <div class="catalog-stats-row">
-          <div class="stat-item stat-wr">WR: <span>${hero.winrate}</span></div>
-          <div class="stat-item">PR: <span>${hero.pickrate}</span></div>
-          <div class="stat-item">BR: <span>${hero.banrate}</span></div>
-        </div>
-        <div class="catalog-phases">
-          <span class="phase-badge ${obtenerClaseRendimiento(hero.early)}">E: ${hero.early}</span>
-          <span class="phase-badge ${obtenerClaseRendimiento(hero.mid)}">M: ${hero.mid}</span>
-          <span class="phase-badge ${obtenerClaseRendimiento(hero.late)}">L: ${hero.late}</span>
+      <img src="${hero.imagen}" class="card-avatar">
+      <div class="card-meta-info">
+        <div class="card-hero-name">${hero.nombre}</div>
+        <div class="card-stats-row">
+          <div class="stat-wr">WR: <span>${hero.winrate}</span></div>
+          <div class="stat-normal">PR: <span>${hero.pickrate}</span></div>
+          <div class="stat-normal">BR: <span>${hero.banrate}</span></div>
         </div>
       </div>
     `;
 
-    // Al hacer clic, se expande la ficha técnica analítica
     card.addEventListener('click', () => {
       desplegarFichaDetalle(hero);
     });
@@ -460,13 +411,10 @@ function renderCatalogo() {
   });
 }
 
-// Despliegue de la Ficha Expandida de Counters
 function desplegarFichaDetalle(targetHero) {
-  // Conmutación visual de paneles
   document.getElementById('catalog-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
 
-  // Configurar héroe central en Foco
   document.getElementById('focus-img').src = targetHero.imagen;
   document.getElementById('focus-name').innerText = targetHero.nombre;
   
@@ -486,7 +434,6 @@ function desplegarFichaDetalle(targetHero) {
 
   const targetNombreLower = targetHero.nombre.toLowerCase();
 
-  // Algoritmo de cruce cruzado inteligente de dependencias
   heroesData.forEach(hero => {
     if (hero.nombre === targetHero.nombre) return;
     const loopNombreLower = hero.nombre.toLowerCase();
@@ -515,7 +462,6 @@ function crearMiniTarjetaRelacion(hero, contenedor) {
       <div class="mini-roles">${hero.roles.join(' / ')}</div>
     </div>
   `;
-  // Navegación encadenada fluida entre fichas de counters
   mini.addEventListener('click', () => {
     desplegarFichaDetalle(hero);
   });
@@ -527,7 +473,7 @@ function volverAlCatalogo() {
   document.getElementById('catalog-view').style.display = 'block';
 }
 
-// 🕹️ CAPTURA DE EVENTOS DE INTERFAZ DE USUARIO
+// CONTROL DE EVENTOS
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -542,7 +488,6 @@ document.getElementById('catalogSearch').addEventListener('input', (e) => {
   renderCatalogo();
 });
 
-// Inicialización automática
 cargarBaseDatos();
 </script>
 </body>
