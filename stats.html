@@ -1,38 +1,95 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Tier List HoK</title>
+<title>Tier List HoK - HoKstats</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
+/* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
   color: #7b7a8e;
   margin: 0;
-  padding: 20px;
+  padding: 24px 0; /* Relleno superior/inferior idéntico */
+  user-select: none;
 }
 
+/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
 .container {
-  max-width: 1100px;
-  margin: auto;
+  width: 100%;
+  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
+  margin: 0 auto;
+  padding: 0 30px;
 }
 
+/* BARRA SUPERIOR ESTATICA */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  margin-bottom: 20px;
+  padding: 0 4px;
+}
+
+.logo-text {
+  font-family: monospace;
+  font-size: 22px;
+  color: white;
+  margin: 0;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.view-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.view-tab {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #31313c;
+  border: 1px solid #444452;
+  cursor: pointer;
+  color: #a0a0b5;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.view-tab.active {
+  background: #4f6edb;
+  color: white;
+  border-color: #4f6edb;
+}
+
+/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA EN TODAS LAS PÁGINAS) */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0; /* 👈 Cero arriba, limpia el espacio vacío */
+  border: 1px solid #444452; /* Borde unificado */
+  width: 100%;
 }
 
+/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
+.content-padding-zone {
+  padding: 40px 30px 40px 30px; /* Relleno lateral idéntico de 30px */
+}
+
+/* ESTRUCTURACIÓN DE FILTROS EN LA ZONA DE CONTENIDO */
 .tabs-container {
-  padding: 15px 30px; /* 👈 Espacio cómodo para los filtros de roles */
+  padding: 0 0 20px 0; /* Eliminados paddings que desalineaban la caja interna */
   background: #31313c;
-  border-bottom: none; /* 👈 Quita la línea que cortaba la fluidez */
+  border-bottom: none;
 }
 
 /* 🔥 contenedor flexible */
@@ -109,7 +166,7 @@ thead tr {
   border-bottom: 1px solid #1c1c1f;
 }
 
-/* 🔥 CORRECCIÓN ANTERIOR: Forzamos la negrita apuntando exactamente a las celdas th de thead */
+/* th de thead */
 thead th {
   padding: 8px 4px;    
   font-size: 11px;    
@@ -129,7 +186,7 @@ tbody tr:hover {
 }
 
 td {
-  padding: 6px 4px;   /* Reducimos el padding lateral de las celdas a 4px para juntarlas más */
+  padding: 6px 4px;
 }
 
 /* 📌 FIJAMOS EL TAMAÑO DE LAS PRIMERAS 4 COLUMNAS */
@@ -144,7 +201,7 @@ td {
 .col-weak { width: 10%; text-align: center; }
 .col-counter { width: 10%; text-align: center; }
 
-/* 🔥 ESTILO EXCLUSIVO PARA LOS NÚMEROS DEL CUERPO DE LA TABLA (Win, Pick, Ban) */
+/* NÚMEROS DEL CUERPO DE LA TABLA (Win, Pick, Ban) */
 tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   font-weight: bold !important;
   color: #b3b2bf !important;
@@ -229,15 +286,6 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   object-fit: cover;
 }  
 
-.logo-text {
-  font-family: monospace;
-  font-size: 22px;
-  color: white;
-  margin-bottom: 10px;
-  margin-left: 4px;
-  letter-spacing: 1px;
-}
-
 .info-box {
   background: #31313c;
   border: 1px solid #1c1c1f;
@@ -283,32 +331,6 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   color: white;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.view-tabs {
-  display: flex;
-  gap: 6px;
-}
-
-.view-tab {
-  padding: 6px 12px;
-  font-size: 12px;
-  background: #31313c;
-  border: 1px solid #444452;
-  cursor: pointer;
-  color: #a0a0b5;
-  text-decoration: none; /* 👈 AGREGA ESTA LÍNEA PARA QUITAR EL SUBRAYADO */
-}
-
-.view-tab.active {
-  background: #4f6edb;
-  color: white;
-}
-
 /* contenedores */
 .view {
   display: none;
@@ -345,7 +367,6 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 ::-webkit-scrollbar-thumb:hover {
   background: #5a5a6b;
 }
-  
 </style>
 </head>
 
@@ -355,73 +376,71 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
-
-      <div class="view-tabs">
-        <a href="index.html" class="view-tab">General</a>
-        <a href="stats.html" class="view-tab active">Estadísticas</a>
-        <a href="counter.html" class="view-tab">Counters</a>
-        <a href="planner.html" class="view-tab">Planner</a>
-        <a href="draft.html" class="view-tab">Draft</a>
-        <a href="acerca.html" class="view-tab">Acerca de</a>
-      </div>
+    <div class="view-tabs">
+      <a href="index.html" class="view-tab">General</a>
+      <a href="stats.html" class="view-tab active">Estadísticas</a>
+      <a href="counter.html" class="view-tab">Counters</a>
+      <a href="planner.html" class="view-tab">Planner</a>
+      <a href="draft.html" class="view-tab">Draft</a>
+      <a href="acerca.html" class="view-tab">Acerca de</a>
+    </div>
   </div>
 
   <div class="view active" id="stats">
-  <div class="main-box">
+    <div class="main-box">
+      <div class="content-padding-zone">
 
-    <div class="tabs-container">
-      <div class="tabs-wrapper">
-
-        <div class="tabs">
-          <div class="tab active" data-role="all">Todo</div>
-          <div class="tab" data-role="Choque">Choque</div>
-          <div class="tab" data-role="Cazador">Cazador</div>
-          <div class="tab" data-role="Medio">Medio</div>
-          <div class="tab" data-role="Merodeo">Merodeo</div>
-          <div class="tab" data-role="Farmeo">Farmeo</div>
+        <div class="tabs-container">
+          <div class="tabs-wrapper">
+            <div class="tabs">
+              <div class="tab active" data-role="all">Todo</div>
+              <div class="tab" data-role="Choque">Choque</div>
+              <div class="tab" data-role="Cazador">Cazador</div>
+              <div class="tab" data-role="Medio">Medio</div>
+              <div class="tab" data-role="Merodeo">Merodeo</div>
+              <div class="tab" data-role="Farmeo">Farmeo</div>
+            </div>
+            <div class="search-box">
+              <input type="text" id="searchInput" placeholder="Buscar héroe...">
+            </div>
+          </div>
         </div>
 
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Buscar héroe...">
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th class="col-pos" onclick="sortTable('pos')">Pos</th>
+              <th class="col-hero">Héroe</th>
+              <th class="col-tier" onclick="sortTable('tier')">Tier</th>
+              <th class="col-rol">Rol</th>
+              <th class="col-stat" onclick="sortTable('win')">Win</th>
+              <th class="col-stat" onclick="sortTable('pick')">Pick</th>
+              <th class="col-stat" onclick="sortTable('ban')">Ban</th>
+
+              <th class="col-stat" onclick="sortTable('early')">Rend. Early</th>
+              <th class="col-stat" onclick="sortTable('mid')">Rend. Mid</th>
+              <th class="col-stat" onclick="sortTable('late')">Rend. Late</th>
+              <th class="col-stat" onclick="sortTable('output')">Daño/ partida</th>
+              <th class="col-stat" onclick="sortTable('kills')">Kills/ partida</th>
+              <th class="col-stat" onclick="sortTable('gold')">Oro caza</th>
+              <th class="col-stat" onclick="sortTable('suffer')">Daño/ muerte</th>
+              <th class="col-stat" onclick="sortTable('assist')">Asist./ partida</th>
+              <th class="col-stat" onclick="sortTable('towers')">Torres/ partida</th>
+              <th class="col-stat" onclick="sortTable('towerDmg')">Daño torres</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
 
       </div>
     </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th class="col-pos" onclick="sortTable('pos')">Pos</th>
-          <th class="col-hero">Héroe</th>
-          <th class="col-tier" onclick="sortTable('tier')">Tier</th>
-          <th class="col-rol">Rol</th>
-          <th class="col-stat" onclick="sortTable('win')">Win</th>
-          <th class="col-stat" onclick="sortTable('pick')">Pick</th>
-          <th class="col-stat" onclick="sortTable('ban')">Ban</th>
-
-          <th class="col-stat" onclick="sortTable('early')">Rend. Early</th>
-          <th class="col-stat" onclick="sortTable('mid')">Rend. Mid</th>
-          <th class="col-stat" onclick="sortTable('late')">Rend. Late</th>
-          <th class="col-stat" onclick="sortTable('output')">Daño/ partida</th>
-          <th class="col-stat" onclick="sortTable('kills')">Kills/ partida</th>
-          <th class="col-stat" onclick="sortTable('gold')">Oro caza</th>
-          <th class="col-stat" onclick="sortTable('suffer')">Daño/ muerte</th>
-          <th class="col-stat" onclick="sortTable('assist')">Asist./ partida</th>
-          <th class="col-stat" onclick="sortTable('towers')">Torres/ partida</th>
-          <th class="col-stat" onclick="sortTable('towerDmg')">Daño torres</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
   </div>
-</div>
 
-<div class="view" id="charts">
-  <div class="chart-box">
-    <canvas id="scatterChart"></canvas>
+  <div class="view" id="charts">
+    <div class="chart-box">
+      <canvas id="scatterChart"></canvas>
+    </div>
   </div>
-</div>
       
 </div>
 
@@ -537,7 +556,6 @@ fetch(CSV_URL)
     });
   });
 
-  // 🔥 REQUISITO 1: Orden inicial por la columna 'pos' de menor a mayor (1, 2, 3...) al cargar la web
   currentSort = { key: 'pos', asc: true };
   allData.sort((a, b) => a.pos - b.pos);
 
@@ -621,7 +639,6 @@ function renderTable(data) {
   });
 }
 
-/* filtros */
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -632,23 +649,17 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-/* buscador */
 document.getElementById("searchInput").addEventListener("input", e => {
   currentSearch = e.target.value.toLowerCase();
   applyFilters();
 });
 
-/* sorting */
 function sortTable(key) {
-  // 🔥 REQUISITO 2: Cambiado comportamiento para estadísticas.
-  // Si es 'pos', por defecto inicia de menor a mayor (ascendente).
-  // Si es estadística, inicia de mayor a menor (descendente), luego alterna al reverso.
   let asc = false;
   
   if (currentSort.key === key) {
     asc = !currentSort.asc;
   } else {
-    // Si cambiamos de columna, definimos el orden por defecto del primer clic:
     asc = (key === 'pos' || key === 'tier'); 
   }
   
@@ -658,7 +669,6 @@ function sortTable(key) {
     let valA = a[key];
     let valB = b[key];
 
-    // Tratamiento especial por si se ordena por la letra del Tier (S, A, B, C...)
     if (key === 'tier') {
       return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
     }
@@ -690,7 +700,6 @@ document.querySelectorAll(".view-tab").forEach(tab => {
 });
 
 function createChart() {
-
   const ctx = document.getElementById("scatterChart");
 
   const data = allData.map(hero => {
