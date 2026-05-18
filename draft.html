@@ -117,36 +117,36 @@ table.main-layout {
 }
 
 .team-side {
-  width: 23%;
+  width: 18%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 /* 🎨 TARJETAS DE EQUIPOS IDENTIFICADAS POR COLOR REAL */
 .blue-side .pick-slot {
-  height: 75px;
+  height: 72px;
   background: #1e293b; 
   border-radius: 6px;
   border: 2px solid #0ea5e9; 
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  gap: 12px;
+  padding: 0 8px;
+  gap: 8px;
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .red-side .pick-slot {
-  height: 75px;
+  height: 72px;
   background: #3f1616; 
   border-radius: 6px;
   border: 2px solid #dc2626; 
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  gap: 12px;
+  padding: 0 8px;
+  gap: 8px;
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -168,22 +168,23 @@ table.main-layout {
 }
 
 .pick-avatar {
-  width: 55px;
-  height: 55px;
+  width: 52px;
+  height: 52px;
   background: #1c1c1f;
-  border-radius: 50%;
+  border-radius: 14px;
   overflow: hidden;
   border: 2px solid #555;
+  flex-shrink: 0;
 }
 .pick-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .pick-info { display: flex; flex-direction: column; min-width: 0; z-index: 2; }
-.pick-name { color: white; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pick-role { font-size: 11px; color: #a0a0b5; margin-top: 2px; opacity: 0.8; }
+.pick-name { color: white; font-weight: bold; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pick-role { font-size: 10px; color: #a0a0b5; margin-top: 2px; opacity: 0.8; }
 
 /* PANEL CENTRAL INTERMEDIO */
 .center-panel {
-  width: 50%;
+  width: 62%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -226,10 +227,13 @@ table.main-layout {
 /* 🍊 CAJA NARANJA */
 .recommender-box.box-counters { border: 1px solid #f97316; }
 .recommender-box.box-synergies { border: 1px solid #22c55e; }
+/* 💜 CAJA VIOLETA — DEBILIDADES BIDIRECCIONALES */
+.recommender-box.box-weaknesses { border: 1px solid #a855f7; }
 
 .rec-header { font-weight: bold; font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
 .box-counters .rec-header { color: #fb923c; }
 .box-synergies .rec-header { color: #4ade80; }
+.box-weaknesses .rec-header { color: #c084fc; }
 
 .rec-list-vertical { 
   display: flex; 
@@ -464,8 +468,13 @@ table.main-layout {
                 <div class="rec-list-vertical" id="counters-zone"></div>
               </div>
 
+              <div class="recommender-box box-weaknesses">
+                <div class="rec-header">💜 Débiles del Rival</div>
+                <div class="rec-list-vertical" id="weaknesses-zone"></div>
+              </div>
+
               <div class="recommender-box box-synergies">
-                <div class="rec-header">🤝 Sinergias para tu Equipo</div>
+                <div class="rec-header">🤝 Sinergias</div>
                 <div class="rec-list-vertical" id="synergies-zone"></div>
               </div>
             </div>
@@ -673,6 +682,7 @@ function highlightActiveSlot() {
     document.getElementById('phase-label').innerText = "Draft Finalizado";
     document.getElementById('turn-label').innerText = "Composiciones Listas";
     document.getElementById('counters-zone').innerHTML = `<div style="color:#fb923c; font-size:12px; font-weight:bold; text-align:center; width:100%;">Draft completado con éxito</div>`;
+    document.getElementById('weaknesses-zone').innerHTML = `<div style="color:#c084fc; font-size:12px; font-weight:bold; text-align:center; width:100%;">Análisis bidireccional completado.</div>`;
     document.getElementById('synergies-zone').innerHTML = `<div style="color:#4ade80; font-size:12px; font-weight:bold; text-align:center; width:100%;">Estrategia lista para la arena.</div>`;
     document.getElementById('no-ban-action').style.display = 'none';
     return;
@@ -811,11 +821,13 @@ function checkCompositionConflict(recHero, allies) {
 function updateRecommendations() {
   const containerBox = document.getElementById('rec-container-box');
   const countersZone = document.getElementById('counters-zone');
+  const weaknessesZone = document.getElementById('weaknesses-zone');
   const synergiesZone = document.getElementById('synergies-zone');
 
-  if (!countersZone || !synergiesZone) return;
+  if (!countersZone || !weaknessesZone || !synergiesZone) return;
 
   countersZone.innerHTML = '';
+  weaknessesZone.innerHTML = '';
   synergiesZone.innerHTML = '';
 
   containerBox.style.opacity = "1";
@@ -825,6 +837,7 @@ function updateRecommendations() {
 
   if (allies.length === 0 && enemies.length === 0) {
     countersZone.innerHTML = `<div class="empty-state" style="color:#7b7a8e;">Esperando selecciones del rival...</div>`;
+    weaknessesZone.innerHTML = `<div class="empty-state" style="color:#c084fc;">Esperando picks del rival...</div>`;
     synergiesZone.innerHTML = `<div class="empty-state" style="color:#4ade80; font-weight:bold;">¡Fase de apertura! Realiza tu primer pick para detonar sinergias.</div>`;
     return;
   }
@@ -837,10 +850,12 @@ function updateRecommendations() {
   });
 
   let countersGrouped = {};
+  let weaknessesGrouped = {};
   let synergiesGrouped = {};
 
   enemies.forEach(enemy => {
     countersGrouped[enemy.nombre] = { target: enemy, list: [] };
+    weaknessesGrouped[enemy.nombre] = { target: enemy, list: [] };
   });
   allies.forEach(allied => {
     synergiesGrouped[allied.nombre] = { target: allied, list: [] };
@@ -851,13 +866,17 @@ function updateRecommendations() {
 
     enemies.forEach(enemy => {
       const enemigoNombre = enemy.nombre.toLowerCase();
+
+      // CAJA NARANJA: héroes fuertes vs rival (uni o bidireccional)
       let esCounter = false;
       if (hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
       if (enemy.debilContra.includes(miNombre)) esCounter = true;
-
       if (esCounter) {
         countersGrouped[enemy.nombre].list.push(hero);
       }
+
+      // CAJA VIOLETA: héroes del rival que son débiles — confirmado bidireccional
+      // El enemigo aparece en debilContra de algún aliado Y el aliado aparece en fuerteContra del enemigo
     });
 
     allies.forEach(allied => {
@@ -865,9 +884,27 @@ function updateRecommendations() {
       let tieneSinergia = false;
       if (hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
       if (allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
-
       if (tieneSinergia) {
         synergiesGrouped[allied.nombre].list.push(hero);
+      }
+    });
+  });
+
+  // LÓGICA DEBILIDADES BIDIRECCIONALES:
+  // Para cada enemigo, busco aliados YA pickeados que lo counteen en ambas direcciones
+  enemies.forEach(enemy => {
+    const enemigoNombre = enemy.nombre.toLowerCase();
+    allies.forEach(allied => {
+      const aliadoNombre = allied.nombre.toLowerCase();
+      const aliadoHero = heroesData.find(h => h.nombre === allied.nombre);
+      if (!aliadoHero) return;
+
+      // Bidireccional: el aliado aparece en fuerteContra del enemigo Y el enemigo aparece en debilContra del aliado
+      const aliadoEsFuerteVsEnemigo = aliadoHero.fuerteContra.includes(enemigoNombre);
+      const enemigoEsDebilVsAliado = enemy.debilContra.includes(aliadoNombre);
+
+      if (aliadoEsFuerteVsEnemigo && enemigoEsDebilVsAliado) {
+        weaknessesGrouped[enemy.nombre].list.push(allied);
       }
     });
   });
@@ -917,6 +954,38 @@ function updateRecommendations() {
 
   if (totalCountersRendered === 0) {
     countersZone.innerHTML = `<div class="empty-state">Sin héroes fuertes directos contra la mesa.</div>`;
+  }
+
+  // RENDERIZADO CAJÓN VIOLETA — DEBILIDADES BIDIRECCIONALES
+  let totalWeaknessesRendered = 0;
+  for (const key in weaknessesGrouped) {
+    const group = weaknessesGrouped[key];
+    if (group.list.length === 0) continue;
+
+    totalWeaknessesRendered++;
+
+    const groupBlock = document.createElement('div');
+    groupBlock.className = 'rec-group-container';
+    groupBlock.innerHTML = `
+      <div class="rec-group-title-row">
+        <img src="${group.target.imagen}">
+        <span>Débil: ${group.target.nombre}</span>
+      </div>
+      <div class="rec-items-horizontal-grid"></div>
+    `;
+    weaknessesZone.appendChild(groupBlock);
+
+    const grid = groupBlock.querySelector('.rec-items-horizontal-grid');
+    group.list.forEach(allyHero => {
+      const iconCard = document.createElement('div');
+      iconCard.className = 'rec-icon-card disabled-click';
+      iconCard.innerHTML = `<img src="${allyHero.imagen}" class="hero-main-thumb" title="${allyHero.nombre} es fuerte vs ${group.target.nombre} (bidireccional)">`;
+      grid.appendChild(iconCard);
+    });
+  }
+
+  if (totalWeaknessesRendered === 0) {
+    weaknessesZone.innerHTML = `<div class="empty-state" style="color:#c084fc;">Sin debilidades bidireccionales confirmadas aún.</div>`;
   }
 
   let totalSynergiesRendered = 0;
