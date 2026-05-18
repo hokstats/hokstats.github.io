@@ -71,8 +71,8 @@ body {
 .main-box-layout {
   background: #31313c;
   border-radius: 6px;
-  overflow: hidden;
   border: 1px solid #444452;
+  /* Se elimina overflow: hidden para evitar que corte el simulador o cree barras parásitas */
 }
 
 /* ZONA DE RELLENO CORREGIDA PARA EVITAR DESBORDAMIENTOS PARÁSITOS */
@@ -109,7 +109,7 @@ body {
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 20px;
-  overflow: hidden; /* Evita scrolls accidentales internos */
+  /* Se elimina overflow: hidden para que fluya hacia abajo de forma continua */
 }
 
 .team-side {
