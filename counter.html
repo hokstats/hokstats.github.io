@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <title>Counters - HoKstats</title>
 <style>
-/* 📊 REGLAS GLOBALES COHESIVAS CON HOKSTATS */
+/* 📊 COHESIÓN VISUAL CALZADA CON STATS.HTML */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
-  color: #a0a0b5;
+  color: #7b7a8e;
   margin: 0;
   padding: 20px;
   user-select: none;
@@ -19,7 +19,7 @@ body {
   margin: auto;
 }
 
-/* TOP-BAR DE CONTINUIDAD EXTRACCIÓN DIRECTA */
+/* TOP-BAR ESTRUCTURAL */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -55,67 +55,78 @@ body {
   color: white;
 }
 
-/* CONTENEDOR PRINCIPAL TIPO TABLA */
-table.main-layout {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.main-box-cell {
+/* CONTENEDOR PRINCIPAL BASADO EN TU CLASE .MAIN-BOX */
+.main-box {
   background: #31313c;
   border-radius: 6px;
+  overflow: hidden;
   border: 1px solid #1c1c1f;
-  padding: 20px;
+  padding: 0 0 30px 0;
+}
+
+/* 🔍 CONTENEDOR DE FILTROS COPIADO DE STATS.HTML */
+.tabs-container {
+  padding: 15px 30px;
+  background: #31313c;
+}
+
+.tabs-wrapper {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
   box-sizing: border-box;
 }
 
-/* 🔍 INTERFAZ DE FILTROS IDÉNTICA A DRAFT / STATS */
-.filter-header-row {
+.tabs {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-grow: 1;
 }
 
-.tabs { 
-  display: flex; 
-  border: 1px solid #444452; 
-  border-radius: 4px; 
-  overflow: hidden; 
-}
-
-.tab {
-  padding: 6px 12px; 
-  cursor: pointer; 
-  background: #31313c; 
-  font-size: 11px;
-  color: #a0a0b5; 
-  font-weight: bold; 
-  text-transform: uppercase; 
-  border-right: 1px solid #444452;
-}
-.tab:last-child { border-right: none; }
-.tab.active { color: white; background: #4f6edb; }
-
-.search-box input {
-  width: 180px; 
-  padding: 6px 10px; 
-  border-radius: 4px; 
+.role-tab {
+  background: #282830;
   border: 1px solid #444452;
-  background: #282830; 
-  color: #ccc; 
-  font-size: 11px; 
+  color: #7b7a8e;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.role-tab:hover { background: #383844; color: #fff; }
+.role-tab.active { background: #4f6edb; color: #fff; border-color: #4f6edb; }
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-wrapper input {
+  background: #282830;
+  border: 1px solid #444452;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  width: 180px;
   outline: none;
 }
+.search-wrapper input::placeholder { color: #555565; }
 
-/* 🎴 GRILLA DEL CATÁLOGO (FILA ÚNICA EN 3 COLUMNAS SIMÉTRICAS) */
+/* 🎴 GRILLA DEL CATÁLOGO (ANCHO CONTROLADO Y FIJO) */
+.catalog-padding-zone {
+  padding: 0 30px;
+}
+
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-/* TARJETA MINIMALISTA PULIDA */
+/* TARJETA COMPACTA FIJA (Previene desbordes si hay nombres largos) */
 .hero-compact-card {
   background: #24242b;
   border: 1px solid #444452;
@@ -125,9 +136,9 @@ table.main-layout {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;
+  overflow: hidden; /* Evita que cualquier elemento rompa la tarjeta */
 }
-
 .hero-compact-card:hover {
   border-color: #4f6edb;
   background: #292932;
@@ -137,7 +148,8 @@ table.main-layout {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 0;
+  min-width: 0; /* Permite truncado correcto de textos hijos */
+  flex: 1;
 }
 
 .card-avatar {
@@ -146,13 +158,15 @@ table.main-layout {
   border-radius: 4px;
   object-fit: cover;
   border: 1px solid #444452;
+  flex-shrink: 0;
 }
 
 .card-meta-info {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  min-width: 0;
+  min-width: 0; /* Truncado de seguridad */
+  flex: 1;
 }
 
 .card-hero-name {
@@ -171,24 +185,26 @@ table.main-layout {
   color: #7b7a8e;
 }
 
-/* CONTENEDOR DE TIER MINIMALISTA DERECHO */
+/* CONTENEDOR DE TIER MINIMALISTA DERECHO FIJO */
 .card-tier-block {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  min-width: 40px;
+  width: 36px;
+  height: 36px;
   text-align: center;
+  flex-shrink: 0; /* Impide que se achique por culpa del nombre del héroe */
 }
 
 .tier-bg-text {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.08);
   letter-spacing: 0.5px;
   position: absolute;
-  top: 2px;
+  top: 0;
   text-transform: uppercase;
 }
 
@@ -200,9 +216,10 @@ table.main-layout {
   z-index: 2;
 }
 
-/* 🎚️ CONFIGURACIÓN DE VISTA DETALLADA */
+/* 🎚️ PANEL DETALLE DE RELACIONES EXPANDIDO */
 .detail-view-container {
   display: none;
+  padding: 0 30px;
 }
 
 .back-bar {
@@ -224,11 +241,10 @@ table.main-layout {
 }
 .btn-back:hover { background: #31313c; border-color: #7b7a8e; }
 
-/* Botón de Modo Bidireccional Analítico */
 .btn-toggle-mode {
-  background: #31313c;
+  background: #282830;
   border: 1px solid #444452;
-  color: #a0a0b5;
+  color: #7b7a8e;
   padding: 6px 12px;
   font-size: 11px;
   font-weight: bold;
@@ -266,7 +282,7 @@ table.main-layout {
   background: #31313c; color: #a0a0b5; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #444452; text-transform: uppercase;
 }
 
-/* REJILLA DE RELACIONES */
+/* REJILLA DE RELACIONES ANALÍTICAS */
 .relationships-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -284,7 +300,7 @@ table.main-layout {
 }
 
 .col-strong { border: 1px solid #dc2626; }
-.col-weak { border: 1px solid #ef4444; opacity: 0.95; }
+.col-weak { border: 1px solid #ef4444; }
 .col-synergy { border: 1px solid #22c55e; }
 
 .column-header {
@@ -327,63 +343,61 @@ table.main-layout {
     </div>
   </div>
 
-  <table class="main-layout">
-    <tr>
-      <td class="main-box-cell">
-        
-        <div id="catalog-view">
-          <div class="filter-header-row">
-            <div class="tabs">
-              <div class="tab active" data-role="all">Todo</div>
-              <div class="tab" data-role="Choque">Choque</div>
-              <div class="tab" data-role="Cazador">Cazador</div>
-              <div class="tab" data-role="Medio">Medio</div>
-              <div class="tab" data-role="Merodeo">Merodeo</div>
-              <div class="tab" data-role="Farmeo">Farmeo</div>
-            </div>
-            <div class="search-box">
-              <input type="text" id="catalogSearch" placeholder="Buscar héroe por nombre...">
-            </div>
-          </div>
+  <div class="main-box">
+    
+    <div class="tabs-container">
+      <div class="tabs-wrapper">
+        <div class="tabs">
+          <button class="role-tab active" data-role="all">Todo</button>
+          <button class="role-tab" data-role="Choque">Choque</button>
+          <button class="role-tab" data-role="Cazador">Cazador</button>
+          <button class="role-tab" data-role="Medio">Medio</button>
+          <button class="role-tab" data-role="Merodeo">Merodeo</button>
+          <button class="role-tab" data-role="Farmeo">Farmeo</button>
+        </div>
+        <div class="search-wrapper">
+          <input type="text" id="searchHero" placeholder="Buscar héroe por nombre...">
+        </div>
+      </div>
+    </div>
 
-          <div class="catalog-grid" id="catalogGridZone"></div>
+    <div id="catalog-view" class="catalog-padding-zone">
+      <div class="catalog-grid" id="catalogGridZone"></div>
+    </div>
+
+    <div id="detail-view" class="detail-view-container">
+      <div class="back-bar">
+        <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver al Catálogo</button>
+        <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">Modo Cruzado: OFF</button>
+      </div>
+
+      <div class="focus-hero-card">
+        <img src="" class="focus-avatar" id="focus-img">
+        <div class="focus-details">
+          <h2 id="focus-name">-</h2>
+          <div class="focus-roles" id="focus-roles-zone"></div>
+        </div>
+      </div>
+
+      <div class="relationships-grid">
+        <div class="column-card col-strong">
+          <div class="column-header">⚔️ Es Fuerte Contra</div>
+          <div class="cards-list-container" id="strong-list"></div>
         </div>
 
-        <div id="detail-view" class="detail-view-container">
-          <div class="back-bar">
-            <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver al Catálogo</button>
-            <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">Modo Cruzado: OFF</button>
-          </div>
-
-          <div class="focus-hero-card">
-            <img src="" class="focus-avatar" id="focus-img">
-            <div class="focus-details">
-              <h2 id="focus-name">-</h2>
-              <div class="focus-roles" id="focus-roles-zone"></div>
-            </div>
-          </div>
-
-          <div class="relationships-grid">
-            <div class="column-card col-strong">
-              <div class="column-header">⚔️ Es Fuerte Contra</div>
-              <div class="cards-list-container" id="strong-list"></div>
-            </div>
-
-            <div class="column-card col-weak">
-              <div class="column-header">⚠️ Es Débil Contra</div>
-              <div class="cards-list-container" id="weak-list"></div>
-            </div>
-
-            <div class="column-card col-synergy">
-              <div class="column-header">🤝 Excelentes Sinergias</div>
-              <div class="cards-list-container" id="synergy-list"></div>
-            </div>
-          </div>
+        <div class="column-card col-weak">
+          <div class="column-header">⚠️ Es Débil Contra</div>
+          <div class="cards-list-container" id="weak-list"></div>
         </div>
 
-      </td>
-    </tr>
-  </table>
+        <div class="column-card col-synergy">
+          <div class="column-header">🤝 Excelentes Sinergias</div>
+          <div class="cards-list-container" id="synergy-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -394,17 +408,16 @@ let heroesData = [];
 let currentRoleFilter = 'all';
 let currentSearchQuery = '';
 let selectedHeroInFocus = null;
-let bidireccionalMode = false; // Por defecto: Unidireccional (Limpio)
+let bidireccionalMode = false;
 
-// Asignación de color según rango de Winrate dinámico
 function obtenerColorWinrate(wrString) {
   let num = parseFloat(wrString.replace('%', ''));
-  if (isNaN(num)) return '#a0a0b5';
-  if (num >= 53) return '#4ade80'; // Máximo meta
-  if (num >= 51) return '#10b981'; // Fuerte estable
-  if (num >= 49) return '#a0a0b5'; // Equilibrado
-  if (num >= 47) return '#f97316'; // Bajo
-  return '#f87171'; // Crítico / Peor
+  if (isNaN(num)) return '#7b7a8e';
+  if (num >= 53) return '#4ade80'; 
+  if (num >= 51) return '#10b981'; 
+  if (num >= 49) return '#a0a0b5'; 
+  if (num >= 47) return '#f97316'; 
+  return '#f87171'; 
 }
 
 function cargarBaseDatos() {
@@ -425,6 +438,9 @@ function cargarBaseDatos() {
         let sinergiasNames = [cols[11], cols[14], cols[17], cols[20], cols[23]]
           .filter(Boolean).map(n => n.trim().toLowerCase());
 
+        // Columna BK es la número 62 de la hoja de cálculo (base 0)
+        let tierReal = cols[62] ? cols[62].trim().toUpperCase() : "T2";
+
         heroesData.push({
           nombre: cols[1].trim(),
           imagen: cols[3] ? cols[3].trim() : "",
@@ -432,7 +448,7 @@ function cargarBaseDatos() {
           winrate: cols[8] ? cols[8].trim() : "0%",
           pickrate: cols[9] ? cols[9].trim() : "0%",
           banrate: cols[10] ? cols[10].trim() : "0%",
-          tier: cols[4] ? cols[4].trim().toUpperCase() : "T3", // Extraído posicional de stats
+          tier: tierReal, 
           fuerteContra: fuertesNames, 
           debilContra: debilesNames,
           sinergiaCon: sinergiasNames
@@ -516,7 +532,6 @@ function procesarRelacionesColumnas() {
     if (hero.nombre === selectedHeroInFocus.nombre) return;
     const loopNombreLower = hero.nombre.toLowerCase();
 
-    // Filtros de relación estricta (Unidireccional vs Cruzado completo)
     let esFuerte = selectedHeroInFocus.fuerteContra.includes(loopNombreLower);
     let esDebil = selectedHeroInFocus.debilContra.includes(loopNombreLower);
     let tieneSinergia = selectedHeroInFocus.sinergiaCon.includes(loopNombreLower);
@@ -571,17 +586,17 @@ function volverAlCatalogo() {
   document.getElementById('catalog-view').style.display = 'block';
 }
 
-// CAPTURA DE EVENTOS
-document.querySelectorAll('.tab').forEach(tab => {
+// CAPTURA DE EVENTOS DE INTERFAZ (.ROLE-TAB COMO EN STATS)
+document.querySelectorAll('.role-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentRoleFilter = tab.dataset.role;
     renderCatalogo();
   });
 });
 
-document.getElementById('catalogSearch').addEventListener('input', (e) => {
+document.getElementById('searchHero').addEventListener('input', (e) => {
   currentSearchQuery = e.target.value.toLowerCase().trim();
   renderCatalogo();
 });
