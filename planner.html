@@ -81,12 +81,12 @@ body {
   padding: 40px 30px;
 }
 
-/* 🗺️ INTERFAZ APILADA VÉRTICALMENTE (Cajón debajo del mapa) */
+/* 🗺️ INTERFAZ APILADA VÉRTICALMENTE */
 .planner-vertical-layout {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  align-items: center; /* Centra los bloques principales */
+  align-items: center;
 }
 
 /* CONTENEDOR DEL MAPA Y SU PROPIA BARRA DE HERRAMIENTAS */
@@ -94,7 +94,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 540px; /* Ancho estricto del mapa */
+  width: 540px;
 }
 
 .map-container {
@@ -108,8 +108,8 @@ body {
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-/* Asegura que SOLO la imagen de fondo se estire a todo el contenedor */
-.map-container > img {
+/* Imagen de fondo del mapa de la grieta */
+.map-container > img:not(.map-node) {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -132,25 +132,29 @@ body {
   cursor: crosshair;
 }
 
-/* 📌 CORRECCIÓN TOTAL: Nodos dinámicos en el mapa con escala estricta */
+/* 📌 FIJACIÓN TOTAL DE NODOS INTERACTIVOS (Tanto <img> como <div> de hitmarks) */
 .map-container .map-node {
-  position: absolute;
+  position: absolute !important;
   width: 32px !important;
   height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
   max-width: 32px !important;
   max-height: 32px !important;
-  object-fit: cover !important;
   border-radius: 50% !important;
-  transform: translate(-50%, -50%);
+  object-fit: cover !important;
+  transform: translate(-50%, -50%) !important;
   cursor: grab;
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  box-sizing: border-box !important;
 }
 
 .map-container .map-node:active {
   cursor: grabbing;
 }
 
+/* Bordes tácticos de bando */
 .map-container .map-node.azul { border: 2px solid #4f6edb !important; }
 .map-container .map-node.rojo { border: 2px solid #ef4444 !important; }
 
@@ -218,10 +222,10 @@ body {
 }
 .color-picker-dot.selected { border-color: white; }
 
-/* 🎚️ CAJÓN / SIDEBAR REUBICADO ABAJO (Ancho completo del contenedor útil) */
+/* 🎚️ CAJÓN DE HÉROES PANORÁMICO BAJO EL MAPA */
 .drawer {
   width: 100%;
-  max-width: 1100px; /* Ocupa todo el ancho alineado con el contenedor maestro */
+  max-width: 1100px;
   background: #24242b;
   border-radius: 6px;
   border: 1px solid #444452;
@@ -255,7 +259,6 @@ body {
 }
 .btn-download:hover { background: #3b55b8; }
 
-/* Sección superior de controles del cajón */
 .drawer-controls-row {
   display: flex;
   justify-content: space-between;
@@ -334,11 +337,11 @@ body {
   outline: none;
 }
 
-/* CUADRÍCULA PANORÁMICA DE HÉROES */
+/* CUADRÍCULA DE SELECCIÓN DE HÉROES (Pool de cartas) */
 .heroes-pool {
-  height: 200px; /* Reducido el alto al ser más ancho para visualización limpia */
+  height: 200px;
   display: grid;
-  grid-template-columns: repeat(12, 1fr); /* 12 columnas aprovechando el espacio horizontal */
+  grid-template-columns: repeat(12, 1fr);
   gap: 10px;
   overflow-y: auto;
   background: #1c1c1f;
@@ -357,7 +360,10 @@ body {
 }
 
 .pool-item img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .heroes-pool::-webkit-scrollbar { width: 4px; }
@@ -394,7 +400,7 @@ body {
         
         <div class="map-wrapper-block">
           <div class="map-container" id="mapZone">
-            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" draggable="false" crossorigin="anonymous">
+            <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" draggable="false" crossorigin="anonymous">
             <canvas id="drawingCanvas" width="540" height="540"></canvas>
             <div class="trash-bin" id="trashBin">🗑️</div>
           </div>
@@ -485,7 +491,6 @@ let drawWidth = 6;
 let isDrawing = false;
 let startX = 0, startY = 0;
 
-// Carga de base de datos analítica mediante PapaParse
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -533,7 +538,6 @@ function renderPool(role, search) {
 const mapZone = document.getElementById('mapZone');
 const trashBin = document.getElementById('trashBin');
 
-// Controladores de herramientas de dibujo
 function setTool(tool) {
   currentTool = tool;
   document.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
@@ -552,11 +556,12 @@ function setLineWidth(width) {
   drawWidth = parseInt(width);
 }
 
+// Limpia el canvas de dibujo
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// Mecánicas del canvas interactivo
+// Mecánicas de dibujo en canvas
 canvas.addEventListener('mousedown', startDrawingAction);
 canvas.addEventListener('mousemove', executeDrawingAction);
 canvas.addEventListener('mouseup', stopDrawingAction);
@@ -638,7 +643,7 @@ function drawVectorArrow(fromx, fromy, tox, toy) {
   ctx.fill();
 }
 
-// Drag & Drop elemental de personajes
+// Drag & Drop de héroes al mapa
 mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 mapZone.addEventListener('drop', (e) => {
   e.preventDefault();
@@ -675,7 +680,7 @@ function spawnNode(src, x, y, side) {
   mapZone.appendChild(img);
 }
 
-// Control global de arrastre de fichas
+// Seguimiento global de arrastre
 window.addEventListener('mousemove', (e) => {
   if (!activeNode) return;
   const rect = mapZone.getBoundingClientRect();
@@ -742,7 +747,7 @@ window.addEventListener('touchend', (e) => {
   trashBin.classList.remove('drag-over');
 });
 
-// Soporte alternativo para clics planos e hitmarks
+// Soporte para clics planos (Puntos de bando sin imagen)
 mapZone.addEventListener('click', (e) => {
   if (currentTool !== 'move') return;
   if (e.target !== mapZone && e.target !== canvas) return;
@@ -773,7 +778,7 @@ mapZone.addEventListener('click', (e) => {
   mapZone.appendChild(dot);
 });
 
-// Exportación mediante html2canvas
+// Exportación a PNG
 document.getElementById('btnExport').addEventListener('click', () => {
   const btn = document.getElementById('btnExport');
   btn.innerText = "⏳ Procesando...";
