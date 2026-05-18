@@ -1,45 +1,48 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
 <title>Map Planner - HoKstats</title>
 
 <style>
+/* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
   color: #a0a0b5;
   margin: 0;
-  padding: 20px;
+  padding: 24px 0; /* Relleno superior/inferior idéntico */
   user-select: none;
 }
 
+/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
 .container {
-  max-width: 1100px;
-  margin: auto;
+  width: 100%;
+  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
+  margin: 0 auto;
+  padding: 0 30px;
 }
 
-.main-box {
-  background: #31313c;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0;
-}
-
+/* BARRA SUPERIOR ESTATICA */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .logo-text {
   font-family: monospace;
   font-size: 22px;
   color: white;
-  margin-bottom: 10px;
-  margin-left: 4px;
+  margin: 0;
   letter-spacing: 1px;
+  line-height: 1;
 }
 
 .view-tabs {
@@ -55,273 +58,244 @@ body {
   cursor: pointer;
   color: #a0a0b5;
   text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .view-tab.active {
   background: #4f6edb;
   color: white;
-}
-
-/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA */
-.planner-toolbar {
-  background: #282830;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  border-bottom: 1px solid #1c1c1f;
-  flex-wrap: wrap;
-}
-
-.tool-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.tool-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  color: #7b7a8e;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  margin-right: 4px;
-}
-
-.btn-tool {
-  background: #31313c;
-  border: 1px solid #444452;
-  color: #ccc;
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-tool:hover {
-  background: #3a3a46;
-  color: white;
-}
-
-.btn-tool.active {
-  background: #4f6edb;
-  color: white;
   border-color: #4f6edb;
 }
 
-.btn-tool:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA EN TODAS LAS PÁGINAS) */
+.main-box {
+  background: #31313c;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #444452; /* Borde unificado de alta visibilidad */
+  width: 100%;
 }
 
-.color-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
+/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
+.content-padding-zone {
+  padding: 40px 30px 40px 30px; /* Relleno lateral idéntico de 30px */
 }
 
-/* 🗺️ ÁREA OPERATIVA DEL MAPA */
-.map-viewport {
+/* 🗺️ INTERFAZ ESTRUCTURAL DEL PLANNER */
+.planner-workspace {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* ÁREA DEL MAPA (CANVAS INTERACTIVO) */
+.map-canvas-container {
+  flex: 0 0 540px;
+  width: 540px;
+  height: 540px;
+  background: #1a1a20;
+  border: 1px solid #444452;
+  border-radius: 6px;
   position: relative;
-  width: 600px;
-  height: 600px;
-  margin: 15px auto;
-  background: #222;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   overflow: hidden;
 }
 
-.map-background {
+.map-bg-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
   display: block;
-  pointer-events: none;
+  opacity: 0.75;
 }
 
-/* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
-.svg-draw-layer {
+/* CAPAS INTERACTIVAS SOBRE EL MAPA */
+.placed-node {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.svg-draw-layer.active-drawing {
-  pointer-events: auto;
-}
-
-/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
-.map-viewport.tool-eraser .svg-draw-layer {
-  pointer-events: auto;
-}
-
-.map-viewport.tool-eraser .svg-draw-layer path {
-  cursor: pointer;
-}
-
-.free-path {
-  fill: none;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Modo Goma sobre elementos borrables */
-.map-viewport.tool-eraser .placed-hero,
-.map-viewport.tool-eraser .vector-arrow,
-.map-viewport.tool-eraser .free-path {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
-}
-
-.map-viewport.tool-eraser .placed-hero:hover,
-.map-viewport.tool-eraser .vector-arrow:hover,
-.map-viewport.tool-eraser .free-path:hover {
-  filter: drop-shadow(0 0 8px #ef4444) brightness(1.2);
-  opacity: 0.7;
-}
-
-/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
-.placed-hero {
-  position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  cursor: grab;
   transform: translate(-50%, -50%);
+  cursor: move;
   z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  border: 2px solid white;
+}
+
+.placed-node.bando-azul { border-color: #4f6edb; box-shadow: 0 0 8px #4f6edb; }
+.placed-node.bando-rojo { border-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+.bin-zone {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  background: rgba(28, 28, 31, 0.85);
+  border: 1px dashed #ef4444;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 5;
+  transition: all 0.2s;
+}
+.bin-zone.drag-over {
+  background: #ef4444;
+  transform: scale(1.1);
+  font-size: 22px;
+}
+
+/* PANEL LATERAL DE CONTROL Y HÉROES */
+.control-sidebar-panel {
+  flex: 1;
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 540px; /* Sincronizado simétricamente con el mapa */
   box-sizing: border-box;
 }
 
-.placed-hero img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: block;
-  pointer-events: none;
-  /* ✨ Mayor saturación para resaltar en el mapa táctico */
-  filter: saturate(1.45);
-}
-
-.placed-hero.aura-blue { 
-  border: 3.5px solid #06b6d4; 
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
-}
-.placed-hero.aura-red { 
-  border: 3.5px solid #dc2626; 
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.8);
-}
-
-.vector-arrow {
-  position: absolute;
-  height: 4px;
-  transform-origin: top left;
-  z-index: 5;
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.vector-arrow::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: -5px;
-  width: 0;
-  height: 0;
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
-  border-left: 12px solid currentColor;
-}
-
-/* 📦 CAJÓN INFERIOR DE HÉROES */
-.heroes-drawer {
-  padding: 20px 30px 0 30px;
-}
-
-.drawer-header {
+.sidebar-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  gap: 15px;
+  margin-bottom: 12px;
 }
 
+.sidebar-title {
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.btn-export-png {
+  background: #4f6edb;
+  border: 1px solid #4f6edb;
+  color: white;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-export-png:hover { background: #3b55b8; }
+.btn-export-png:disabled { background: #31313c; border-color: #444452; color: #7b7a8e; cursor: not-allowed; }
+
+/* PANEL DE FILTROS DEL DRAWER (MIMETIZADO CON STATS Y COUNTERS) */
+.drawer-filters-container {
+  margin-bottom: 12px;
+}
+.tabs-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
 .tabs {
   display: flex;
+  flex: 1;
   border: 1px solid #444452;
   border-radius: 4px;
   overflow: hidden;
 }
-
 .tab {
-  padding: 6px 14px;
+  flex: 1;
+  text-align: center;
+  padding: 6px 4px;
   cursor: pointer;
   background: #31313c;
-  font-size: 11px;
+  font-size: 10.5px;
+  font-weight: 500;
   color: #a0a0b5;
-  font-weight: bold;
-  text-transform: uppercase;
+  border: none;
   border-right: 1px solid #444452;
+  outline: none;
 }
-
 .tab:last-child { border-right: none; }
-.tab.active {
-  color: white;
-  background: #4f6edb;
-}
+.tab.active { color: white; background: #4f6edb; }
 
+.search-box {
+  width: 130px;
+  flex: 0 0 130px;
+}
 .search-box input {
-  width: 180px;
-  padding: 6px 10px;
+  width: 100%;
+  padding: 5.5px 8px;
   border-radius: 4px;
   border: 1px solid #444452;
-  background: #282830;
-  color: #ccc;
+  background: #1c1c1f;
+  color: white;
   font-size: 11px;
   outline: none;
 }
 
-.heroes-grid {
+/* OPCIONES DE BANDO (AZUL / ROJO) */
+.team-selector-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  max-height: 140px;
-  overflow-y: auto;
-  background: #282830;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #1c1c1f;
+  gap: 8px;
+  margin-bottom: 12px;
 }
-
-.hero-avatar-item {
-  width: 42px;
-  height: 42px;
-  border-radius: 6px;
+.radio-tile-label {
+  flex: 1;
+  background: #31313c;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  padding: 6px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  color: #a0a0b5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+input[type="radio"] { display: none; }
+input[type="radio"]:checked + .radio-tile-label.side-blue { background: rgba(79, 110, 219, 0.2); border-color: #4f6edb; color: #748ffc; }
+input[type="radio"]:checked + .radio-tile-label.side-red { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ff8787; }
+
+/* REJILLA INTERNA DE ICONOS EN EL DRAWER */
+.drawer-scrollable-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding-right: 4px;
+  background: #1c1c1f;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  padding: 10px;
 }
 
-.hero-avatar-item:hover {
-  transform: scale(1.1);
-}
-
-.hero-avatar-item img {
-  width: 100%;
-  height: 100%;
+.drawer-hero-node {
+  aspect-ratio: 1;
   border-radius: 6px;
-  object-fit: cover;
+  overflow: hidden;
+  border: 1px solid #444452;
+  cursor: grab;
+  position: relative;
+  background: #24242b;
+  transition: transform 0.15s;
 }
+.drawer-hero-node:hover { transform: scale(1.05); border-color: #7b7a8e; }
+.drawer-hero-node img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-::-webkit-scrollbar { width: 10px; }
+/* scrollbar modo oscuro */
+::-webkit-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
+
+.drawer-scrollable-grid::-webkit-scrollbar { width: 4px; }
+.drawer-scrollable-grid::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
 </style>
 </head>
 
@@ -331,7 +305,6 @@ body {
 
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
-    
     <div class="view-tabs">
       <a href="index.html" class="view-tab">General</a>
       <a href="stats.html" class="view-tab">Estadísticas</a>
@@ -340,111 +313,74 @@ body {
       <a href="draft.html" class="view-tab">Draft</a>
       <a href="acerca.html" class="view-tab">Acerca de</a>
     </div>
-    
   </div>
 
   <div class="main-box">
-
-    <div class="planner-toolbar">
-      <div class="tool-group">
-        <span class="tool-label">Acciones</span>
-        <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
-        <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
-        <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
-        <button class="btn-tool" id="tool-eraser">🧽 Goma</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Historial</span>
-        <button class="btn-tool" id="hist-undo" disabled>↩️ Deshacer</button>
-        <button class="btn-tool" id="hist-redo" disabled>↪️ Rehacer</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Aura de Bando</span>
-        <button class="btn-tool" id="aura-none">⚪ Ninguno</button>
-        <button class="btn-tool" id="aura-blue">🔵 Azul</button>
-        <button class="btn-tool" id="aura-red">🔴 Rojo</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Color Trazo</span>
-        <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
-        <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
-        <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
-      </div>
-
-      <div class="tool-group">
-        <button class="btn-tool" id="save-png" style="border-color:#22c55e; color:#22c55e; font-weight:bold;">💾 Guardar PNG</button>
-        <button class="btn-tool" id="clear-all" style="border-color:#ef4444; color:#f87171;">🔄 Reset Todo</button>
-      </div>
-    </div>
-
-    <div class="map-viewport tool-move" id="mapZone">
-      <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK" crossorigin="anonymous">
+    <div class="content-padding-zone">
       
-      <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
-    </div>
+      <div class="planner-workspace">
+        
+        <div class="map-canvas-container" id="mapZone">
+          <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" class="map-bg-image" draggable="false">
+          
+          <div class="bin-zone" id="binZone">🗑️</div>
+        </div>
 
-    <div class="heroes-drawer">
-      <div class="drawer-header">
-        <div class="tabs">
-          <div class="tab active" data-role="all">Todo</div>
-          <div class="tab" data-role="Choque">Choque</div>
-          <div class="tab" data-role="Cazador">Cazador</div>
-          <div class="tab" data-role="Medio">Medio</div>
-          <div class="tab" data-role="Merodeo">Merodeo</div>
-          <div class="tab" data-role="Farmeo">Farmeo</div>
+        <div class="control-sidebar-panel">
+          
+          <div class="sidebar-header-row">
+            <h3 class="sidebar-title">Elementos Tácticos</h3>
+            <button class="btn-export-png" id="btnExport">💾 Guardar PNG</button>
+          </div>
+
+          <div class="team-selector-bar">
+            <div style="flex:1;">
+              <input type="radio" name="bando" id="bandoAzul" value="azul" checked>
+              <label for="bandoAzul" class="radio-tile-label side-blue">🔵 Bando Azul</label>
+            </div>
+            <div style="flex:1;">
+              <input type="radio" name="bando" id="bandoRojo" value="rojo">
+              <label for="bandoRojo" class="radio-tile-label side-red">🔴 Bando Rojo</label>
+            </div>
+          </div>
+
+          <div class="drawer-filters-container">
+            <div class="tabs-wrapper">
+              <div class="tabs">
+                <button class="tab active" data-role="all">Todo</button>
+                <button class="tab" data-role="Choque">Choque</button>
+                <button class="tab" data-role="Cazador">Cazador</button>
+                <button class="tab" data-role="Medio">Medio</button>
+                <button class="tab" data-role="Merodeo">Merodeo</button>
+                <button class="tab" data-role="Farmeo">Farmeo</button>
+              </div>
+              <div class="search-box">
+                <input type="text" id="drawerSearch" placeholder="Buscar...">
+              </div>
+            </div>
+          </div>
+
+          <div class="drawer-scrollable-grid" id="heroesDrawerZone"></div>
+
         </div>
-        <div class="search-box">
-          <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
-        </div>
+
       </div>
 
-      <div class="heroes-grid" id="available-heroes">
-        </div>
     </div>
-
   </div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
-const mapZone = document.getElementById('mapZone');
-const svgLayer = document.getElementById('svgLayer');
+let heroesCatalog = [];
+let activeDraggedSrc = null;
 
-let heroesData = [];
-let currentTool = 'move';
-let currentAura = 'none';
-let currentStrokeColor = '#eab308';
-
-// Estado de dibujo general
-let isDrawing = false;
-let startX = 0, startY = 0;
-let activeArrowElement = null;
-let activePathElement = null;
-let currentPathPoints = "";
-
-// 🗃️ MOTOR DE HISTORIAL (Deshacer / Rehacer)
-let undoStack = [];
-let redoStack = [];
-
-function saveState(actionType, element, extraData = null) {
-  undoStack.push({ type: actionType, element: element, extra: extraData });
-  redoStack = []; 
-  updateHistoryButtons();
-}
-
-function updateHistoryButtons() {
-  document.getElementById('hist-undo').disabled = undoStack.length === 0;
-  document.getElementById('hist-redo').disabled = redoStack.length === 0;
-}
-
-// Carga e integración de datos HoKstats
+// Inicialización de base de datos analítica
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -452,300 +388,137 @@ Papa.parse(CSV_URL, {
     const rows = results.data.slice(1);
     rows.forEach(cols => {
       if (!cols[1]) return;
-      heroesData.push({
-        nombre: cols[1],
-        imagen: cols[3],
-        roles: [cols[5], cols[6], cols[7]].filter(Boolean)
+      heroesCatalog.push({
+        nombre: cols[1].trim(),
+        imagen: cols[3] ? cols[3].trim() : "",
+        roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim())
       });
     });
-    heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
+    heroesCatalog.sort((a,b) => a.nombre.localeCompare(b.nombre));
     renderDrawer('all', '');
   }
 });
 
 function renderDrawer(role, query) {
-  const grid = document.getElementById('available-heroes');
-  grid.innerHTML = '';
-  
-  heroesData.forEach(hero => {
+  const zone = document.getElementById('heroesDrawerZone');
+  zone.innerHTML = '';
+
+  heroesCatalog.forEach(hero => {
     if (role !== 'all' && !hero.roles.includes(role)) return;
     if (query && !hero.nombre.toLowerCase().includes(query)) return;
-    
-    const div = document.createElement('div');
-    div.className = 'hero-avatar-item';
-    div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
-    
-    div.addEventListener('click', () => {
-      createHeroNode(hero.imagen, 300, 300, true);
+
+    const node = document.createElement('div');
+    node.className = 'drawer-hero-node';
+    node.setAttribute('draggable', 'true');
+    node.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
+
+    node.addEventListener('dragstart', (e) => {
+      activeDraggedSrc = hero.imagen;
+      e.dataTransfer.setData('text/plain', hero.imagen);
     });
-    grid.appendChild(div);
+
+    zone.appendChild(node);
   });
 }
 
-// 🖐️ Gestión de Héroes
-function createHeroNode(imgUrl, x, y, recordHistory = true) {
-  const el = document.createElement('div');
-  el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
-  el.style.left = `${x}px`;
-  el.style.top = `${y}px`;
-  el.innerHTML = `<img src="${imgUrl}" crossorigin="anonymous">`;
-  
-  el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
-  el.addEventListener('touchstart', (e) => handleHeroClickOrDrag(e, el), {passive: false});
-  
-  mapZone.appendChild(el);
-  if (recordHistory) saveState('add', el);
-}
+// Configuración del contenedor interactivo del mapa (Drop Zone Principal)
+const mapZone = document.getElementById('mapZone');
+const binZone = document.getElementById('binZone');
 
-function handleHeroClickOrDrag(e, element) {
-  if (currentTool === 'eraser') {
-    saveState('delete', element, { parent: mapZone });
-    element.remove();
-    return;
-  }
-  if (currentTool !== 'move') return;
+mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
+
+mapZone.addEventListener('drop', (e) => {
   e.preventDefault();
-  
+  if (!activeDraggedSrc) return;
+
+  // Evita calcular si el drop cae directamente sobre un nodo ya existente
+  if (e.target.classList.contains('placed-node')) return;
+
   const rect = mapZone.getBoundingClientRect();
-  const initialX = element.style.left;
-  const initialY = element.style.top;
-  let hasMoved = false;
-  
-  function moveHandler(evt) {
-    hasMoved = true;
-    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-    
-    let x = clientX - rect.left;
-    let y = clientY - rect.top;
-    
-    if(x < 0 || x > 600 || y < 0 || y > 600) {
-      saveState('delete', element, { parent: mapZone });
-      element.remove();
-      endHandler();
-      return;
-    }
-    
-    element.style.left = `${x}px`;
-    element.style.top = `${y}px`;
-  }
-  
-  function endHandler() {
-    window.removeEventListener('mousemove', moveHandler);
-    window.removeEventListener('mouseup', endHandler);
-    window.removeEventListener('touchmove', moveHandler);
-    window.removeEventListener('touchend', endHandler);
-    
-    if (hasMoved) {
-      saveState('move', element, { fromX: initialX, fromY: initialY, toX: element.style.left, toY: element.style.top });
-    }
-  }
-  
-  window.addEventListener('mousemove', moveHandler);
-  window.addEventListener('mouseup', endHandler);
-  window.addEventListener('touchmove', moveHandler, {passive: false});
-  window.addEventListener('touchend', endHandler);
-}
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
-// 🏹 Captura de Coordenadas Locales
-function getLocalCoords(e) {
-  const rect = mapZone.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
-  };
-}
-
-// Control Operativo del Tablero
-mapZone.addEventListener('mousedown', (e) => { handleStartContainer(e); });
-mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
-
-function handleStartContainer(e) {
-  const isBg = e.target === mapZone || e.target.className === 'map-background' || e.target === svgLayer;
-  
-  // 🧽 LÓGICA DE LA GOMA DE BORRAR CORREGIDA Y REORDENADA
-  if (currentTool === 'eraser' && !isBg) {
-    // 1. Detectar si es un trazo de lápiz SVG
-    if (e.target.classList.contains('free-path')) {
-      saveState('delete', e.target, { parent: svgLayer });
-      e.target.remove();
-      return;
-    }
-    
-    // 2. Detectar si es una flecha HTML
-    const targetEl = e.target.closest('.vector-arrow');
-    if (targetEl) {
-      saveState('delete', targetEl, { parent: targetEl.parentNode });
-      targetEl.remove();
-      return;
-    }
-    return;
-  }
-
-  if (!isBg) return;
-
-  if (currentTool === 'arrow') {
-    isDrawing = true;
-    const coords = getLocalCoords(e);
-    startX = coords.x; startY = coords.y;
-    
-    activeArrowElement = document.createElement('div');
-    activeArrowElement.className = 'vector-arrow';
-    activeArrowElement.style.backgroundColor = currentStrokeColor;
-    activeArrowElement.style.color = currentStrokeColor;
-    activeArrowElement.style.left = `${startX}px`;
-    activeArrowElement.style.top = `${startY}px`;
-    
-    mapZone.appendChild(activeArrowElement);
-  } 
-  else if (currentTool === 'draw') {
-    isDrawing = true;
-    const coords = getLocalCoords(e);
-    startX = coords.x; startY = coords.y;
-    
-    activePathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    activePathElement.setAttribute("class", "free-path");
-    activePathElement.setAttribute("stroke", currentStrokeColor);
-    
-    currentPathPoints = `M ${startX} ${startY}`;
-    activePathElement.setAttribute("d", currentPathPoints);
-    svgLayer.appendChild(activePathElement);
-  }
-}
-
-window.addEventListener('mousemove', (e) => { handleMoveContainer(e); });
-window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passive: false});
-
-function handleMoveContainer(e) {
-  if (!isDrawing) return;
-  const coords = getLocalCoords(e);
-  const currentX = Math.max(0, Math.min(600, coords.x));
-  const currentY = Math.max(0, Math.min(600, coords.y));
-
-  if (currentTool === 'arrow' && activeArrowElement) {
-    if (e.cancelable) e.preventDefault();
-    const dx = currentX - startX;
-    const dy = currentY - startY;
-    const distance = Math.hypot(dx, dy);
-    const angle = Math.atan2(dy, dx);
-    
-    activeArrowElement.style.width = `${distance}px`;
-    activeArrowElement.style.transform = `rotate(${angle}rad)`;
-  } 
-  else if (currentTool === 'draw' && activePathElement) {
-    if (e.cancelable) e.preventDefault();
-    currentPathPoints += ` L ${currentX} ${currentY}`;
-    activePathElement.setAttribute("d", currentPathPoints);
-  }
-}
-
-window.addEventListener('mouseup', () => { handleEndContainer(); });
-window.addEventListener('touchend', () => { handleEndContainer(); });
-
-function handleEndContainer() {
-  if (!isDrawing) return;
-  isDrawing = false;
-
-  if (currentTool === 'arrow' && activeArrowElement) {
-    if (parseFloat(activeArrowElement.style.width || 0) < 8) {
-      activeArrowElement.remove();
-    } else {
-      saveState('add', activeArrowElement);
-    }
-    activeArrowElement = null;
-  }
-  else if (currentTool === 'draw' && activePathElement) {
-    saveState('add', activePathElement);
-    activePathElement = null;
-  }
-}
-
-// ↩️ LÓGICA DE DESHACER Y REHACER (Undo / Redo)
-document.getElementById('hist-undo').addEventListener('click', () => {
-  if (undoStack.length === 0) return;
-  const action = undoStack.pop();
-  redoStack.push(action);
-  
-  if (action.type === 'add') {
-    action.element.remove();
-  } else if (action.type === 'delete') {
-    action.extra.parent.appendChild(action.element);
-  } else if (action.type === 'move') {
-    action.element.style.left = action.extra.fromX;
-    action.element.style.top = action.extra.fromY;
-  }
-  updateHistoryButtons();
+  const bandoActivo = document.querySelector('input[name="bando"]:checked').value;
+  crearNodoEnMapa(activeDraggedSrc, x, y, bandoActivo);
+  activeDraggedSrc = null;
 });
 
-document.getElementById('hist-redo').addEventListener('click', () => {
-  if (redoStack.length === 0) return;
-  const action = redoStack.pop();
-  undoStack.push(action);
-  
-  if (action.type === 'add') {
-    if (action.element.classList.contains('free-path')) {
-      svgLayer.appendChild(action.element);
-    } else {
-      mapZone.appendChild(action.element);
-    }
-  } else if (action.type === 'delete') {
-    action.element.remove();
-  } else if (action.type === 'move') {
-    action.element.style.left = action.extra.toX;
-    action.element.style.top = action.extra.toY;
-  }
-  updateHistoryButtons();
-});
+function crearNodoEnMapa(src, x, y, bando) {
+  const imgNode = document.createElement('img');
+  imgNode.src = src;
+  imgNode.className = `placed-node bando-${bando}`;
+  imgNode.style.left = `${x}px`;
+  imgNode.style.top = `${y}px`;
+  imgNode.setAttribute('draggable', 'true');
+  imgNode.setAttribute('crossorigin', 'anonymous');
 
-// Controladores visuales de la barra de herramientas
-document.querySelectorAll('.tool-group').forEach(group => {
-  group.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-tool');
-    if (!btn || btn.id.startsWith('hist-') || btn.id === 'save-png') return;
+  // Lógica de arrastre interno (Drag & Move / Trash out)
+  imgNode.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', 'internal-move');
+    setTimeout(() => { imgNode.style.display = 'none'; }, 0);
     
-    btn.parentElement.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    if (btn.id.startsWith('tool-')) {
-      currentTool = btn.id.replace('tool-', '');
-      mapZone.className = `map-viewport tool-${currentTool}`;
-      
-      if (currentTool === 'draw') {
-        svgLayer.classList.add('active-drawing');
-      } else {
-        svgLayer.classList.remove('active-drawing');
-      }
-    }
-    if (btn.id.startsWith('aura-')) currentAura = btn.id.replace('aura-', '');
-    if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
-    if (btn.id === 'color-green') currentStrokeColor = '#22c55e';
-    if (btn.id === 'color-white') currentStrokeColor = '#ffffff';
+    // Almacena referencia global temporal del nodo activo para recolocación
+    window.currentMovingNode = imgNode;
   });
+
+  imgNode.addEventListener('dragend', (e) => {
+    binZone.classList.remove('drag-over');
+    if (window.currentMovingNode) {
+      window.currentMovingNode.style.display = 'block';
+      window.currentMovingNode = null;
+    }
+  });
+
+  mapZone.appendChild(imgNode);
+}
+
+// Controladores de la zona de reciclaje (Trash Bin)
+binZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  binZone.classList.add('drag-over');
 });
 
-document.getElementById('clear-all').addEventListener('click', () => {
-  document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
-  document.querySelectorAll('.placed-hero').forEach(el => el.remove());
-  svgLayer.innerHTML = "";
-  undoStack = [];
-  redoStack = [];
-  updateHistoryButtons();
+binZone.addEventListener('dragleave', () => {
+  binZone.classList.remove('drag-over');
 });
 
-// 💾 Lógica para renderizar y guardar en formato PNG
-document.getElementById('save-png').addEventListener('click', () => {
-  const btn = document.getElementById('save-png');
+binZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  e.stopPropagation(); // Evita que el contenedor del mapa procese la recolocación
+
+  if (window.currentMovingNode) {
+    window.currentMovingNode.remove();
+    window.currentMovingNode = null;
+  }
+  binZone.classList.remove('drag-over');
+});
+
+// Manejo de recolocación de nodos existentes dentro del mapa
+mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
+mapZone.addEventListener('drop', (e) => {
+  if (window.currentMovingNode && e.target === mapZone) {
+    const rect = mapZone.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    window.currentMovingNode.style.left = `${x}px`;
+    window.currentMovingNode.style.top = `${y}px`;
+    window.currentMovingNode.style.display = 'block';
+    window.currentMovingNode = null;
+  }
+});
+
+// Mecánica de exportación táctica en Alta Fidelidad (Renderizado HD Crisp)
+document.getElementById('btnExport').addEventListener('click', () => {
+  const btn = document.getElementById('btnExport');
   btn.innerText = "⏳ Procesando...";
   btn.disabled = true;
 
-  // Renderiza el contenedor exacto usando la librería html2canvas
   html2canvas(mapZone, {
-    useCORS: true,           // Habilita peticiones cruzadas para las imágenes externas
+    useCORS: true,
     allowTaint: false,
-    scale: 2,                // Duplica la escala del lienzo para que la imagen PNG exportada tenga alta definición (4K/HD crisp)
-    backgroundColor: null    // Transparente si hay espacios vacíos
+    scale: 2, // Escala duplicada para preservar nitidez 4K
+    backgroundColor: null
   }).then(canvas => {
     const link = document.createElement('a');
     link.download = 'hokstats-estrategia.png';
@@ -756,13 +529,13 @@ document.getElementById('save-png').addEventListener('click', () => {
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
-    alert("Hubo un problema al generar la imagen. Revisa la consola.");
+    alert("Hubo un problema al generar la imagen.");
     btn.innerText = "💾 Guardar PNG";
     btn.disabled = false;
   });
 });
 
-// Controladores de filtros
+// Controladores de filtros e inputs integrados
 let currentRole = 'all';
 let currentSearch = '';
 
