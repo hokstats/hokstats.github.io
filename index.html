@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" style="scrollbar-gutter: stable; overflow-y: scroll;">
+<html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
 <title>Portal Principal - HoKstats</title>
@@ -219,9 +219,15 @@ body {
   line-height: 1.6;
   text-align: center;
 }
+::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #444452 #1c1c1f;
+}
 </style>
 </head>
 <body>
