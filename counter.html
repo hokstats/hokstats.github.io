@@ -1,38 +1,47 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
 <title>Counters - HoKstats</title>
 <style>
-/* 📊 DISEÑO COHESIVO E INMUNE - EXTRACCIÓN DIRECTA DE STATS.HTML */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
   color: #7b7a8e;
   margin: 0;
-  padding: 20px;
+  padding: 24px 0; /* Relleno superior/inferior idéntico */
   user-select: none;
 }
 
+/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
 .container {
-  max-width: 1100px;
-  margin: auto;
+  width: 100%;
+  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
+  margin: 0 auto;
+  padding: 0 30px;
 }
 
-/* TOP-BAR NATIVA */
+/* BARRA SUPERIOR ESTATICA */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .logo-text {
   font-family: monospace;
   font-size: 22px;
   color: white;
-  margin-bottom: 10px;
-  margin-left: 4px;
+  margin: 0;
   letter-spacing: 1px;
+  line-height: 1;
 }
 
 .view-tabs {
@@ -48,25 +57,33 @@ body {
   cursor: pointer;
   color: #a0a0b5;
   text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .view-tab.active {
   background: #4f6edb;
   color: white;
+  border-color: #4f6edb;
 }
 
-/* CAJA PRINCIPAL CLÓNICA */
+/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA EN TODAS LAS PÁGINAS) */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #1c1c1f;
-  padding: 0 0 30px 0;
+  border: 1px solid #444452; /* Borde unificado de alta visibilidad */
+  width: 100%;
+}
+
+/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
+.content-padding-zone {
+  padding: 40px 30px 40px 30px; /* Relleno lateral idéntico de 30px */
 }
 
 /* 🔍 CONTENEDOR DE FILTROS IMPORTADO DE STATS.HTML */
 .tabs-container {
-  padding: 15px 30px;
+  padding: 0 0 20px 0;
   background: #31313c;
 }
 
@@ -140,7 +157,7 @@ body {
 
 /* 🎴 GRILLA DEL CATÁLOGO */
 .catalog-padding-zone {
-  padding: 0 30px;
+  padding: 0;
 }
 
 .catalog-grid {
@@ -242,7 +259,7 @@ body {
 /* 🎚️ INTERFAZ DE DETALLE SEGURO */
 .detail-view-container {
   display: none;
-  padding: 20px 30px 0 30px;
+  padding: 0;
 }
 
 .detail-top-dashboard {
@@ -262,6 +279,7 @@ body {
   align-items: center;
   gap: 14px;
   flex-grow: 1;
+  height: 87px; /* Altura calculada para encajar simétricamente con el panel de control */
 }
 
 .focus-avatar {
@@ -379,6 +397,21 @@ body {
 .empty-column-state { font-size: 11px; color: #555566; text-align: center; margin: auto; }
 .cards-list-container::-webkit-scrollbar { width: 4px; }
 .cards-list-container::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
+
+/* scrollbar modo oscuro */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1c1c1f;
+}
+::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a6b;
+}
 </style>
 </head>
 <body>
@@ -398,65 +431,67 @@ body {
   </div>
 
   <div class="main-box">
+    <div class="content-padding-zone">
     
-    <div class="tabs-container" id="filtersBlock">
-      <div class="tabs-wrapper">
-        <div class="tabs">
-          <button class="role-tab active" data-role="all">Todo</button>
-          <button class="role-tab" data-role="Choque">Choque</button>
-          <button class="role-tab" data-role="Cazador">Cazador</button>
-          <button class="role-tab" data-role="Medio">Medio</button>
-          <button class="role-tab" data-role="Merodeo">Merodeo</button>
-          <button class="role-tab" data-role="Farmeo">Farmeo</button>
-        </div>
-        <div class="search-box">
-          <input type="text" id="searchHero" placeholder="Buscar héroe...">
+      <div class="tabs-container" id="filtersBlock">
+        <div class="tabs-wrapper">
+          <div class="tabs">
+            <button class="role-tab active" data-role="all">Todo</button>
+            <button class="role-tab" data-role="Choque">Choque</button>
+            <button class="role-tab" data-role="Cazador">Cazador</button>
+            <button class="role-tab" data-role="Medio">Medio</button>
+            <button class="role-tab" data-role="Merodeo">Merodeo</button>
+            <button class="role-tab" data-role="Farmeo">Farmeo</button>
+          </div>
+          <div class="search-box">
+            <input type="text" id="searchHero" placeholder="Buscar héroe...">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div id="catalog-view" class="catalog-padding-zone">
-      <div class="catalog-grid" id="catalogGridZone"></div>
-    </div>
+      <div id="catalog-view" class="catalog-padding-zone">
+        <div class="catalog-grid" id="catalogGridZone"></div>
+      </div>
 
-    <div id="detail-view" class="detail-view-container">
-      
-      <div class="detail-top-dashboard">
-        <div class="focus-hero-card">
-          <img src="" class="focus-avatar" id="focus-img">
-          <div class="focus-details">
-            <h2 id="focus-name">-</h2>
-            <div class="focus-roles" id="focus-roles-zone"></div>
+      <div id="detail-view" class="detail-view-container">
+        
+        <div class="detail-top-dashboard">
+          <div class="focus-hero-card">
+            <img src="" class="focus-avatar" id="focus-img">
+            <div class="focus-details">
+              <h2 id="focus-name">-</h2>
+              <div class="focus-roles" id="focus-roles-zone"></div>
+            </div>
+          </div>
+
+          <div class="analysis-control-panel">
+            <div class="control-action-row">
+              <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver</button>
+              <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">Modo Cruzado: OFF</button>
+            </div>
+            <div class="analysis-explanation-text" id="explanationText"></div>
           </div>
         </div>
 
-        <div class="analysis-control-panel">
-          <div class="control-action-row">
-            <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver</button>
-            <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">Modo Cruzado: OFF</button>
+        <div class="relationships-grid">
+          <div class="column-card col-strong">
+            <div class="column-header">⚔️ Es Fuerte Contra</div>
+            <div class="cards-list-container" id="strong-list"></div>
           </div>
-          <div class="analysis-explanation-text" id="explanationText"></div>
+
+          <div class="column-card col-weak">
+            <div class="column-header">⚠️ Es Débil Contra</div>
+            <div class="cards-list-container" id="weak-list"></div>
+          </div>
+
+          <div class="column-card col-synergy">
+            <div class="column-header">🤝 Excelentes Sinergias</div>
+            <div class="cards-list-container" id="synergy-list"></div>
+          </div>
         </div>
       </div>
 
-      <div class="relationships-grid">
-        <div class="column-card col-strong">
-          <div class="column-header">⚔️ Es Fuerte Contra</div>
-          <div class="cards-list-container" id="strong-list"></div>
-        </div>
-
-        <div class="column-card col-weak">
-          <div class="column-header">⚠️ Es Débil Contra</div>
-          <div class="cards-list-container" id="weak-list"></div>
-        </div>
-
-        <div class="column-card col-synergy">
-          <div class="column-header">🤝 Excelentes Sinergias</div>
-          <div class="cards-list-container" id="synergy-list"></div>
-        </div>
-      </div>
     </div>
-
   </div>
 </div>
 
