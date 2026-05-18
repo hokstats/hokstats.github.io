@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <title>Tier List HoK - HoKstats</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA - IGUAL AL INDEX */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA - EXACTA AL INDEX */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -59,7 +58,7 @@ body {
   color: white;
 }
 
-/* 📦 CAJA MAESTRA UNIVERSAL (ESTRUCTURA INMÓVIL) */
+/* 📦 CAJA MAESTRA UNIVERSAL */
 .main-box {
   background: #31313c;
   border-radius: 6px;
@@ -68,9 +67,9 @@ body {
   padding: 0 0 30px 0;
 }
 
-/* 🔍 ZONA DE FILTROS (Mismo comportamiento horizontal que el bloque del Index) */
+/* 🔍 ZONA DE FILTROS SINCRONIZADA */
 .tabs-container {
-  padding: 40px 30px 15px 30px; /* Sincronizado con el padding superior del Index */
+  padding: 40px 30px 15px 30px;
   background: #31313c;
 }
 
@@ -125,42 +124,12 @@ body {
   outline: none;
 }
 
-/* 🎯 ZONA DE CONTENIDO INTERNO (Alineación horizontal perfecta de 30px) */
+/* 🎯 ZONA DE CONTENIDO INTERNO CORREGIDA */
 .content-padding-zone {
   padding: 0 30px;
 }
 
-.view-switcher {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.switch-tab {
-  padding: 6px 14px;
-  font-size: 11px;
-  background: #24242b;
-  border: 1px solid #444452;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #a0a0b5;
-}
-
-.switch-tab.active {
-  background: #4f6edb;
-  color: white;
-  border-color: #4f6edb;
-}
-
-.view {
-  display: none;
-}
-
-.view.active {
-  display: block;
-}
-
-/* 📊 COMPONENTES DE TABLAS Y GRÁFICOS */
+/* 📊 TABLA CON TODAS LAS COLUMNAS RESTAURADAS */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -215,6 +184,8 @@ tr:hover td {
   border-radius: 3px;
   font-weight: bold;
   font-size: 10px;
+  text-align: center;
+  min-width: 12px;
 }
 
 .tier-S { background: #ff4747; color: white; }
@@ -222,7 +193,7 @@ tr:hover td {
 .tier-B { background: #00d2d3; color: white; }
 .tier-C { background: #54a0ff; color: white; }
 
-/* scrollbar unificado */
+/* scrollbar */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
@@ -264,34 +235,24 @@ tr:hover td {
     </div>
 
     <div class="content-padding-zone">
-      
-      <div class="view-switcher">
-        <button class="switch-tab active" data-view="table">Vista Tabla</button>
-        <button class="switch-tab" data-view="charts">Gráficos Analíticos</button>
-      </div>
-
-      <div id="table" class="view active">
-        <table>
-          <thead>
-            <tr>
-              <th>Héroe</th>
-              <th class="sortable" data-sort="tier">Tier</th>
-              <th class="sortable" data-sort="win">Win Rate</th>
-              <th class="sortable" data-sort="pick">Pick Rate</th>
-              <th class="sortable" data-sort="ban">Ban Rate</th>
-            </tr>
-          </thead>
-          <tbody id="table-body">
-            </tbody>
-        </table>
-      </div>
-
-      <div id="charts" class="view">
-        <div style="position: relative; width: 100%; height: 450px;">
-          <canvas id="scatterChart"></canvas>
-        </div>
-      </div>
-
+      <table>
+        <thead>
+          <tr>
+            <th>Héroe</th>
+            <th>Roles</th>
+            <th class="sortable" data-sort="tier">Tier</th>
+            <th class="sortable" data-sort="win">Win Rate</th>
+            <th class="sortable" data-sort="pick">Pick Rate</th>
+            <th class="sortable" data-sort="ban">Ban Rate</th>
+            <th class="sortable" data-sort="dano">Daño</th>
+            <th class="sortable" data-sort="mitigado">Mitigado</th>
+            <th class="sortable" data-sort="oro">Oro</th>
+            <th class="sortable" data-sort="kda">KDA</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          </tbody>
+      </table>
     </div>
 
   </div>
@@ -302,44 +263,8 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTshmS9B7Xun670
 
 let allData = [];
 let currentRoleFilter = 'all';
-let currentSortKey = 'tier'; 
-let currentSortOrder = 'asc'; 
-
-let chartInstance = null;
-let chartCreated = false;
-
-const imagePointsPlugin = {
-  id: 'imagePoints',
-  afterDraw: (chart) => {
-    const {ctx} = chart;
-    chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const meta = chart.getDatasetMeta(datasetIndex);
-      meta.data.forEach((point, index) => {
-        const rawData = dataset.data[index];
-        const img = rawData.imgInstance;
-        if (img && img.complete) {
-          const size = 24; 
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, size/2, 0, Math.PI * 2);
-          ctx.clip();
-          ctx.drawImage(img, point.x - size/2, point.y - size/2, size, size);
-          ctx.restore();
-          
-          ctx.save();
-          ctx.strokeStyle = '#444452';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, size/2, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.restore();
-        }
-      });
-    });
-  }
-};
-
-Chart.register(imagePointsPlugin);
+let currentSortKey = 'tier';
+let currentSortOrder = 'asc';
 
 document.addEventListener("DOMContentLoaded", () => {
   Papa.parse(CSV_URL, {
@@ -362,6 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function renderTable() {
   const tbody = document.getElementById("table-body");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   let filtered = allData.filter(hero => {
@@ -381,6 +307,9 @@ function renderTable() {
       valB = tierOrder[valB] || 99;
     }
 
+    if (valA === null || valA === undefined) return 1;
+    if (valB === null || valB === undefined) return -1;
+
     if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
     if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
     return 0;
@@ -395,10 +324,15 @@ function renderTable() {
           <span>${hero.nombre}</span>
         </div>
       </td>
+      <td>${hero.roles.join(', ')}</td>
       <td><span class="tier-badge tier-${hero.tier}">${hero.tier}</span></td>
       <td>${hero.win}%</td>
       <td>${hero.pick}%</td>
       <td>${hero.ban}%</td>
+      <td>${hero.dano}%</td>
+      <td>${hero.mitigado}%</td>
+      <td>${hero.oro}</td>
+      <td>${hero.kda}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -410,13 +344,11 @@ document.querySelectorAll('.role-tab').forEach(tab => {
     tab.classList.add('active');
     currentRoleFilter = tab.dataset.role;
     renderTable();
-    if (chartCreated) createChart();
   });
 });
 
 document.getElementById("searchHero").addEventListener("input", () => {
   renderTable();
-  if (chartCreated) createChart();
 });
 
 document.querySelectorAll('th.sortable').forEach(th => {
@@ -431,90 +363,6 @@ document.querySelectorAll('th.sortable').forEach(th => {
     renderTable();
   });
 });
-
-document.querySelectorAll(".switch-tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".switch-tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-
-    const view = tab.dataset.view;
-    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-    document.getElementById(view).classList.add("active");
-
-    if (view === "charts" && !chartCreated && allData.length > 0) {
-      createChart();
-      chartCreated = true;
-    }
-  });
-});
-
-function createChart() {
-  const ctx = document.getElementById("scatterChart");
-
-  let filtered = allData.filter(hero => {
-    if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return false;
-    const q = document.getElementById("searchHero").value.toLowerCase();
-    if (q && !hero.nombre.toLowerCase().includes(q)) return false;
-    return true;
-  });
-
-  const data = filtered.map(hero => {
-    const img = new Image();
-    img.src = hero.imagen;
-
-    return {
-      x: hero.pick + hero.ban,
-      y: hero.win,
-      imgInstance: img,
-      name: hero.nombre
-    };
-  });
-
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  chartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: {
-      datasets: [{
-        label: 'Heroes',
-        data: data,
-        pointRadius: 12,
-        pointHitRadius: 15,
-        backgroundColor: 'transparent',
-        borderColor: 'transparent'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const d = data[context.dataIndex];
-              return `${d.name} | Win: ${d.y}% | Presencia: ${d.x.toFixed(1)}%`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: '#24242b' },
-          ticks: { color: '#7b7a8e' },
-          title: { display: true, text: 'Presencia (Pick + Ban %)', color: '#a0a0b5' }
-        },
-        y: {
-          grid: { color: '#24242b' },
-          ticks: { color: '#7b7a8e' },
-          title: { display: true, text: 'Win Rate (%)', color: '#a0a0b5' }
-        }
-      }
-    }
-  });
-}
 </script>
 </body>
 </html>
