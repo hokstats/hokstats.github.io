@@ -15,14 +15,14 @@ body {
   font-family: Arial, sans-serif;
   color: #a0a0b5;
   margin: 0;
-  padding: 24px 0; /* Relleno superior/inferior idéntico */
+  padding: 24px 0;
   user-select: none;
 }
 
-/* MARCO MAESTRO: Bloquea los límites horizontales milimétricamente en todo el sitio */
+/* MARCO MAESTRO */
 .container {
   width: 100%;
-  max-width: 1160px; /* 1100px útiles + 60px de padding total acumulado */
+  max-width: 1160px;
   margin: 0 auto;
   padding: 0 30px;
 }
@@ -31,7 +31,7 @@ body {
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end; /* Alineación perfecta al piso de la pestaña */
+  align-items: flex-end;
   margin-bottom: 20px;
   padding: 0 4px;
 }
@@ -68,27 +68,32 @@ body {
   border-color: #4f6edb;
 }
 
-/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA EN TODAS LAS PÁGINAS) */
+/* 📦 CAJA MAESTRA UNIVERSAL */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #444452; /* Borde unificado */
+  border: 1px solid #444452;
   width: 100%;
 }
 
-/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
 .content-padding-zone {
-  padding: 40px 30px 40px 30px; /* Relleno lateral idéntico de 30px */
+  padding: 40px 30px;
 }
 
-/* 🔥 ESTRUCTURA INTERNA PRESENCIAL DEL PLANNER ORIGINAL */
+/* 🗺️ INTERFAZ DEL PLANNER ORIGINAL CON SUS LÁPICES Y CONTROLES */
 .planner-layout {
   display: flex;
   gap: 20px;
 }
 
-/* 🗺️ AREA DEL MAPA CONSERVADA */
+/* CONTENEDOR DEL MAPA Y LIENZOS */
+.map-wrapper-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .map-container {
   position: relative;
   width: 540px;
@@ -96,7 +101,7 @@ body {
   background: #24242b;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #1c1c1f;
+  border: 1px solid #444452;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
@@ -106,9 +111,23 @@ body {
   object-fit: cover;
   user-select: none;
   -webkit-user-drag: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
-/* 📌 ELEMENTOS INTERNOS DEL MAPA (NODOS DINÁMICOS) */
+/* Lienzo de dibujo para los lápices y flechas */
+#drawingCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 540px;
+  height: 540px;
+  z-index: 2;
+  cursor: crosshair;
+}
+
 .map-node {
   position: absolute;
   width: 32px;
@@ -118,33 +137,29 @@ body {
   cursor: grab;
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-  transition: transform 0.1s ease;
 }
 
 .map-node:active {
   cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.1);
-  z-index: 20;
 }
 
 .map-node.azul { border: 2px solid #4f6edb; }
 .map-node.rojo { border: 2px solid #ef4444; }
 
-/* 🗑️ PAPELERA DINÁMICA ORIGINAL */
 .trash-bin {
   position: absolute;
   bottom: 15px;
   right: 15px;
   width: 44px;
   height: 44px;
-  background: rgba(28, 28, 31, 0.85);
+  background: rgba(28, 28, 31, 0.9);
   border: 1px dashed #ef4444;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  z-index: 5;
+  z-index: 15;
   transition: all 0.2s ease;
 }
 
@@ -153,16 +168,57 @@ body {
   transform: scale(1.1);
 }
 
-/* 🎚️ CAJÓN / SIDEBAR ORIGINAL INTEGRAL */
+/* 🎨 BARRA DE HERRAMIENTAS DE DIBUJO ORIGINAL */
+.drawing-toolbar {
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 540px;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-tool {
+  background: #31313c;
+  border: 1px solid #444452;
+  color: #a0a0b5;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-tool:hover { border-color: #7b7a8e; color: white; }
+.btn-tool.active { background: #4f6edb; border-color: #4f6edb; color: white; }
+
+.color-picker-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.color-picker-dot.selected { border-color: white; }
+
+/* CAJÓN / SIDEBAR ORIGINAL INTEGRAL */
 .drawer {
   flex: 1;
   background: #24242b;
   border-radius: 6px;
-  border: 1px solid #1c1c1f;
+  border: 1px solid #444452;
   padding: 15px;
   display: flex;
   flex-direction: column;
-  height: 540px; /* Alineado al mapa perfectamente */
+  height: 594px; /* Ajustado perfectamente al alto combinado de mapa + barra de dibujo */
 }
 
 .drawer-header {
@@ -188,25 +244,16 @@ body {
   border-radius: 4px;
   cursor: pointer;
 }
+.btn-download:hover { background: #3b55b8; }
 
-.btn-download:hover {
-  background: #3b55b8;
-}
-
-/* CONTENEDOR DE SELECCIÓN DE BANDO */
 .side-selector {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
 }
 
-.side-option {
-  flex: 1;
-}
-
-.side-option input[type="radio"] {
-  display: none;
-}
+.side-option { flex: 1; }
+.side-option input[type="radio"] { display: none; }
 
 .side-label {
   display: block;
@@ -222,18 +269,12 @@ body {
 }
 
 .side-option input[type="radio"]:checked + .side-label.blue-side {
-  background: rgba(79, 110, 219, 0.15);
-  border-color: #4f6edb;
-  color: #748ffc;
+  background: rgba(79, 110, 219, 0.15); border-color: #4f6edb; color: #748ffc;
 }
-
 .side-option input[type="radio"]:checked + .side-label.red-side {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #ff8787;
+  background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ff8787;
 }
 
-/* FILTROS INTERNOS DEL SIDEBAR ORIGINAL */
 .filter-row {
   display: flex;
   gap: 10px;
@@ -261,20 +302,10 @@ body {
   border-right: 1px solid #444452;
   outline: none;
 }
+.role-tab:last-child { border-right: none; }
+.role-tab.active { background: #4f6edb; color: white; }
 
-.role-tab:last-child {
-  border-right: none;
-}
-
-.role-tab.active {
-  background: #4f6edb;
-  color: white;
-}
-
-.search-field {
-  width: 140px;
-}
-
+.search-field { width: 140px; }
 .search-field input {
   width: 100%;
   padding: 6px 10px;
@@ -286,7 +317,6 @@ body {
   outline: none;
 }
 
-/* CUADRÍCULA DE SELECCIÓN DE HÉROES */
 .heroes-pool {
   flex: 1;
   display: grid;
@@ -309,36 +339,11 @@ body {
 }
 
 .pool-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 
-/* SCROLLBAR INTERNO DEL POOL */
-.heroes-pool::-webkit-scrollbar {
-  width: 4px;
-}
-
-.heroes-pool::-webkit-scrollbar-thumb {
-  background: #444452;
-  border-radius: 2px;
-}
-
-/* scrollbar general modo oscuro */
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: #1c1c1f;
-}
-::-webkit-scrollbar-thumb {
-  background: #444452;
-  border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #5a5a6b;
-}
+.heroes-pool::-webkit-scrollbar { width: 4px; }
+.heroes-pool::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
 </style>
 </head>
 
@@ -363,9 +368,35 @@ body {
 
       <div class="planner-layout">
         
-        <div class="map-container" id="mapZone">
-          <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" draggable="false" crossorigin="anonymous">
-          <div class="trash-bin" id="trashBin">🗑️</div>
+        <div class="map-wrapper-block">
+          <div class="map-container" id="mapZone">
+            <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" draggable="false" crossorigin="anonymous">
+            <canvas id="drawingCanvas" width="540" height="540"></canvas>
+            <div class="trash-bin" id="trashBin">🗑️</div>
+          </div>
+
+          <div class="drawing-toolbar">
+            <div class="tool-group">
+              <button class="btn-tool active" id="toolMove" onclick="setTool('move')">🖐️ Mover</button>
+              <button class="btn-tool" id="toolPencil" onclick="setTool('pencil')">✏️ Lápiz</button>
+              <button class="btn-tool" id="toolArrow" onclick="setTool('arrow')">🏹 Flecha</button>
+              <button class="btn-tool" style="border-color: #ef4444;" onclick="clearCanvas()">🧹 Limpiar</button>
+            </div>
+            <div class="tool-group">
+              <div class="color-picker-dot selected" style="background: #ffffff;" onclick="setColor('#ffffff', this)"></div>
+              <div class="color-picker-dot" style="background: #ffcc00;" onclick="setColor('#ffcc00', this)"></div>
+              <div class="color-picker-dot" style="background: #ff3b30;" onclick="setColor('#ff3b30', this)"></div>
+              <div class="color-picker-dot" style="background: #4cd964;" onclick="setColor('#4cd964', this)"></div>
+              <div class="color-picker-dot" style="background: #007aff;" onclick="setColor('#007aff', this)"></div>
+            </div>
+            <div class="tool-group">
+              <select id="lineWidthSelect" class="btn-tool" style="background:#31313c; color:white; border:1px solid #444452;" onchange="setLineWidth(this.value)">
+                <option value="3">Fino</option>
+                <option value="6" selected>Medio</option>
+                <option value="10">Grueso</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="drawer">
@@ -413,14 +444,23 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
-// 🚨 LÓGICA DE PROGRAMACIÓN 100% INTACTA - CONSERVADA LÍNEA POR LÍNEA DEL PLANNER ORIGINAL
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 let catalogData = [];
 let draggingSrc = null;
 let activeNode = null;
 
-// Carga e inicialización analítica mediante PapaParse
+// Configuración del canvas de dibujo técnico original
+const canvas = document.getElementById('drawingCanvas');
+const ctx = canvas.getContext('2d');
+let currentTool = 'move'; // move, pencil, arrow
+let drawColor = '#ffffff';
+let drawWidth = 6;
+let isDrawing = false;
+let startX = 0, startY = 0;
+let drawingHistory = [];
+
+// Carga de base de datos
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -451,14 +491,12 @@ function renderPool(role, search) {
     div.className = 'pool-item';
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
     
-    // Soporte nativo para arrastre de escritorio (Drag and Drop HTML5)
     div.setAttribute('draggable', 'true');
     div.addEventListener('dragstart', (e) => {
       draggingSrc = hero.imagen;
       e.dataTransfer.setData('text/plain', hero.imagen);
     });
 
-    // Soporte táctil móvil avanzado (Touch Events interactivos sin lag)
     div.addEventListener('touchstart', (e) => {
       draggingSrc = hero.imagen;
     }, {passive: true});
@@ -470,7 +508,113 @@ function renderPool(role, search) {
 const mapZone = document.getElementById('mapZone');
 const trashBin = document.getElementById('trashBin');
 
-// Gestión de eventos Drag & Drop de escritorio
+// Controladores de herramientas de dibujo
+function setTool(tool) {
+  currentTool = tool;
+  document.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
+  if(tool === 'move') document.getElementById('toolMove').classList.add('active');
+  if(tool === 'pencil') document.getElementById('toolPencil').classList.add('active');
+  if(tool === 'arrow') document.getElementById('toolArrow').classList.add('active');
+}
+
+function setColor(color, element) {
+  drawColor = color;
+  document.querySelectorAll('.color-picker-dot').forEach(d => d.classList.remove('selected'));
+  element.classList.add('selected');
+}
+
+function setLineWidth(width) {
+  drawWidth = parseInt(width);
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawingHistory = [];
+}
+
+// Mecánicas del canvas interactivo (Pencil / Arrow / Canvas drag)
+canvas.addEventListener('mousedown', startDrawingAction);
+canvas.addEventListener('mousemove', executeDrawingAction);
+canvas.addEventListener('mouseup', stopDrawingAction);
+
+canvas.addEventListener('touchstart', (e) => {
+  const touch = e.touches[0];
+  const mockEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => e.preventDefault() };
+  startDrawingAction(mockEvent);
+}, {passive: false});
+
+canvas.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  const mockEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => e.preventDefault() };
+  executeDrawingAction(mockEvent);
+}, {passive: false});
+
+canvas.addEventListener('touchend', stopDrawingAction);
+
+function startDrawingAction(e) {
+  if (currentTool === 'move') return;
+  e.preventDefault();
+  isDrawing = true;
+  const rect = canvas.getBoundingClientRect();
+  startX = e.clientX - rect.left;
+  startY = e.clientY - rect.top;
+
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.strokeStyle = drawColor;
+  ctx.lineWidth = drawWidth;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  if (currentTool === 'arrow') {
+    window.canvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function executeDrawingAction(e) {
+  if (!isDrawing || currentTool === 'move') return;
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const currentX = e.clientX - rect.left;
+  const currentY = e.clientY - rect.top;
+
+  if (currentTool === 'pencil') {
+    ctx.lineTo(currentX, currentY);
+    ctx.stroke();
+  } else if (currentTool === 'arrow') {
+    ctx.putImageData(window.canvasSnapshot, 0, 0);
+    drawVectorArrow(startX, startY, currentX, currentY);
+  }
+}
+
+function stopDrawingAction() {
+  isDrawing = false;
+  ctx.beginPath();
+}
+
+function drawVectorArrow(fromx, fromy, tox, toy) {
+  const headlen = drawWidth * 2.5; 
+  const dx = tox - fromx;
+  const dy = toy - fromy;
+  const angle = Math.atan2(dy, dx);
+
+  ctx.beginPath();
+  ctx.moveTo(fromx, fromy);
+  ctx.lineTo(tox, toy);
+  ctx.strokeStyle = drawColor;
+  ctx.lineWidth = drawWidth;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(tox, toy);
+  ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fillStyle = drawColor;
+  ctx.fill();
+}
+
+// Drag & Drop elemental de personajes
 mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 mapZone.addEventListener('drop', (e) => {
   e.preventDefault();
@@ -493,36 +637,33 @@ function spawnNode(src, x, y, side) {
   img.style.top = y + 'px';
   img.setAttribute('crossorigin', 'anonymous');
 
-  // Lógica de manipulación de puntero de escritorio (Mouse Events)
   img.addEventListener('mousedown', (e) => {
+    if (currentTool !== 'move') return;
     e.preventDefault();
     activeNode = img;
-    img.style.cursor = 'grabbing';
   });
 
-  // Lógica de soporte móvil touch completo para reposicionamiento del nodo en tiempo real
   img.addEventListener('touchstart', (e) => {
+    if (currentTool !== 'move') return;
     activeNode = img;
-  }, {passive: false});
+  }, {passive: true});
 
   mapZone.appendChild(img);
 }
 
-// Escuchas globales de movimiento de puntero
+// Control global de arrastre de fichas (Mouse y Touch)
 window.addEventListener('mousemove', (e) => {
   if (!activeNode) return;
   const rect = mapZone.getBoundingClientRect();
   let x = e.clientX - rect.left;
   let y = e.clientY - rect.top;
 
-  // Bloqueo de coordenadas dentro de los límites del lienzo interactivo
   if (x < 0) x = 0; if (x > 540) x = 540;
   if (y < 0) y = 0; if (y > 540) y = 540;
 
   activeNode.style.left = x + 'px';
   activeNode.style.top = y + 'px';
 
-  // Resaltado dinámico si el puntero pasa sobre la papelera de reciclaje
   const trashRect = trashBin.getBoundingClientRect();
   if (e.clientX >= trashRect.left && e.clientX <= trashRect.right &&
       e.clientY >= trashRect.top && e.clientY <= trashRect.bottom) {
@@ -534,19 +675,15 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', (e) => {
   if (!activeNode) return;
-  
   const trashRect = trashBin.getBoundingClientRect();
   if (e.clientX >= trashRect.left && e.clientX <= trashRect.right &&
       e.clientY >= trashRect.top && e.clientY <= trashRect.bottom) {
     activeNode.remove();
   }
-
-  activeNode.style.cursor = 'grab';
   activeNode = null;
   trashBin.classList.remove('drag-over');
 });
 
-// Escuchas globales táctiles para móviles (TouchMove / TouchEnd)
 window.addEventListener('touchmove', (e) => {
   if (!activeNode) return;
   const touch = e.touches[0];
@@ -567,33 +704,30 @@ window.addEventListener('touchmove', (e) => {
   } else {
     trashBin.classList.remove('drag-over');
   }
-}, {passive: false});
+});
 
 window.addEventListener('touchend', (e) => {
   if (!activeNode) return;
   const touch = e.changedTouches[0];
   const trashRect = trashBin.getBoundingClientRect();
-  
   if (touch.clientX >= trashRect.left && touch.clientX <= trashRect.right &&
       touch.clientY >= trashRect.top && touch.clientY <= trashRect.bottom) {
     activeNode.remove();
   }
-
   activeNode = null;
   trashBin.classList.remove('drag-over');
 });
 
-// Soporte alternativo mediante clics directos sobre el mapa táctico
+// Soporte alternativo para clics planos e hitmarks
 mapZone.addEventListener('click', (e) => {
-  if (e.target !== mapZone && e.target.tagName !== 'IMG') return;
-  if (e.target.classList.contains('map-node')) return;
-  if (draggingSrc) return; 
+  if (currentTool !== 'move') return;
+  if (e.target !== mapZone && e.target !== canvas) return;
+  if (draggingSrc) return;
 
   const rect = mapZone.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
   
-  // Permite añadir un nodo genérico de color si se hace click plano sobre el lienzo
   const currentSide = document.querySelector('input[name="sideGroup"]:checked').value;
   const dot = document.createElement('div');
   dot.className = `map-node ${currentSide}`;
@@ -602,18 +736,20 @@ mapZone.addEventListener('click', (e) => {
   dot.style.backgroundColor = (currentSide === 'azul') ? '#4f6edb' : '#ef4444';
 
   dot.addEventListener('mousedown', (evt) => {
+    if (currentTool !== 'move') return;
     evt.preventDefault();
     activeNode = dot;
   });
   
   dot.addEventListener('touchstart', (evt) => {
+    if (currentTool !== 'move') return;
     activeNode = dot;
   }, {passive: true});
 
   mapZone.appendChild(dot);
 });
 
-// Exportación en HD Crisp de html2canvas (Garantiza capturas nítidas)
+// Exportación mediante html2canvas
 document.getElementById('btnExport').addEventListener('click', () => {
   const btn = document.getElementById('btnExport');
   btn.innerText = "⏳ Procesando...";
@@ -624,23 +760,22 @@ document.getElementById('btnExport').addEventListener('click', () => {
     allowTaint: false,
     scale: 2, 
     backgroundColor: null
-  }).then(canvas => {
+  }).then(canvasGenerated => {
     const link = document.createElement('a');
     link.download = 'hokstats-planner.png';
-    link.href = canvas.toDataURL('image/png');
+    link.href = canvasGenerated.toDataURL('image/png');
     link.click();
     
     btn.innerText = "💾 Guardar PNG";
     btn.disabled = false;
   }).catch(err => {
-    console.error("Error al exportar:", err);
-    alert("Error al procesar la imagen táctica.");
+    console.error(err);
     btn.innerText = "💾 Guardar PNG";
     btn.disabled = false;
   });
 });
 
-// Lógica de control de filtros e inputs
+// Control de Filtros
 let selectedRole = 'all';
 let searchKeyword = '';
 
