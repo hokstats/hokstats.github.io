@@ -5,7 +5,7 @@
 <title>Map Planner - HoKstats</title>
 
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA (REPLICA EXACTA INDEX) */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA (REPLICA EXACTA DEL INDEX) */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -48,7 +48,7 @@ body {
   cursor: pointer;
   color: #a0a0b5;
   text-decoration: none;
-  white-space: nowrap; /* Evita micro-deformaciones del texto */
+  white-space: nowrap;
 }
 
 .view-tab.active {
@@ -56,7 +56,7 @@ body {
   color: white;
 }
 
-/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA INDEX) */
+/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA DEL INDEX) */
 .main-box {
   background: #31313c;
   border-radius: 6px;
@@ -65,24 +65,23 @@ body {
   padding: 0 0 30px 0;
 }
 
-/* 🎯 ZONA DE AISLAMIENTO DE CONTINUIDAD VISUAL (LA CLAVE DEL FIX) */
+/* CONTENEDOR INTERNO (REPLICA EXACTA DEL INDEX) */
 .content-padding-zone {
   padding: 40px 30px 10px 30px;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS INTERNA (CON CONTENCION ANTI-DEFORMACIÓN) */
+/* 🛠️ COMPONENTES INTERNOS DEL PLANNER (AISLADOS DEL FLUJO SUPERIOR) */
 .planner-toolbar {
-  background: #282830;
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
   padding: 14px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  border: 1px solid #444452;
-  border-radius: 6px;
   margin-bottom: 25px;
   flex-wrap: wrap;
-  box-sizing: border-box; /* Previene que el padding altere el ancho general */
 }
 
 .tool-group {
@@ -136,12 +135,12 @@ body {
   display: inline-block;
 }
 
-/* 🗺️ ÁREA OPERATIVA DEL MAPA */
+/* 🗺️ AREA DEL MAPA TÁCTICO */
 .map-viewport {
   position: relative;
   width: 600px;
   height: 600px;
-  margin: 0 auto 30px auto; /* Centrado perfecto sin romper flujos superiores */
+  margin: 0 auto 30px auto;
   background: #1a1a20;
   border: 1px solid #444452;
   border-radius: 6px;
@@ -156,7 +155,6 @@ body {
   pointer-events: none;
 }
 
-/* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
 .svg-draw-layer {
   position: absolute;
   top: 0;
@@ -171,7 +169,6 @@ body {
   pointer-events: auto;
 }
 
-/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
 .map-viewport.tool-eraser .svg-draw-layer {
   pointer-events: auto;
 }
@@ -187,7 +184,6 @@ body {
   stroke-linejoin: round;
 }
 
-/* Modo Goma sobre elementos borrables */
 .map-viewport.tool-eraser .placed-hero,
 .map-viewport.tool-eraser .vector-arrow,
 .map-viewport.tool-eraser .free-path {
@@ -201,7 +197,6 @@ body {
   opacity: 0.7;
 }
 
-/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
 .placed-hero {
   position: absolute;
   width: 40px;
@@ -210,7 +205,6 @@ body {
   cursor: grab;
   transform: translate(-50%, -50%);
   z-index: 10;
-  box-sizing: border-box;
 }
 
 .placed-hero img {
@@ -252,7 +246,7 @@ body {
   border-left: 12px solid currentColor;
 }
 
-/* 📦 CAJÓN INFERIOR DE HÉROES */
+/* CAJÓN INFERIOR DE HÉROES */
 .heroes-drawer {
   margin-top: 10px;
 }
@@ -331,20 +325,17 @@ body {
   object-fit: cover;
 }
 
-/* FORZADO DE SCROLLBAR IDENTICA AL INDEX CONTRA RECALCULOS DE ANCHO */
+/* SCROLLBAR REPLICA INDENTICA */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
-    
     <div class="view-tabs">
       <a href="index.html" class="view-tab">General</a>
       <a href="stats.html" class="view-tab">Estadísticas</a>
@@ -356,7 +347,6 @@ body {
   </div>
 
   <div class="main-box">
-    
     <div class="content-padding-zone">
 
       <div class="planner-toolbar">
@@ -413,18 +403,18 @@ body {
             <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
           </div>
         </div>
-
         <div class="heroes-grid" id="available-heroes"></div>
       </div>
 
-    </div> </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
-// El motor JS se mantiene al 100% idéntico para no corromper la excelente lógica funcional
+// El core JavaScript del Planner se mantiene intacto y óptimo
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 const mapZone = document.getElementById('mapZone');
