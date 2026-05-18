@@ -8,7 +8,7 @@
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
-  color: #a0a0b5;
+  color: #7b7a8e;
   margin: 0;
   padding: 20px;
   user-select: none;
@@ -55,135 +55,220 @@ body {
   color: white;
 }
 
-/* 📦 CONTENEDOR PRINCIPAL (ESTRUCTURA DE TU WEB) */
-table.main-layout {
-  width: 100%;
-  border-collapse: collapse;
-}
-
+/* 📦 CONTENEDOR PRINCIPAL REFINADO */
 .main-box-cell {
   background: #31313c;
   border-radius: 6px;
   border: 1px solid #1c1c1f;
-  padding: 40px; /* Más aire para un look minimalista */
+  padding: 50px 40px;
+  margin-top: 5px;
+}
+
+.welcome-header {
+  max-width: 600px;
+  margin: 0 auto 45px auto;
+  text-align: center;
 }
 
 .welcome-title {
   color: white;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: bold;
-  margin-bottom: 6px;
-  text-align: center;
+  margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
 
 .welcome-subtitle {
   color: #7b7a8e;
-  font-size: 13px;
-  margin-bottom: 40px;
-  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.6;
 }
 
-/* 🎴 GRID MINIMALISTA DE 4 COLUMNAS/TARJETAS */
+/* 🎴 GRID ESTILO BENTO MINIMALISTA */
 .hub-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 
-/* Tarjetas refinadas y limpias */
+/* Tarjetas abstractas y limpias sin dependencias de imágenes */
 .hub-card {
   background: #24242b;
-  border: 1px solid #444452; /* Línea más delgada */
+  border: 1px solid #444452;
   border-radius: 6px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: #a0a0b5;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   cursor: pointer;
-  height: 290px;
+  height: 240px;
 }
 
-/* Hover minimalista: Brillo azul suave sin ser escandaloso */
 .hub-card:hover {
   border-color: #4f6edb;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(79, 110, 219, 0.12);
+  box-shadow: 0 6px 20px rgba(79, 110, 219, 0.08);
 }
 
-/* Zona de la imagen/captura estilizada */
-.card-image-box {
-  height: 170px;
-  background: #17171a; /* Fondo aún más oscuro para resaltar la captura */
-  position: relative;
-  overflow: hidden;
+/* 🎨 CONTENEDOR DE ARTE ABSTRACTO VECTORIAL (CSS PURO) */
+.card-vector-box {
+  height: 120px;
+  background: #1a1a20;
+  border-bottom: 1px solid #1c1c1f;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.card-image-box img {
+/* Elementos comunes para los gráficos abstractos */
+.preview-shape {
+  border-radius: 3px;
+  background: #31313c;
+  border: 1px solid #444452;
+  transition: all 0.25s ease;
+}
+
+.hub-card:hover .preview-shape {
+  border-color: rgba(79, 110, 219, 0.5);
+}
+
+/* 1. Arte de Estadísticas (Filas de Tabla Simuladas) */
+.shape-table {
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.shape-table-row {
+  height: 10px;
   width: 100%;
+  display: flex;
+  gap: 6px;
+}
+.shape-cell {
+  background: #2d2d37;
   height: 100%;
-  object-fit: cover;
-  opacity: 0.65; /* Más apagada por defecto para estilo elegante */
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  border-radius: 2px;
+}
+.hub-card:hover .shape-cell-accent {
+  background: #4f6edb;
 }
 
-/* Al pasar el mouse, la captura cobra vida limpiamente */
-.hub-card:hover .card-image-box img {
-  opacity: 0.95;
-  transform: scale(1.01);
+/* 2. Arte de Counters (Estructura de Versus Simetrica) */
+.shape-versus {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.vs-block {
+  width: 34px;
+  height: 34px;
+  background: #2d2d37;
+  border: 1px solid #444452;
+  border-radius: 4px;
+}
+.vs-circle { border-radius: 50%; }
+.vs-line {
+  font-family: monospace;
+  font-size: 11px;
+  color: #444452;
+  font-weight: bold;
+}
+.hub-card:hover .vs-line { color: #4f6edb; }
+.hub-card:hover .vs-block { border-color: rgba(79, 110, 219, 0.4); }
+
+/* 3. Arte de Map Planner (Puntos e Intersecciones) */
+.shape-map {
+  width: 120px;
+  height: 60px;
+  position: relative;
+  border: 1px dashed #3a3a46;
+  border-radius: 6px;
+}
+.map-node {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #31313c;
+  border: 1px solid #444452;
+  border-radius: 50%;
+}
+.hub-card:hover .map-node-accent {
+  background: #4f6edb;
+  box-shadow: 0 0 8px #4f6edb;
 }
 
-/* Info inferior minimalista */
+/* 4. Arte de Draft (Espacios de Ban y Pick) */
+.shape-draft {
+  display: flex;
+  gap: 12px;
+}
+.draft-slot {
+  width: 24px;
+  height: 24px;
+  background: #2d2d37;
+  border: 1px solid #444452;
+  border-radius: 4px;
+}
+.hub-card:hover .draft-blue { border-color: #4f6edb; background: rgba(79, 110, 219, 0.1); }
+.hub-card:hover .draft-red { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+/* ZONA DE TEXTO INFERIOR */
 .card-info {
-  padding: 20px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
   background: #24242b;
-  border-top: 1px solid #1c1c1f;
 }
 
 .card-title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .card-title {
   color: #ffffff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   letter-spacing: 0.3px;
 }
 
-/* Pequeña etiqueta técnica muy sutil */
 .card-badge {
   font-size: 9px;
   color: #7b7a8e;
   border: 1px solid #444452;
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 3px;
   text-transform: uppercase;
   font-family: monospace;
+  letter-spacing: 0.5px;
 }
 
 .hub-card:hover .card-badge {
-  color: #deff9a; /* Tu color amarillo/verde sutil de acento al hacer hover */
-  border-color: rgba(222, 255, 154, 0.3);
+  color: white;
+  background: #31313c;
+  border-color: #7b7a8e;
 }
 
 .card-desc {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #7b7a8e;
   line-height: 1.5;
 }
+
+/* scrollbar unificado */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #1c1c1f; }
+::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
 </style>
 </head>
 <body>
@@ -202,72 +287,88 @@ table.main-layout {
     </div>
   </div>
 
-  <table class="main-layout">
-    <tr>
-      <td class="main-box-cell">
-        
-        <div class="welcome-title">HoKstats - Una herramienta para la comunidad</div>
-        <div class="welcome-subtitle">Selecciona una de las herramientas disponibles para tu sesión competitiva</div>
+  <div class="main-box-cell">
+    
+    <div class="welcome-header">
+      <div class="welcome-title">HoKstats</div>
+      <div class="welcome-subtitle">Plataforma analítica avanzada y herramientas estratégicas optimizadas para el metajuego competitivo de Honor of Kings.</div>
+    </div>
 
-        <div class="hub-grid">
-          
-          <a href="stats.html" class="hub-card">
-            <div class="card-image-box">
-              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/stats_so.png" alt="Estadísticas del Meta">
-            </div>
-            <div class="card-info">
-              <div class="card-title-row">
-                <div class="card-title">Estadísticas</div>
-                <div class="card-badge">Data</div>
-              </div>
-              <div class="card-desc">Monitoreo dinámico de las stats de los heroes.</div>
-            </div>
-          </a>
-
-          <a href="counter.html" class="hub-card">
-            <div class="card-image-box">
-              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/counter_so.png" alt="Matriz de Counters">
-            </div>
-            <div class="card-info">
-              <div class="card-title-row">
-                <div class="card-title">Counters</div>
-                <div class="card-badge">Versus</div>
-              </div>
-              <div class="card-desc">Información de los counters y sinergias de los heroes.</div>
-            </div>
-          </a>
-
-          <a href="planner.html" class="hub-card">
-            <div class="card-image-box">
-              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/planner_so.png" alt="Map Planner">
-            </div>
-            <div class="card-info">
-              <div class="card-title-row">
-                <div class="card-title">Map planner</div>
-                <div class="card-badge">Táctica</div>
-              </div>
-              <div class="card-desc">Mapa interactivo para estrategia de juego con guardado.</div>
-            </div>
-          </a>
-
-          <a href="draft.html" class="hub-card">
-            <div class="card-image-box">
-              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/draft_so.png" alt="Simulador de Draft">
-            </div>
-            <div class="card-info">
-              <div class="card-title-row">
-                <div class="card-title">Simulador de draft</div>
-                <div class="card-badge">Pick/Ban</div>
-              </div>
-              <div class="card-desc">Simulación competitiva con motor de counters/sinergias y detector de roles en tiempo real.</div>
-            </div>
-          </a>
-
+    <div class="hub-grid">
+      
+      <a href="stats.html" class="hub-card">
+        <div class="card-vector-box">
+          <div class="shape-table">
+            <div class="shape-table-row"><div class="shape-cell" style="width:20px; background:#4f6edb;"></div><div class="shape-cell" style="flex:1;"></div><div class="shape-cell" style="width:30px;"></div></div>
+            <div class="shape-table-row"><div class="shape-cell" style="width:20px;"></div><div class="shape-cell" style="flex:1; background: #3a3a46;"></div><div class="shape-cell-accent shape-cell" style="width:30px;"></div></div>
+            <div class="shape-table-row"><div class="shape-cell" style="width:20px;"></div><div class="shape-cell" style="flex:1;"></div><div class="shape-cell" style="width:30px;"></div></div>
+          </div>
         </div>
+        <div class="card-info">
+          <div class="card-title-row">
+            <div class="card-title">Estadísticas del Meta</div>
+            <div class="card-badge">Data</div>
+          </div>
+          <div class="card-desc">Monitoreo dinámico de win rates, pick rates y rendimiento segmentado por fases de juego.</div>
+        </div>
+      </a>
 
-      </td>
-    </tr>
-  </table>
+      <a href="counter.html" class="hub-card">
+        <div class="card-vector-box">
+          <div class="shape-versus">
+            <div class="vs-block"></div>
+            <div class="vs-line">VS</div>
+            <div class="vs-block vs-circle"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-title-row">
+            <div class="card-title">Matriz de Counters</div>
+            <div class="card-badge">Versus</div>
+          </div>
+          <div class="card-desc">Análisis avanzado de enfrentamientos directos, sinergias de equipo y escaneo inverso bidireccional.</div>
+        </div>
+      </a>
+
+      <a href="planner.html" class="hub-card">
+        <div class="card-vector-box">
+          <div class="shape-map">
+            <div class="map-node map-node-accent" style="top:10px; left:20px;"></div>
+            <div class="map-node" style="top:40px; left:55px;"></div>
+            <div class="map-node map-node-accent" style="top:25px; left:90px;"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-title-row">
+            <div class="card-title">Tactical Map Planner</div>
+            <div class="card-badge">Táctica</div>
+          </div>
+          <div class="card-desc">Pizarra táctica interactiva sobre el mapa de la Grieta para trazar rutas de rotación y objetivos.</div>
+        </div>
+      </a>
+
+      <a href="draft.html" class="hub-card">
+        <div class="card-vector-box">
+          <div class="shape-draft">
+            <div class="draft-slot draft-blue"></div>
+            <div class="draft-slot draft-blue"></div>
+            <div class="draft-slot" style="border:none; background:none; width:10px;"></div>
+            <div class="draft-slot draft-red"></div>
+            <div class="draft-slot draft-red"></div>
+          </div>
+        </div>
+        <div class="card-info">
+          <div class="card-title-row">
+            <div class="card-title">Simulador de Draft</div>
+            <div class="card-badge">Pick & Ban</div>
+          </div>
+          <div class="card-desc">Simulación de fase competitiva con detección automática de roles y sugerencias algorítmicas de contra-selección.</div>
+        </div>
+      </a>
+
+    </div>
+
+  </div>
 </div>
 
 </body>
