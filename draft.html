@@ -299,7 +299,7 @@ table.main-layout {
   cursor: pointer;
   text-transform: uppercase;
   transition: all 0.2s ease;
-  display: none; /* Se activa dinámicamente solo en fases de ban */
+  display: none; 
 }
 .btn-no-ban:hover {
   background: #7f1d1d;
@@ -465,14 +465,8 @@ let redTeamPicks = [];
 let userSide = 'blue';
 let actionHistory = []; 
 
-const DRAFT_SEQUENCE = [
-  { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
-  { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
-  { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
-  { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
-  { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
-  { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' },
-  
+// Secuencias base de Picks (se mantienen fijas y tradicionales)
+const PICKS_SEQUENCE = [
   { type: 'pick', team: 'blue', slotId: 'blue-p1', label: 'Pick Azul 1' },
   { type: 'pick', team: 'red', slotId: 'red-p1', label: 'Pick Rojo 1' },
   { type: 'pick', team: 'red', slotId: 'red-p2', label: 'Pick Rojo 2' },
@@ -484,6 +478,9 @@ const DRAFT_SEQUENCE = [
   { type: 'pick', team: 'blue', slotId: 'blue-p5', label: 'Pick Azul 5' },
   { type: 'pick', team: 'red', slotId: 'red-p5', label: 'Pick Rojo 5' }
 ];
+
+// Este array se armará de forma dinámica según el bando seleccionado
+let DRAFT_SEQUENCE = [];
 
 let currentStepIndex = 0;
 let currentRole = 'all';
@@ -529,6 +526,34 @@ ejecutarParseCSV();
 
 function selectUserSide(side) {
   userSide = side;
+  
+  // MEJORA FLUJO SUCESIVO: Armamos la secuencia de baneo en bloques continuos por equipo
+  let bansOrdenados = [];
+  if (userSide === 'blue') {
+    // Si soy Azul, vacio primero mis 3 bloqueos sucesivos rápido, luego registro los 3 del rival de golpe
+    bansOrdenados = [
+      { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
+      { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
+      { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
+      { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
+      { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
+      { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' }
+    ];
+  } else {
+    // Si soy Rojo, registro primero los 3 del rival de golpe sucesivos, luego meto mis 3 bans seguidos
+    bansOrdenados = [
+      { type: 'ban', team: 'blue', slotId: 'blue-b1', label: 'Baneo Azul 1' },
+      { type: 'ban', team: 'blue', slotId: 'blue-b2', label: 'Baneo Azul 2' },
+      { type: 'ban', team: 'blue', slotId: 'blue-b3', label: 'Baneo Azul 3' },
+      { type: 'ban', team: 'red', slotId: 'red-b1', label: 'Baneo Rojo 1' },
+      { type: 'ban', team: 'red', slotId: 'red-b2', label: 'Baneo Rojo 2' },
+      { type: 'ban', team: 'red', slotId: 'red-b3', label: 'Baneo Rojo 3' }
+    ];
+  }
+
+  // Concatenamos la fase de bloqueo optimizada en bloque con los picks tradicionales intercalados
+  DRAFT_SEQUENCE = [...bansOrdenados, ...PICKS_SEQUENCE];
+
   document.getElementById('setup-box').style.display = 'none';
   document.getElementById('arena-box').style.display = 'flex';
   document.getElementById('control-box').style.display = 'flex';
@@ -563,7 +588,6 @@ function renderDrawer(role, query) {
     const div = document.createElement('div');
     div.className = 'hero-item';
     
-    // MEJORA 1: Solo se deshabilita visualmente si el héroe ya fue "Pickeado" (No bloquea bans repetidos)
     const estaEnPicks = blueTeamPicks.some(h => h.nombre === hero.nombre) || redTeamPicks.some(h => h.nombre === hero.nombre);
     if (estaEnPicks) div.classList.add('disabled');
     
@@ -590,7 +614,6 @@ function highlightActiveSlot() {
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   const isMyTurn = currentStep.team === userSide;
   
-  // MEJORA 3: Mostrar el botón "No Banear" únicamente cuando estemos en fase de ban
   if (currentStep.type === 'ban') {
     document.getElementById('no-ban-action').style.display = 'block';
     document.getElementById('phase-label').innerText = "Fase de Bloqueo (Ban)";
@@ -611,7 +634,6 @@ function processSelection(hero) {
   if (currentStepIndex >= DRAFT_SEQUENCE.length) return;
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   
-  // Guardamos en el set general solo si es un Pick para bloquear su uso definitivo
   if (currentStep.type === 'pick') {
     selectedHeroes.add(hero.nombre);
   }
@@ -622,7 +644,6 @@ function processSelection(hero) {
     isNoBan: false
   });
 
-  // MEJORA 2: Se pinta secuencial e inmediatamente en su casilla correspondiente
   const slotEl = document.getElementById(currentStep.slotId);
   if (currentStep.type === 'ban') {
     slotEl.innerHTML = `<img src="${hero.imagen}" title="Baneado: ${hero.nombre}">`;
@@ -639,7 +660,6 @@ function processSelection(hero) {
   highlightActiveSlot();
 }
 
-// MEJORA 3: Función para saltarse un baneo sin seleccionar ningún personaje
 function registrarNoBan() {
   if (currentStepIndex >= DRAFT_SEQUENCE.length) return;
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
@@ -652,7 +672,6 @@ function registrarNoBan() {
   });
 
   const slotEl = document.getElementById(currentStep.slotId);
-  // Dibujamos un indicador visual limpio y elegante dentro de la caja de baneo
   slotEl.innerHTML = `<span style="color:#ef4444; font-size:16px; font-weight:bold; font-family:monospace;">X</span>`;
 
   currentStepIndex++;
@@ -695,7 +714,6 @@ function undoLastAction() {
 function checkCompositionConflict(recHero, allies) {
   if (allies.length === 0) return false;
   
-  const allGameRoles = ['Choque', 'Cazador', 'Medio', 'Merodeo', 'Farmeo'];
   let virtualTeam = allies.map(h => h.roles);
   virtualTeam.push(recHero.roles);
   
@@ -747,7 +765,6 @@ function updateRecommendations() {
   const currentStep = DRAFT_SEQUENCE[currentStepIndex];
   const isMyTurn = currentStep ? (currentStep.team === userSide) : false;
 
-  // En las recomendaciones filtramos únicamente héroes que ya estén tomados en Picks reales
   let pool = heroesData.filter(h => {
     return !blueTeamPicks.some(p => p.nombre === h.nombre) && !redTeamPicks.some(p => p.nombre === h.nombre);
   });
