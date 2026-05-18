@@ -5,10 +5,7 @@
 <title>Acerca de - HoKstats</title>
 
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA CON COUNTER.HTML */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   background: #1c1c1f;
@@ -18,7 +15,6 @@ body {
   padding: 24px 0;
 }
 
-/* MARCO MAESTRO: límites idénticos a counter.html */
 .container {
   width: 100%;
   max-width: 1160px;
@@ -26,48 +22,12 @@ body {
   padding: 0 30px;
 }
 
-/* CAJA MAESTRA: réplica exacta de counter.html */
 .main-box {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #444452;
-  padding: 0 0 30px 0;
 }
-
-/* 🎛️ Contenedor de la barra superior de filtros */
-.tabs-container {
-  padding: 15px 30px;
-  background: #31313c;
-  border-bottom: none;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; /* Mismo modo de control de anchura que index y counter */
-}
-
-thead {
-  background: #282830;
-}
-
-thead tr {
-  border-bottom: 1px solid #1c1c1f;
-}
-
-thead th {
-  padding: 8px 4px;    
-  font-size: 11px;    
-  color: #b3b2bf;
-  font-weight: bold !important;  
-}
-
-/* Fijamos las mismas columnas de control iniciales para clonar el esqueleto */
-.col-pos  { width: 4%; text-align: center; }
-.col-hero { width: 13%; }
-.col-tier { width: 5%; text-align: center; }
-.col-rol  { width: 10%; text-align: center; }
 
 .logo-text {
   font-family: monospace;
@@ -78,7 +38,6 @@ thead th {
   line-height: 1;
 }
 
-/* BARRA SUPERIOR: réplica milimétrica de counter.html */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -87,10 +46,7 @@ thead th {
   padding: 0 4px;
 }
 
-.view-tabs {
-  display: flex;
-  gap: 6px;
-}
+.view-tabs { display: flex; gap: 6px; }
 
 .view-tab {
   padding: 6px 12px;
@@ -110,73 +66,161 @@ thead th {
   border-color: #4f6edb;
 }
 
-/* 📝 El texto informativo se acopla abajo con márgenes internos simétricos */
+/* ZONA DE CONTENIDO */
 .about-content {
-  padding: 25px 30px 0 30px;
+  padding: 36px 40px 40px 40px;
 }
 
-h2 {
-  color: white;
-  font-size: 18px;
-  margin-top: 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #444452;
-  padding-bottom: 10px;
-  letter-spacing: 0.5px;
+/* Cabecera de página */
+.page-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #3a3a46;
 }
 
-h3 {
+.page-title {
   color: white;
   font-size: 14px;
-  margin-top: 25px;
-  margin-bottom: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0 0 6px 0;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: #4a4a5a;
   letter-spacing: 0.5px;
 }
 
-p {
-  font-size: 13px;
-  margin-bottom: 15px;
-  line-height: 1.6;
+/* Secciones con acento lateral */
+.about-section {
+  margin-bottom: 30px;
 }
 
-a {
-  color: #4f6edb;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-ul {
-  padding-left: 20px;
-  margin-bottom: 20px;
-}
-
-li {
-  font-size: 13px;
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 12px;
-  line-height: 1.6;
 }
 
-strong {
-  color: white;
+.section-heading::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 13px;
+  background: #4f6edb;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
-.level-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 4px;
+.section-heading h3 {
+  color: #c8c8d8;
   font-size: 11px;
   font-weight: bold;
-  margin-right: 5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 0;
 }
 
-.lvl-1 { background-color: rgba(34, 197, 94, 0.2); color: #4ade80; }
-.lvl-2 { background-color: rgba(79, 110, 219, 0.2); color: #818cf8; }
-.lvl-3 { background-color: rgba(168, 85, 247, 0.2); color: #c084fc; }
-.lvl-4 { background-color: rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+.section-body {
+  font-size: 12.5px;
+  color: #7b7a8e;
+  line-height: 1.75;
+  margin: 0;
+  padding-left: 13px;
+}
 
+.section-body a { color: #4f6edb; text-decoration: none; }
+.section-body a:hover { text-decoration: underline; }
+.section-body strong { color: #a0a0b5; font-weight: bold; }
+
+/* Lista de niveles como tarjetas */
+.levels-list {
+  list-style: none;
+  padding: 0 0 0 13px;
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.level-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #28282f;
+  border: 1px solid #36363f;
+  border-radius: 6px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+
+.level-item:hover { border-color: #444452; }
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 9px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.lvl-1 { background: rgba(34,197,94,0.08); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+.lvl-2 { background: rgba(79,110,219,0.08); color: #818cf8; border: 1px solid rgba(79,110,219,0.2); }
+.lvl-3 { background: rgba(168,85,247,0.08); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); }
+.lvl-4 { background: rgba(255,255,255,0.04); color: #94a3b8; border: 1px solid rgba(255,255,255,0.08); }
+
+.level-body {
+  font-size: 12px;
+  color: #7b7a8e;
+  line-height: 1.65;
+}
+
+.level-body .level-title {
+  display: block;
+  color: #b0b0c0;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.level-body strong { color: #a0a0b5; }
+.level-body em { color: #6b6a7e; font-style: italic; }
+
+/* Divisor entre secciones */
+.section-divider {
+  border: none;
+  border-top: 1px solid #2a2a35;
+  margin: 30px 0;
+}
+
+/* Nota al pie */
+.about-note {
+  padding: 16px 20px;
+  background: #28282f;
+  border: 1px solid #36363f;
+  border-left: 3px solid #4f6edb;
+  border-radius: 4px;
+  font-size: 11.5px;
+  color: #5a5a6a;
+  line-height: 1.7;
+}
+
+.about-note a { color: #4f6edb; text-decoration: none; }
+.about-note a:hover { text-decoration: underline; }
+
+/* Scrollbar */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
@@ -190,7 +234,6 @@ strong {
 
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
-
     <div class="view-tabs">
       <a href="index.html" class="view-tab">General</a>
       <a href="stats.html" class="view-tab">Estadísticas</a>
@@ -199,63 +242,111 @@ strong {
       <a href="draft.html" class="view-tab">Draft</a>
       <a href="acerca.html" class="view-tab active">Acerca de</a>
     </div>
-    
   </div>
 
   <div class="main-box">
-    
-    <div class="tabs-container"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th class="col-pos">&nbsp;</th>
-          <th class="col-hero">&nbsp;</th>
-          <th class="col-tier">&nbsp;</th>
-          <th class="col-rol">&nbsp;</th>
-          <th>&nbsp;</th>
-        </tr>
-      </thead>
-    </table>
-
     <div class="about-content">
-      <h2>ACERCA DE HOKSTATS</h2>
-      
-      <h3>DECLARACIÓN DE INDEPENDENCIA Y PROPÓSITO</h3>
-      <p><strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad.</p>
 
-      <h3>ORIGEN DE DATOS: SECCIÓN ESTADÍSTICAS</h3>
-      <p>Los indicadores cuantitativos de la sección de <strong>Estadísticas</strong> se extraen directamente de las fuentes oficiales del servidor global a través de la plataforma <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">https://camp.honorofkings.com</a>). Con el fin de garantizar la vigencia de las métricas de rendimiento, el set de datos se actualiza periódicamente cada <strong>7 días</strong>.</p>
+      <div class="page-header">
+        <div class="page-title">Acerca de HoKstats</div>
+        <div class="page-subtitle">Plataforma analítica independiente para Honor of Kings</div>
+      </div>
 
-      <h3>METODOLOGÍA Y ORIGEN DE DATOS: SECCIÓN COUNTERS (MATCHUPS)</h3>
-      <p>A diferencia de las estadísticas generales, las interacciones avanzadas de compatibilidad y contrarresto (<em>Counters, Debilidades y Sinergias</em>) no se encuentran consolidadas de forma pública en el ecosistema global. Por ello, la matriz de relaciones de HoKstats se construye mediante un modelo analítico propio que recopila y procesa información bajo los siguientes criterios de prioridad:</p>
+      <!-- SECCIÓN 1 -->
+      <div class="about-section">
+        <div class="section-heading"><h3>Declaración de independencia y propósito</h3></div>
+        <p class="section-body">
+          <strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro.
+          Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>,
+          <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos
+          expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad.
+        </p>
+      </div>
 
-      <ul>
-        <li>
-          <span class="level-badge lvl-1">Nivel 1</span> <strong>DATOS OFICIALES (MÁXIMA PRIORIDAD ANALÍTICA):</strong> 
-          La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la aplicación de origen). Esta información se complementa y contrasta con las infografías oficiales y publicaciones periódicas distribuidas por el equipo de desarrollo en el entorno global a través de HoK Camp. En caso de existir discrepancias entre la versión china y la global, la herramienta opta por conservar ambas referencias para enriquecer el marco analítico.
-        </li>
-        <li>
-          <span class="level-badge lvl-2">Nivel 2</span> <strong>ENTORNO COMPETITIVO (PRIORIDAD MEDIA):</strong> 
-          Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias e interacciones entre héroes se ejecutan bajo condiciones óptimas de coordinación, sirviendo como un valioso entorno de validación.
-        </li>
-        <li>
-          <span class="level-badge lvl-3">Nivel 3</span> <strong>OPINIÓN EXPERTA (PRIORIDAD BAJA):</strong> 
-          Integración de criterios técnicos provistos por <strong>creadores de contenido y streamers de High Elo</strong>, junto a jugadores de rango profesional, orientados a identificar matices estratégicos específicos.
-        </li>
-        <li>
-          <span class="level-badge lvl-4">Nivel 4</span> <strong>EXPERIENCIA EMPÍRICA (PRIORIDAD COMPLEMENTARIA):</strong> 
-          Validación propia a través de la experiencia directa en el juego (<em>enfoque empírico</em>), utilizada exclusivamente como contraste de campo y ajuste fino del ecosistema, sin desplazar la base estructurada de los niveles superiores.
-        </li>
-      </ul>
+      <hr class="section-divider">
 
-      <h3>OBJETIVO DEL SISTEMA</h3>
-      <p>Ofrecer una interpretación actualizada, coherente y directamente aplicable de las dinámicas de enfrentamiento entre héroes dentro del metajuego actual.</p> 
+      <!-- SECCIÓN 2 -->
+      <div class="about-section">
+        <div class="section-heading"><h3>Origen de datos — Estadísticas</h3></div>
+        <p class="section-body">
+          Los indicadores cuantitativos se extraen directamente de las fuentes oficiales del servidor global a través de
+          <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">camp.honorofkings.com</a>).
+          Con el fin de garantizar la vigencia de las métricas de rendimiento, el conjunto de datos se actualiza
+          periódicamente cada <strong>7 días</strong>.
+        </p>
+      </div>
 
-      <p><em>Si detectas alguna discrepancia técnica, cuentas con información adicional verificable o deseas proponer un ajuste basado en datos, te invitamos a enviar tus sugerencias por correo electrónico (michixhok@gmail.com) para su correspondiente revisión e incorporación en el sistema.</em></p>
+      <hr class="section-divider">
+
+      <!-- SECCIÓN 3 -->
+      <div class="about-section">
+        <div class="section-heading"><h3>Metodología — Counters, debilidades y sinergias</h3></div>
+        <p class="section-body">
+          A diferencia de las estadísticas generales, las interacciones de compatibilidad y contrarresto no se encuentran
+          consolidadas públicamente en el ecosistema global. La matriz de relaciones de HoKstats se construye mediante un
+          modelo analítico propio que pondera información bajo los siguientes criterios de prioridad:
+        </p>
+
+        <ul class="levels-list">
+          <li class="level-item">
+            <span class="level-badge lvl-1">Nivel 1</span>
+            <div class="level-body">
+              <span class="level-title">Datos oficiales — Máxima prioridad</span>
+              La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la
+              aplicación de origen), complementada con infografías y publicaciones periódicas del equipo de desarrollo
+              distribuidas en el entorno global a través de HoK Camp. En caso de discrepancias entre versiones, se
+              conservan ambas referencias para enriquecer el marco analítico.
+            </div>
+          </li>
+          <li class="level-item">
+            <span class="level-badge lvl-2">Nivel 2</span>
+            <div class="level-body">
+              <span class="level-title">Entorno competitivo — Prioridad media</span>
+              Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias
+              e interacciones entre héroes se ejecutan bajo condiciones óptimas de coordinación, sirviendo como
+              entorno de validación de alto valor.
+            </div>
+          </li>
+          <li class="level-item">
+            <span class="level-badge lvl-3">Nivel 3</span>
+            <div class="level-body">
+              <span class="level-title">Opinión experta — Prioridad baja</span>
+              Integración de criterios técnicos provistos por creadores de contenido y jugadores de High Elo,
+              orientados a identificar matices estratégicos específicos no capturados por los niveles superiores.
+            </div>
+          </li>
+          <li class="level-item">
+            <span class="level-badge lvl-4">Nivel 4</span>
+            <div class="level-body">
+              <span class="level-title">Experiencia empírica — Complementaria</span>
+              Validación propia a través de la experiencia directa en el juego, utilizada exclusivamente como contraste
+              de campo y ajuste fino, sin desplazar la base estructurada de los niveles superiores.
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- SECCIÓN 4 -->
+      <div class="about-section">
+        <div class="section-heading"><h3>Objetivo del sistema</h3></div>
+        <p class="section-body">
+          Ofrecer una interpretación actualizada, coherente y directamente aplicable de las dinámicas de enfrentamiento
+          entre héroes dentro del metajuego competitivo actual de Honor of Kings.
+        </p>
+      </div>
+
+      <!-- NOTA AL PIE -->
+      <div class="about-note">
+        Si detectas alguna discrepancia técnica, cuentas con información adicional verificable o deseas proponer un ajuste
+        basado en datos, puedes enviar tus sugerencias a
+        <a href="mailto:michixhok@gmail.com">michixhok@gmail.com</a> para su revisión e incorporación en el sistema.
+      </div>
+
     </div>
   </div>
-      
+
 </div>
 
 </body>
