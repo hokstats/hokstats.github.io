@@ -1,38 +1,47 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
 <title>Simulador de Draft - HoKstats</title>
 <style>
-/* 📊 REGLAS GLOBALES CALZADAS CON PLANNER / INDEX */
+/* 📊 REGLAS GLOBALES UNIFICADAS CON COUNTER.HTML */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
   color: #a0a0b5;
   margin: 0;
-  padding: 20px;
+  padding: 24px 0; /* Idéntico a counter.html: solo relleno vertical */
   user-select: none;
 }
 
+/* MARCO MAESTRO: límites horizontales idénticos a counter.html */
 .container {
-  max-width: 1100px;
-  margin: auto;
+  width: 100%;
+  max-width: 1160px; /* 1100px útiles + 60px de padding total */
+  margin: 0 auto;
+  padding: 0 30px;
 }
 
-/* ESTRUCTURA TOP-BAR EXTRACCIÓN DIRECTA DE PLANNER */
+/* BARRA SUPERIOR: réplica milimétrica de counter.html */
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end; /* Alineación al piso de la pestaña */
+  margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .logo-text {
   font-family: monospace;
   font-size: 22px;
   color: white;
-  margin-bottom: 10px;
-  margin-left: 4px;
+  margin: 0; /* Eliminados margin-bottom y margin-left conflictivos */
   letter-spacing: 1px;
+  line-height: 1;
 }
 
 .view-tabs {
@@ -48,11 +57,14 @@ body {
   cursor: pointer;
   color: #a0a0b5;
   text-decoration: none;
+  white-space: nowrap; /* Evita rotura de texto en tabs */
+  line-height: 1.2;
 }
 
 .view-tab.active {
   background: #4f6edb;
   color: white;
+  border-color: #4f6edb;
 }
 
 /* LA FAKE-TABLA COMIENZA AQUÍ, SOLO PARA EL CUERPO PRINCIPAL */
@@ -64,7 +76,7 @@ table.main-layout {
 .main-box-cell {
   background: #31313c;
   border-radius: 6px;
-  border: 1px solid #1c1c1f;
+  border: 1px solid #444452; /* Unificado con counter.html .main-box */
   padding: 0 0 20px 0;
   overflow: hidden; 
 }
@@ -380,6 +392,21 @@ table.main-layout {
 .rec-list-vertical::-webkit-scrollbar, .heroes-grid::-webkit-scrollbar { width: 6px; }
 .rec-list-vertical::-webkit-scrollbar-track, .heroes-grid::-webkit-scrollbar-track { background: transparent; }
 .rec-list-vertical::-webkit-scrollbar-thumb, .heroes-grid::-webkit-scrollbar-thumb { background: #444452; border-radius: 3px; }
+
+/* SCROLLBAR GLOBAL UNIFICADA CON COUNTER.HTML */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1c1c1f;
+}
+::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a6b;
+}
 </style>
 </head>
 <body>
