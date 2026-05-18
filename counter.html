@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Counters - HoKstats</title>
 <style>
-/* 📊 COHESIÓN VISUAL ESTRICTA CON HOKSTATS */
+/* 📊 REGLAS GLOBALES COHESIVAS CON HOKSTATS */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -19,7 +19,7 @@ body {
   margin: auto;
 }
 
-/* TOP-BAR ORIGINAL */
+/* TOP-BAR DE CONTINUIDAD EXTRACCIÓN DIRECTA */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -55,7 +55,7 @@ body {
   color: white;
 }
 
-/* ENCAPSULAMIENTO FAKE-TABLA INMUTABLE */
+/* CONTENEDOR PRINCIPAL TIPO TABLA */
 table.main-layout {
   width: 100%;
   border-collapse: collapse;
@@ -69,66 +69,61 @@ table.main-layout {
   box-sizing: border-box;
 }
 
-/* 🔍 CABECERA DE FILTROS MINIMALISTA */
+/* 🔍 INTERFAZ DE FILTROS IDÉNTICA A DRAFT / STATS */
 .filter-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 15px;
   margin-bottom: 20px;
 }
 
-.tabs {
-  display: flex;
-  border: 1px solid #444452;
-  border-radius: 4px;
-  overflow: hidden;
+.tabs { 
+  display: flex; 
+  border: 1px solid #444452; 
+  border-radius: 4px; 
+  overflow: hidden; 
 }
 
 .tab {
-  padding: 6px 14px;
-  cursor: pointer;
-  background: #24242b;
+  padding: 6px 12px; 
+  cursor: pointer; 
+  background: #31313c; 
   font-size: 11px;
-  color: #a0a0b5;
-  font-weight: bold;
-  text-transform: uppercase;
+  color: #a0a0b5; 
+  font-weight: bold; 
+  text-transform: uppercase; 
   border-right: 1px solid #444452;
-  transition: background 0.15s ease, color 0.15s ease;
 }
-
 .tab:last-child { border-right: none; }
 .tab.active { color: white; background: #4f6edb; }
-.tab:hover:not(.active) { background: #31313c; color: white; }
 
 .search-box input {
-  width: 200px;
-  padding: 6px 12px;
-  border-radius: 4px;
+  width: 180px; 
+  padding: 6px 10px; 
+  border-radius: 4px; 
   border: 1px solid #444452;
-  background: #24242b;
-  color: white;
-  font-size: 11px;
+  background: #282830; 
+  color: #ccc; 
+  font-size: 11px; 
   outline: none;
 }
-.search-box input:focus { border-color: #4f6edb; }
 
-/* 🎴 GRILLA DE CATÁLOGO MINIMALISTA (3 COLUMNAS SIMÉTRICAS) */
+/* 🎴 GRILLA DEL CATÁLOGO (FILA ÚNICA EN 3 COLUMNAS SIMÉTRICAS) */
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-/* TARJETA PROFESIONAL COMPACTA */
+/* TARJETA MINIMALISTA PULIDA */
 .hero-compact-card {
   background: #24242b;
   border: 1px solid #444452;
   border-radius: 6px;
-  padding: 10px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -136,6 +131,13 @@ table.main-layout {
 .hero-compact-card:hover {
   border-color: #4f6edb;
   background: #292932;
+}
+
+.card-left-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 .card-avatar {
@@ -168,17 +170,48 @@ table.main-layout {
   font-size: 11px;
   color: #7b7a8e;
 }
-.stat-wr span { color: #4ade80; font-weight: bold; }
-.stat-normal span { color: #ccc; }
 
-/* 🎚️ PANEL DE DETALLE EXPANDIDO (ESTADO ACTIVO) */
+/* CONTENEDOR DE TIER MINIMALISTA DERECHO */
+.card-tier-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 40px;
+  text-align: center;
+}
+
+.tier-bg-text {
+  font-size: 9px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.5px;
+  position: absolute;
+  top: 2px;
+  text-transform: uppercase;
+}
+
+.tier-letter {
+  font-size: 18px;
+  font-weight: 900;
+  color: white;
+  margin-top: 8px;
+  z-index: 2;
+}
+
+/* 🎚️ CONFIGURACIÓN DE VISTA DETALLADA */
 .detail-view-container {
   display: none;
 }
 
 .back-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
 }
+
 .btn-back {
   background: #24242b;
   border: 1px solid #444452;
@@ -190,6 +223,23 @@ table.main-layout {
   cursor: pointer;
 }
 .btn-back:hover { background: #31313c; border-color: #7b7a8e; }
+
+/* Botón de Modo Bidireccional Analítico */
+.btn-toggle-mode {
+  background: #31313c;
+  border: 1px solid #444452;
+  color: #a0a0b5;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-toggle-mode.active {
+  background: #eab308;
+  color: #1c1c1f;
+  border-color: #facc15;
+}
 
 .focus-hero-card {
   background: #24242b;
@@ -216,7 +266,7 @@ table.main-layout {
   background: #31313c; color: #a0a0b5; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #444452; text-transform: uppercase;
 }
 
-/* Rejilla Analítica Superior de Relaciones */
+/* REJILLA DE RELACIONES */
 .relationships-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -233,9 +283,9 @@ table.main-layout {
   height: 440px;
 }
 
-.col-strong { border: 1px solid #dc2626; } /* Rojo Competitivo */
+.col-strong { border: 1px solid #dc2626; }
 .col-weak { border: 1px solid #ef4444; opacity: 0.95; }
-.col-synergy { border: 1px solid #22c55e; } /* Verde Combo */
+.col-synergy { border: 1px solid #22c55e; }
 
 .column-header {
   font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #31313c;
@@ -299,10 +349,10 @@ table.main-layout {
           <div class="catalog-grid" id="catalogGridZone"></div>
         </div>
 
-
         <div id="detail-view" class="detail-view-container">
           <div class="back-bar">
             <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver al Catálogo</button>
+            <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">Modo Cruzado: OFF</button>
           </div>
 
           <div class="focus-hero-card">
@@ -343,6 +393,19 @@ const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx
 let heroesData = [];
 let currentRoleFilter = 'all';
 let currentSearchQuery = '';
+let selectedHeroInFocus = null;
+let bidireccionalMode = false; // Por defecto: Unidireccional (Limpio)
+
+// Asignación de color según rango de Winrate dinámico
+function obtenerColorWinrate(wrString) {
+  let num = parseFloat(wrString.replace('%', ''));
+  if (isNaN(num)) return '#a0a0b5';
+  if (num >= 53) return '#4ade80'; // Máximo meta
+  if (num >= 51) return '#10b981'; // Fuerte estable
+  if (num >= 49) return '#a0a0b5'; // Equilibrado
+  if (num >= 47) return '#f97316'; // Bajo
+  return '#f87171'; // Crítico / Peor
+}
 
 function cargarBaseDatos() {
   Papa.parse(CSV_URL, {
@@ -369,6 +432,7 @@ function cargarBaseDatos() {
           winrate: cols[8] ? cols[8].trim() : "0%",
           pickrate: cols[9] ? cols[9].trim() : "0%",
           banrate: cols[10] ? cols[10].trim() : "0%",
+          tier: cols[4] ? cols[4].trim().toUpperCase() : "T3", // Extraído posicional de stats
           fuerteContra: fuertesNames, 
           debilContra: debilesNames,
           sinergiaCon: sinergiasNames
@@ -380,7 +444,6 @@ function cargarBaseDatos() {
   });
 }
 
-// Renderizado limpio de catálogo en 3 columnas puras
 function renderCatalogo() {
   const grid = document.getElementById('catalogGridZone');
   grid.innerHTML = '';
@@ -389,17 +452,25 @@ function renderCatalogo() {
     if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return;
     if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return;
 
+    const wrColor = obtenerColorWinrate(hero.winrate);
+
     const card = document.createElement('div');
     card.className = 'hero-compact-card';
     card.innerHTML = `
-      <img src="${hero.imagen}" class="card-avatar">
-      <div class="card-meta-info">
-        <div class="card-hero-name">${hero.nombre}</div>
-        <div class="card-stats-row">
-          <div class="stat-wr">WR: <span>${hero.winrate}</span></div>
-          <div class="stat-normal">PR: <span>${hero.pickrate}</span></div>
-          <div class="stat-normal">BR: <span>${hero.banrate}</span></div>
+      <div class="card-left-block">
+        <img src="${hero.imagen}" class="card-avatar">
+        <div class="card-meta-info">
+          <div class="card-hero-name">${hero.nombre}</div>
+          <div class="card-stats-row">
+            <div class="stat-wr">WR: <span style="color: ${wrColor}; font-weight: bold;">${hero.winrate}</span></div>
+            <div>PR: <span style="color: #ccc;">${hero.pickrate}</span></div>
+            <div>BR: <span style="color: #ccc;">${hero.banrate}</span></div>
+          </div>
         </div>
+      </div>
+      <div class="card-tier-block">
+        <div class="tier-bg-text">tier</div>
+        <div class="tier-letter">${hero.tier}</div>
       </div>
     `;
 
@@ -412,6 +483,7 @@ function renderCatalogo() {
 }
 
 function desplegarFichaDetalle(targetHero) {
+  selectedHeroInFocus = targetHero;
   document.getElementById('catalog-view').style.display = 'none';
   document.getElementById('detail-view').style.display = 'block';
 
@@ -424,6 +496,12 @@ function desplegarFichaDetalle(targetHero) {
     rolesZone.innerHTML += `<span class="role-badge">${role}</span>`;
   });
 
+  procesarRelacionesColumnas();
+}
+
+function procesarRelacionesColumnas() {
+  if (!selectedHeroInFocus) return;
+
   const strongList = document.getElementById('strong-list');
   const weakList = document.getElementById('weak-list');
   const synergyList = document.getElementById('synergy-list');
@@ -432,15 +510,22 @@ function desplegarFichaDetalle(targetHero) {
   weakList.innerHTML = '';
   synergyList.innerHTML = '';
 
-  const targetNombreLower = targetHero.nombre.toLowerCase();
+  const targetNombreLower = selectedHeroInFocus.nombre.toLowerCase();
 
   heroesData.forEach(hero => {
-    if (hero.nombre === targetHero.nombre) return;
+    if (hero.nombre === selectedHeroInFocus.nombre) return;
     const loopNombreLower = hero.nombre.toLowerCase();
 
-    let esFuerte = targetHero.fuerteContra.includes(loopNombreLower) || hero.debilContra.includes(targetNombreLower);
-    let esDebil = targetHero.debilContra.includes(loopNombreLower) || hero.fuerteContra.includes(targetNombreLower);
-    let tieneSinergia = targetHero.sinergiaCon.includes(loopNombreLower) || hero.sinergiaCon.includes(targetNombreLower);
+    // Filtros de relación estricta (Unidireccional vs Cruzado completo)
+    let esFuerte = selectedHeroInFocus.fuerteContra.includes(loopNombreLower);
+    let esDebil = selectedHeroInFocus.debilContra.includes(loopNombreLower);
+    let tieneSinergia = selectedHeroInFocus.sinergiaCon.includes(loopNombreLower);
+
+    if (bidireccionalMode) {
+      if (hero.debilContra.includes(targetNombreLower)) esFuerte = true;
+      if (hero.fuerteContra.includes(targetNombreLower)) esDebil = true;
+      if (hero.sinergiaCon.includes(targetNombreLower)) tieneSinergia = true;
+    }
 
     if (esFuerte) crearMiniTarjetaRelacion(hero, strongList);
     if (esDebil) crearMiniTarjetaRelacion(hero, weakList);
@@ -450,6 +535,19 @@ function desplegarFichaDetalle(targetHero) {
   if (strongList.children.length === 0) strongList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
   if (weakList.children.length === 0) weakList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
   if (synergyList.children.length === 0) synergyList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
+}
+
+function cambiarModoAnalisis() {
+  bidireccionalMode = !bidireccionalMode;
+  const btn = document.getElementById('toggleAnalysisMode');
+  if (bidireccionalMode) {
+    btn.innerText = "Modo Cruzado: ON";
+    btn.classList.add('active');
+  } else {
+    btn.innerText = "Modo Cruzado: OFF";
+    btn.classList.remove('active');
+  }
+  procesarRelacionesColumnas();
 }
 
 function crearMiniTarjetaRelacion(hero, contenedor) {
@@ -473,7 +571,7 @@ function volverAlCatalogo() {
   document.getElementById('catalog-view').style.display = 'block';
 }
 
-// CONTROL DE EVENTOS
+// CAPTURA DE EVENTOS
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
