@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Counters - HoKstats</title>
 <style>
-/* 📊 REGLAS GLOBALES ESTRUCTURALES (INMUTABLES) */
+/* 📊 REGLAS GLOBALES ESTRUCTURALES DE HOKSTATS */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -19,7 +19,7 @@ body {
   margin: auto;
 }
 
-/* TOP-BAR IDÉNTICO */
+/* TOP-BAR COMPARTIDO */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -55,7 +55,7 @@ body {
   color: white;
 }
 
-/* FAKE-TABLA MANTENIDA PARA EL ANCHO PERFECTO */
+/* CONTENEDOR FAKE-TABLA INMUTABLE */
 table.main-layout {
   width: 100%;
   border-collapse: collapse;
@@ -65,78 +65,156 @@ table.main-layout {
   background: #31313c;
   border-radius: 6px;
   border: 1px solid #1c1c1f;
-  padding: 20px; /* Unificado acolchado interno */
+  padding: 20px;
   box-sizing: border-box;
 }
 
-/* 🔍 CONTROLES DE BÚSQUEDA Y SELECCIÓN MODERNOS */
-.search-container {
+/* 🔍 CONTROLES DE FILTRADO Y BÚSQUEDA */
+.controls-row {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  justify-content: space-between;
   align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-.search-input-wrapper {
-  position: relative;
-  flex-grow: 1;
+/* PESTAÑAS DE ROLES ESTILO DRAFT */
+.tabs {
+  display: flex;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.search-input-wrapper input {
-  width: 100%;
-  padding: 10px 14px;
+.tab {
+  padding: 6px 12px;
+  cursor: pointer;
+  background: #24242b;
+  font-size: 11px;
+  color: #a0a0b5;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-right: 1px solid #444452;
+}
+
+.tab:last-child { border-right: none; }
+.tab.active { color: white; background: #4f6edb; }
+
+.search-box input {
+  width: 220px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #444452;
+  background: #24242b;
+  color: white;
+  font-size: 12px;
+  outline: none;
+}
+.search-box input:focus { border-color: #4f6edb; }
+
+/* 🎴 REJILLA DE CATÁLOGO GENERAL INITIAL */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+/* TARJETA COMPACTA DE HÉROE (VISTA GENERAL) */
+.hero-catalog-card {
   background: #24242b;
   border: 1px solid #444452;
   border-radius: 6px;
-  color: white;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
-.search-input-wrapper input:focus {
+.hero-catalog-card:hover {
+  transform: translateY(-2px);
   border-color: #4f6edb;
 }
 
-/* Lista desplegable para autocompletar */
-.suggestions-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
+.catalog-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #444452;
+}
+
+.catalog-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.catalog-name {
+  color: white;
+  font-weight: bold;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Métricas sutiles WR/PR/BR */
+.catalog-stats-row {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: #7b7a8e;
+  margin-top: 2px;
+}
+.stat-item span { color: #ccc; font-weight: bold; }
+.stat-wr span { color: #4ade80; } /* Verde para destacar Winrate */
+
+/* Bloques de Fase Temporal Early / Mid / Late */
+.catalog-phases {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.phase-badge {
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: #1c1c1f;
+  color: #555566;
+}
+/* Colores de rendimiento según el dato */
+.phase-badge.perf-alto { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+.phase-badge.perf-medio { color: #eab308; background: rgba(234, 179, 8, 0.1); }
+.phase-badge.perf-bajo { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
+
+/* 🎚️ ESTADO ACTIVO: DETALLE AMPLIADO DEL HÉROE SELECCIONADO */
+.detail-view-container {
+  display: none; /* Oculto inicialmente */
+}
+
+.back-bar {
+  margin-bottom: 15px;
+}
+.btn-back {
   background: #24242b;
   border: 1px solid #444452;
-  border-top: none;
-  border-radius: 0 0 6px 6px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 10;
-  display: none;
-}
-
-.suggestion-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #ccc;
-  font-size: 13px;
-}
-
-.suggestion-item:hover {
-  background: #31313c;
   color: white;
-}
-
-.suggestion-item img {
-  width: 28px;
-  height: 28px;
+  padding: 6px 14px;
+  font-size: 12px;
   border-radius: 4px;
-  object-fit: cover;
+  cursor: pointer;
+  font-weight: bold;
 }
+.btn-back:hover { background: #31313c; border-color: #7b7a8e; }
 
-/* 🎴 TARJETA DEL HÉROE EN FOCO */
+/* Tarjeta de Foco Superior */
 .focus-hero-card {
   background: #24242b;
   border: 1px solid #444452;
@@ -146,45 +224,27 @@ table.main-layout {
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
-  display: none; /* Se muestra dinámicamente */
 }
 
 .focus-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
   object-fit: cover;
   border: 2px solid #4f6edb;
 }
 
-.focus-details h2 {
-  margin: 0;
-  color: white;
-  font-size: 20px;
-}
-
-.focus-roles {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-}
-
+.focus-details h2 { margin: 0; color: white; font-size: 18px; }
+.focus-roles { display: flex; gap: 6px; margin-top: 5px; }
 .role-badge {
-  background: #31313c;
-  color: #a0a0b5;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  border: 1px solid #444452;
-  text-transform: uppercase;
+  background: #31313c; color: #a0a0b5; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid #444452; text-transform: uppercase;
 }
 
-/* 🏢 DASHBOARD DE COLUMNAS DE RELACIONES (TARJETAS NUEVAS) */
+/* Rejilla de 3 Columnas */
 .relationships-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  display: none; /* Se activa al buscar */
 }
 
 .column-card {
@@ -194,102 +254,36 @@ table.main-layout {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: 480px;
+  height: 460px;
 }
 
-/* Variaciones de borde sutiles por tipo de relación */
-.col-strong { border: 1px solid #f97316; }   /* Naranja competitiva */
-.col-weak { border: 1px solid #ef4444; }     /* Rojo debilidad */
-.col-synergy { border: 1px solid #22c55e; }  /* Verde combo */
+.col-strong { border: 1px solid #f97316; }
+.col-weak { border: 1px solid #ef4444; }
+.col-synergy { border: 1px solid #22c55e; }
 
 .column-header {
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #31313c;
+  font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #31313c;
 }
-
 .col-strong .column-header { color: #fb923c; }
 .col-weak .column-header { color: #f87171; }
 .col-synergy .column-header { color: #4ade80; }
 
 .cards-list-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  flex-grow: 1;
-  padding-right: 4px;
+  display: flex; flex-direction: column; gap: 6px; overflow-y: auto; flex-grow: 1; padding-right: 2px;
 }
 
-/* 🎴 MINI TARJETA INDIVIDUAL DE HÉROE RELACIONADO */
+/* Mini tarjetas internas de relaciones */
 .mini-hero-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #1c1c1f;
-  border: 1px solid #31313c;
-  border-radius: 6px;
-  padding: 8px;
-  transition: transform 0.1s ease, border-color 0.1s ease;
+  display: flex; align-items: center; gap: 10px; background: #1c1c1f; border: 1px solid #31313c; border-radius: 6px; padding: 6px; cursor: pointer;
 }
+.mini-hero-card:hover { border-color: #555; }
+.mini-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.mini-name { color: white; font-weight: bold; font-size: 12px; }
+.mini-roles { font-size: 10px; color: #7b7a8e; }
 
-.mini-hero-card:hover {
-  transform: translateX(2px);
-  border-color: #555;
-}
-
-.mini-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid #444452;
-}
-
-.mini-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.mini-name {
-  color: white;
-  font-weight: bold;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mini-roles {
-  font-size: 10px;
-  color: #7b7a8e;
-  margin-top: 1px;
-}
-
-.empty-column-state {
-  font-size: 11px;
-  color: #555566;
-  text-align: center;
-  margin: auto;
-}
-
-/* Scrollbars limpios para las columnas */
+.empty-column-state { font-size: 11px; color: #555566; text-align: center; margin: auto; }
 .cards-list-container::-webkit-scrollbar { width: 4px; }
-.cards-list-container::-webkit-scrollbar-track { background: transparent; }
 .cards-list-container::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
-
-/* Estado inicial agradable */
-.initial-welcome {
-  text-align: center;
-  padding: 6px 0;
-  color: #7b7a8e;
-  font-size: 13px;
-}
 </style>
 </head>
 <body>
@@ -312,42 +306,54 @@ table.main-layout {
     <tr>
       <td class="main-box-cell">
         
-        <div class="search-container">
-          <div class="search-input-wrapper">
-            <input type="text" id="heroSearchInput" placeholder="Escribe el nombre de un héroe para ver sus interacciones..." autocomplete="off">
-            <div class="suggestions-list" id="suggestionsBox"></div>
+        <div id="catalog-view">
+          <div class="controls-row">
+            <div class="tabs">
+              <div class="tab active" data-role="all">Todo</div>
+              <div class="tab" data-role="Choque">Choque</div>
+              <div class="tab" data-role="Cazador">Cazador</div>
+              <div class="tab" data-role="Medio">Medio</div>
+              <div class="tab" data-role="Merodeo">Merodeo</div>
+              <div class="tab" data-role="Farmeo">Farmeo</div>
+            </div>
+            <div class="search-box">
+              <input type="text" id="catalogSearch" placeholder="Buscar héroe por nombre...">
+            </div>
           </div>
+
+          <div class="catalog-grid" id="catalogGridZone"></div>
         </div>
 
-        <div class="initial-welcome" id="welcome-message">
-          🔍 Ingresa un héroe en el buscador para desplegar su ficha técnica analítica de emparejamientos.
-        </div>
 
-        <div class="focus-hero-card" id="focus-card">
-          <img src="" class="focus-avatar" id="focus-img">
-          <div class="focus-details">
-            <h2 id="focus-name">Nombre del Héroe</h2>
-            <div class="focus-roles" id="focus-roles-zone"></div>
-          </div>
-        </div>
-
-        <div class="relationships-grid" id="relations-grid">
-          
-          <div class="column-card col-strong">
-            <div class="column-header">⚔️ Es Fuerte Contra</div>
-            <div class="cards-list-container" id="strong-list"></div>
+        <div id="detail-view" class="detail-view-container">
+          <div class="back-bar">
+            <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver al Catálogo</button>
           </div>
 
-          <div class="column-card col-weak">
-            <div class="column-header">⚠️ Es Débil Contra</div>
-            <div class="cards-list-container" id="weak-list"></div>
+          <div class="focus-hero-card">
+            <img src="" class="focus-avatar" id="focus-img">
+            <div class="focus-details">
+              <h2 id="focus-name">-</h2>
+              <div class="focus-roles" id="focus-roles-zone"></div>
+            </div>
           </div>
 
-          <div class="column-card col-synergy">
-            <div class="column-header">🤝 Excelentes Sinergias</div>
-            <div class="cards-list-container" id="synergy-list"></div>
-          </div>
+          <div class="relationships-grid">
+            <div class="column-card col-strong">
+              <div class="column-header">⚔️ Es Fuerte Contra</div>
+              <div class="cards-list-container" id="strong-list"></div>
+            </div>
 
+            <div class="column-card col-weak">
+              <div class="column-header">⚠️ Es Débil Contra</div>
+              <div class="cards-list-container" id="weak-list"></div>
+            </div>
+
+            <div class="column-card col-synergy">
+              <div class="column-header">🤝 Excelentes Sinergias</div>
+              <div class="cards-list-container" id="synergy-list"></div>
+            </div>
+          </div>
         </div>
 
       </td>
@@ -360,9 +366,19 @@ table.main-layout {
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 let heroesData = [];
+let currentRoleFilter = 'all';
+let currentSearchQuery = '';
 
-// Extracción directa e inteligente calzada con tu hoja actual
-function cargarBaseDatosCSV() {
+// Helper para formatear las clases de rendimiento temporal (Early, Mid, Late)
+function obtenerClaseRendimiento(valor) {
+  if (!valor) return 'perf-medio';
+  const val = valor.trim().toLowerCase();
+  if (val === 'alto' || val === 'fuerte') return 'perf-alto';
+  if (val === 'bajo' || val === 'débil' || val === 'debil') return 'perf-bajo';
+  return 'perf-medio';
+}
+
+function cargarBaseDatos() {
   Papa.parse(CSV_URL, {
     download: true,
     skipEmptyLines: true,
@@ -371,6 +387,7 @@ function cargarBaseDatosCSV() {
       rows.forEach(cols => {
         if (!cols[1]) return;
         
+        // Mapeo sutil de tus columnas de relaciones
         let fuertesNames = [cols[26], cols[29], cols[32], cols[35], cols[38], cols[41]]
           .filter(Boolean).map(n => n.trim().toLowerCase());
           
@@ -384,62 +401,72 @@ function cargarBaseDatosCSV() {
           nombre: cols[1].trim(),
           imagen: cols[3] ? cols[3].trim() : "",
           roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
+          // Estadísticas generales integradas para el Catálogo
+          winrate: cols[8] ? cols[8].trim() : "0%",
+          pickrate: cols[9] ? cols[9].trim() : "0%",
+          banrate: cols[10] ? cols[10].trim() : "0%",
+          // Rendimiento temporal (Calzado aproximado a tus columnas de tiempos)
+          early: cols[62] ? cols[62].trim() : "Medio",
+          mid: cols[63] ? cols[63].trim() : "Medio",
+          late: cols[64] ? cols[64].trim() : "Medio",
+          // Relaciones cruzadas
           fuerteContra: fuertesNames, 
           debilContra: debilesNames,
           sinergiaCon: sinergiasNames
         });
       });
       heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
+      renderCatalogo();
     }
   });
 }
 
-cargarBaseDatosCSV();
+// Renderizador del Catálogo Inicial
+function renderCatalogo() {
+  const grid = document.getElementById('catalogGridZone');
+  grid.innerHTML = '';
 
-// Lógica de interacción del input buscador
-const inputSearch = document.getElementById('heroSearchInput');
-const suggestionsBox = document.getElementById('suggestionsBox');
+  heroesData.forEach(hero => {
+    // Aplicar Filtro de Rol
+    if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return;
+    // Aplicar Filtro de Búsqueda por Input
+    if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return;
 
-inputSearch.addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase().trim();
-  if (!query) {
-    suggestionsBox.style.display = 'none';
-    return;
-  }
+    const card = document.createElement('div');
+    card.className = 'hero-catalog-card';
+    card.innerHTML = `
+      <img src="${hero.imagen}" class="catalog-avatar">
+      <div class="catalog-info">
+        <div class="catalog-name">${hero.nombre}</div>
+        <div class="catalog-stats-row">
+          <div class="stat-item stat-wr">WR: <span>${hero.winrate}</span></div>
+          <div class="stat-item">PR: <span>${hero.pickrate}</span></div>
+          <div class="stat-item">BR: <span>${hero.banrate}</span></div>
+        </div>
+        <div class="catalog-phases">
+          <span class="phase-badge ${obtenerClaseRendimiento(hero.early)}">E: ${hero.early}</span>
+          <span class="phase-badge ${obtenerClaseRendimiento(hero.mid)}">M: ${hero.mid}</span>
+          <span class="phase-badge ${obtenerClaseRendimiento(hero.late)}">L: ${hero.late}</span>
+        </div>
+      </div>
+    `;
 
-  const filtrados = heroesData.filter(h => h.nombre.toLowerCase().includes(query)).slice(0, 6);
-  
-  if (filtrados.length === 0) {
-    suggestionsBox.style.display = 'none';
-    return;
-  }
-
-  suggestionsBox.innerHTML = '';
-  filtrados.forEach(hero => {
-    const item = document.createElement('div');
-    item.className = 'suggestion-item';
-    item.innerHTML = `<img src="${hero.imagen}"> <span>${hero.nombre}</span>`;
-    item.addEventListener('click', () => {
-      inputSearch.value = hero.nombre;
-      suggestionsBox.style.display = 'none';
-      desplegarFichaHeroe(hero);
+    // Al hacer clic, se expande la ficha técnica analítica
+    card.addEventListener('click', () => {
+      desplegarFichaDetalle(hero);
     });
-    suggestionsBox.appendChild(item);
+
+    grid.appendChild(card);
   });
-  suggestionsBox.style.display = 'block';
-});
+}
 
-// Cerrar sugerencias al hacer clic afuera
-document.addEventListener('click', (e) => {
-  if (e.target !== inputSearch) suggestionsBox.style.display = 'none';
-});
+// Despliegue de la Ficha Expandida de Counters
+function desplegarFichaDetalle(targetHero) {
+  // Conmutación visual de paneles
+  document.getElementById('catalog-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
 
-// Renderizador del nuevo sistema visual de Tarjetas
-function desplegarFichaHeroe(targetHero) {
-  document.getElementById('welcome-message').style.display = 'none';
-  
-  // 1. Configurar Tarjeta de Foco Superior
-  document.getElementById('focus-card').style.display = 'flex';
+  // Configurar héroe central en Foco
   document.getElementById('focus-img').src = targetHero.imagen;
   document.getElementById('focus-name').innerText = targetHero.nombre;
   
@@ -448,9 +475,6 @@ function desplegarFichaHeroe(targetHero) {
   targetHero.roles.forEach(role => {
     rolesZone.innerHTML += `<span class="role-badge">${role}</span>`;
   });
-
-  // Mostrar contenedor de cuadrantes
-  document.getElementById('relations-grid').style.display = 'grid';
 
   const strongList = document.getElementById('strong-list');
   const weakList = document.getElementById('weak-list');
@@ -462,48 +486,64 @@ function desplegarFichaHeroe(targetHero) {
 
   const targetNombreLower = targetHero.nombre.toLowerCase();
 
-  // Buscar relaciones bidireccionales cruzando el pool entero
+  // Algoritmo de cruce cruzado inteligente de dependencias
   heroesData.forEach(hero => {
-    if (hero.nombre === targetHero.nombre) return; // No compararse consigo mismo
+    if (hero.nombre === targetHero.nombre) return;
     const loopNombreLower = hero.nombre.toLowerCase();
 
-    // Determinar si Target es FUERTE CONTRA el héroe del loop
     let esFuerte = targetHero.fuerteContra.includes(loopNombreLower) || hero.debilContra.includes(targetNombreLower);
-    
-    // Determinar si Target es DÉBIL CONTRA el héroe del loop
     let esDebil = targetHero.debilContra.includes(loopNombreLower) || hero.fuerteContra.includes(targetNombreLower);
-    
-    // Determinar si tienen SINERGIA
     let tieneSinergia = targetHero.sinergiaCon.includes(loopNombreLower) || hero.sinergiaCon.includes(targetNombreLower);
 
-    if (esFuerte) buildingMiniCard(hero, strongList);
-    if (esDebil) buildingMiniCard(hero, weakList);
-    if (tieneSinergia) buildingMiniCard(hero, synergyList);
+    if (esFuerte) crearMiniTarjetaRelacion(hero, strongList);
+    if (esDebil) crearMiniTarjetaRelacion(hero, weakList);
+    if (tieneSinergia) crearMiniTarjetaRelacion(hero, synergyList);
   });
 
-  // Mensajes de error en caso de celdas vacías
-  if (strongList.children.length === 0) strongList.innerHTML = '<div class="empty-column-state">Sin información directa registrada.</div>';
-  if (weakList.children.length === 0) weakList.innerHTML = '<div class="empty-column-state">Sin información directa registrada.</div>';
-  if (synergyList.children.length === 0) synergyList.innerHTML = '<div class="empty-column-state">Sin información directa registrada.</div>';
+  if (strongList.children.length === 0) strongList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
+  if (weakList.children.length === 0) weakList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
+  if (synergyList.children.length === 0) synergyList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
 }
 
-function buildingMiniCard(hero, containerElement) {
-  const card = document.createElement('div');
-  card.className = 'mini-hero-card';
-  card.innerHTML = `
+function crearMiniTarjetaRelacion(hero, contenedor) {
+  const mini = document.createElement('div');
+  mini.className = 'mini-hero-card';
+  mini.innerHTML = `
     <img src="${hero.imagen}" class="mini-avatar">
-    <div class="mini-info">
+    <div>
       <div class="mini-name">${hero.nombre}</div>
       <div class="mini-roles">${hero.roles.join(' / ')}</div>
     </div>
   `;
-  // Si haces clic en una mini-tarjeta, ¡puedes navegar directo a la ficha de ese héroe!
-  card.addEventListener('click', () => {
-    inputSearch.value = hero.nombre;
-    desplegarFichaHeroe(hero);
+  // Navegación encadenada fluida entre fichas de counters
+  mini.addEventListener('click', () => {
+    desplegarFichaDetalle(hero);
   });
-  containerElement.appendChild(card);
+  contenedor.appendChild(mini);
 }
+
+function volverAlCatalogo() {
+  document.getElementById('detail-view').style.display = 'none';
+  document.getElementById('catalog-view').style.display = 'block';
+}
+
+// 🕹️ CAPTURA DE EVENTOS DE INTERFAZ DE USUARIO
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentRoleFilter = tab.dataset.role;
+    renderCatalogo();
+  });
+});
+
+document.getElementById('catalogSearch').addEventListener('input', (e) => {
+  currentSearchQuery = e.target.value.toLowerCase().trim();
+  renderCatalogo();
+});
+
+// Inicialización automática
+cargarBaseDatos();
 </script>
 </body>
 </html>
