@@ -70,16 +70,17 @@ body {
   padding: 40px 30px 10px 30px;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA (Adaptada a la paleta interna de index) */
+/* 🛠️ BARRA DE HERRAMIENTAS INTERNA (Alineada al pixel-perfect de la caja) */
 .planner-toolbar {
   background: #24242b;
-  padding: 12px 20px;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
   border-bottom: 1px solid #1c1c1f;
   flex-wrap: wrap;
+  margin-top: 0;
 }
 
 .tool-group {
@@ -152,7 +153,6 @@ body {
   pointer-events: none;
 }
 
-/* Capa SVG para Trazo Libre */
 .svg-draw-layer {
   position: absolute;
   top: 0;
@@ -167,7 +167,6 @@ body {
   pointer-events: auto;
 }
 
-/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
 .map-viewport.tool-eraser .svg-draw-layer {
   pointer-events: auto;
 }
@@ -183,7 +182,7 @@ body {
   stroke-linejoin: round;
 }
 
-/* Modo Goma sobre elementos borrables */
+/* Modo Goma interactivo */
 .map-viewport.tool-eraser .placed-hero,
 .map-viewport.tool-eraser .vector-arrow,
 .map-viewport.tool-eraser .free-path {
@@ -197,7 +196,7 @@ body {
   opacity: 0.7;
 }
 
-/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
+/* HÉROES Y FLECHAS */
 .placed-hero {
   position: absolute;
   width: 40px;
@@ -248,7 +247,7 @@ body {
   border-left: 12px solid currentColor;
 }
 
-/* 📦 CAJÓN INFERIOR DE HÉROES (Inmune y Bento-cohesivo) */
+/* 📦 CAJÓN INFERIOR DE HÉROES */
 .heroes-drawer {
   margin-top: 10px;
 }
@@ -296,7 +295,6 @@ body {
   outline: none;
 }
 
-/* REJILLA INTEGRADA CON LA NORMA DE AUTO-FILL ANTI-DEFORMACIÓN */
 .heroes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
@@ -329,7 +327,6 @@ body {
   display: block;
 }
 
-/* SCROLLBARS COHESIVAS */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
@@ -388,7 +385,7 @@ body {
       </div>
     </div>
 
-    <div class="content-padding-zone">
+    <div class="content-padding-zone" style="padding-top: 25px;">
       
       <div class="map-viewport tool-move" id="mapZone">
         <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK" crossorigin="anonymous">
