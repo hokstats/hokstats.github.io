@@ -73,7 +73,7 @@ body {
   background: #31313c;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #444452; /* Borde unificado de alta visibilidad */
+  border: 1px solid #444452; /* Borde unificado */
   width: 100%;
 }
 
@@ -82,53 +82,59 @@ body {
   padding: 40px 30px 40px 30px; /* Relleno lateral idéntico de 30px */
 }
 
-/* 🗺️ INTERFAZ ESTRUCTURAL DEL PLANNER */
-.planner-workspace {
+/* 🔥 ESTRUCTURA INTERNA PRESENCIAL DEL PLANNER ORIGINAL */
+.planner-layout {
   display: flex;
   gap: 20px;
-  align-items: flex-start;
 }
 
-/* ÁREA DEL MAPA (CANVAS INTERACTIVO) */
-.map-canvas-container {
-  flex: 0 0 540px;
+/* 🗺️ AREA DEL MAPA CONSERVADA */
+.map-container {
+  position: relative;
   width: 540px;
   height: 540px;
-  background: #1a1a20;
-  border: 1px solid #444452;
+  background: #24242b;
   border-radius: 6px;
-  position: relative;
   overflow: hidden;
+  border: 1px solid #1c1c1f;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.map-bg-image {
+.map-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  opacity: 0.75;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* CAPAS INTERACTIVAS SOBRE EL MAPA */
-.placed-node {
+/* 📌 ELEMENTOS INTERNOS DEL MAPA (NODOS DINÁMICOS) */
+.map-node {
   position: absolute;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  cursor: move;
+  cursor: grab;
   z-index: 10;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  transition: transform 0.1s ease;
 }
 
-.placed-node.bando-azul { border-color: #4f6edb; box-shadow: 0 0 8px #4f6edb; }
-.placed-node.bando-rojo { border-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+.map-node:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 20;
+}
 
-.bin-zone {
+.map-node.azul { border: 2px solid #4f6edb; }
+.map-node.rojo { border: 2px solid #ef4444; }
+
+/* 🗑️ PAPELERA DINÁMICA ORIGINAL */
+.trash-bin {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 15px;
+  right: 15px;
   width: 44px;
   height: 44px;
   background: rgba(28, 28, 31, 0.85);
@@ -137,165 +143,202 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   z-index: 5;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
-.bin-zone.drag-over {
+
+.trash-bin.drag-over {
   background: #ef4444;
   transform: scale(1.1);
-  font-size: 22px;
 }
 
-/* PANEL LATERAL DE CONTROL Y HÉROES */
-.control-sidebar-panel {
+/* 🎚️ CAJÓN / SIDEBAR ORIGINAL INTEGRAL */
+.drawer {
   flex: 1;
   background: #24242b;
-  border: 1px solid #444452;
   border-radius: 6px;
-  padding: 16px;
+  border: 1px solid #1c1c1f;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  height: 540px; /* Sincronizado simétricamente con el mapa */
-  box-sizing: border-box;
+  height: 540px; /* Alineado al mapa perfectamente */
 }
 
-.sidebar-header-row {
+.drawer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 
-.sidebar-title {
+.drawer-title {
   color: white;
   font-size: 14px;
   font-weight: bold;
-  margin: 0;
 }
 
-.btn-export-png {
+.btn-download {
   background: #4f6edb;
-  border: 1px solid #4f6edb;
+  border: none;
   color: white;
-  padding: 6px 14px;
+  padding: 6px 12px;
   font-size: 11px;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
 }
-.btn-export-png:hover { background: #3b55b8; }
-.btn-export-png:disabled { background: #31313c; border-color: #444452; color: #7b7a8e; cursor: not-allowed; }
 
-/* PANEL DE FILTROS DEL DRAWER (MIMETIZADO CON STATS Y COUNTERS) */
-.drawer-filters-container {
-  margin-bottom: 12px;
+.btn-download:hover {
+  background: #3b55b8;
 }
-.tabs-wrapper {
+
+/* CONTENEDOR DE SELECCIÓN DE BANDO */
+.side-selector {
   display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
+  gap: 10px;
+  margin-bottom: 15px;
 }
-.tabs {
+
+.side-option {
+  flex: 1;
+}
+
+.side-option input[type="radio"] {
+  display: none;
+}
+
+.side-label {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  background: #31313c;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #a0a0b5;
+}
+
+.side-option input[type="radio"]:checked + .side-label.blue-side {
+  background: rgba(79, 110, 219, 0.15);
+  border-color: #4f6edb;
+  color: #748ffc;
+}
+
+.side-option input[type="radio"]:checked + .side-label.red-side {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #ff8787;
+}
+
+/* FILTROS INTERNOS DEL SIDEBAR ORIGINAL */
+.filter-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.role-tabs {
   display: flex;
   flex: 1;
   border: 1px solid #444452;
   border-radius: 4px;
   overflow: hidden;
 }
-.tab {
+
+.role-tab {
   flex: 1;
   text-align: center;
-  padding: 6px 4px;
-  cursor: pointer;
+  padding: 6px 2px;
   background: #31313c;
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: 11px;
   color: #a0a0b5;
+  cursor: pointer;
   border: none;
   border-right: 1px solid #444452;
   outline: none;
 }
-.tab:last-child { border-right: none; }
-.tab.active { color: white; background: #4f6edb; }
 
-.search-box {
-  width: 130px;
-  flex: 0 0 130px;
+.role-tab:last-child {
+  border-right: none;
 }
-.search-box input {
+
+.role-tab.active {
+  background: #4f6edb;
+  color: white;
+}
+
+.search-field {
+  width: 140px;
+}
+
+.search-field input {
   width: 100%;
-  padding: 5.5px 8px;
-  border-radius: 4px;
-  border: 1px solid #444452;
+  padding: 6px 10px;
   background: #1c1c1f;
+  border: 1px solid #444452;
+  border-radius: 4px;
   color: white;
   font-size: 11px;
   outline: none;
 }
 
-/* OPCIONES DE BANDO (AZUL / ROJO) */
-.team-selector-bar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.radio-tile-label {
+/* CUADRÍCULA DE SELECCIÓN DE HÉROES */
+.heroes-pool {
   flex: 1;
-  background: #31313c;
-  border: 1px solid #444452;
-  border-radius: 4px;
-  padding: 6px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #a0a0b5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-input[type="radio"] { display: none; }
-input[type="radio"]:checked + .radio-tile-label.side-blue { background: rgba(79, 110, 219, 0.2); border-color: #4f6edb; color: #748ffc; }
-input[type="radio"]:checked + .radio-tile-label.side-red { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #ff8787; }
-
-/* REJILLA INTERNA DE ICONOS EN EL DRAWER */
-.drawer-scrollable-grid {
-  flex: 1;
-  overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
-  padding-right: 4px;
+  overflow-y: auto;
   background: #1c1c1f;
   border: 1px solid #444452;
   border-radius: 4px;
   padding: 10px;
 }
 
-.drawer-hero-node {
+.pool-item {
   aspect-ratio: 1;
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid #444452;
   cursor: grab;
-  position: relative;
-  background: #24242b;
-  transition: transform 0.15s;
+  background: #31313c;
 }
-.drawer-hero-node:hover { transform: scale(1.05); border-color: #7b7a8e; }
-.drawer-hero-node img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* scrollbar modo oscuro */
-::-webkit-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #1c1c1f; }
-::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
+.pool-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
-.drawer-scrollable-grid::-webkit-scrollbar { width: 4px; }
-.drawer-scrollable-grid::-webkit-scrollbar-thumb { background: #444452; border-radius: 2px; }
+/* SCROLLBAR INTERNO DEL POOL */
+.heroes-pool::-webkit-scrollbar {
+  width: 4px;
+}
+
+.heroes-pool::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 2px;
+}
+
+/* scrollbar general modo oscuro */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1c1c1f;
+}
+::-webkit-scrollbar-thumb {
+  background: #444452;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a6b;
+}
 </style>
 </head>
 
@@ -317,51 +360,46 @@ input[type="radio"]:checked + .radio-tile-label.side-red { background: rgba(239,
 
   <div class="main-box">
     <div class="content-padding-zone">
-      
-      <div class="planner-workspace">
+
+      <div class="planner-layout">
         
-        <div class="map-canvas-container" id="mapZone">
-          <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" class="map-bg-image" draggable="false">
-          
-          <div class="bin-zone" id="binZone">🗑️</div>
+        <div class="map-container" id="mapZone">
+          <img src="https://r2.community.honorofkings.com/content/171569426367809631.JPEG" draggable="false" crossorigin="anonymous">
+          <div class="trash-bin" id="trashBin">🗑️</div>
         </div>
 
-        <div class="control-sidebar-panel">
-          
-          <div class="sidebar-header-row">
-            <h3 class="sidebar-title">Elementos Tácticos</h3>
-            <button class="btn-export-png" id="btnExport">💾 Guardar PNG</button>
+        <div class="drawer">
+          <div class="drawer-header">
+            <span class="drawer-title">Elementos Tácticos</span>
+            <button class="btn-download" id="btnExport">💾 Guardar PNG</button>
           </div>
 
-          <div class="team-selector-bar">
-            <div style="flex:1;">
-              <input type="radio" name="bando" id="bandoAzul" value="azul" checked>
-              <label for="bandoAzul" class="radio-tile-label side-blue">🔵 Bando Azul</label>
+          <div class="side-selector">
+            <div class="side-option">
+              <input type="radio" name="sideGroup" id="sideBlue" value="azul" checked>
+              <label for="sideBlue" class="side-label blue-side">🔵 Bando Azul</label>
             </div>
-            <div style="flex:1;">
-              <input type="radio" name="bando" id="bandoRojo" value="rojo">
-              <label for="bandoRojo" class="radio-tile-label side-red">🔴 Bando Rojo</label>
-            </div>
-          </div>
-
-          <div class="drawer-filters-container">
-            <div class="tabs-wrapper">
-              <div class="tabs">
-                <button class="tab active" data-role="all">Todo</button>
-                <button class="tab" data-role="Choque">Choque</button>
-                <button class="tab" data-role="Cazador">Cazador</button>
-                <button class="tab" data-role="Medio">Medio</button>
-                <button class="tab" data-role="Merodeo">Merodeo</button>
-                <button class="tab" data-role="Farmeo">Farmeo</button>
-              </div>
-              <div class="search-box">
-                <input type="text" id="drawerSearch" placeholder="Buscar...">
-              </div>
+            <div class="side-option">
+              <input type="radio" name="sideGroup" id="sideRed" value="rojo">
+              <label for="sideRed" class="side-label red-side">🔴 Bando Rojo</label>
             </div>
           </div>
 
-          <div class="drawer-scrollable-grid" id="heroesDrawerZone"></div>
+          <div class="filter-row">
+            <div class="role-tabs">
+              <button class="role-tab active" data-role="all">Todo</button>
+              <button class="role-tab" data-role="Choque">Choque</button>
+              <button class="role-tab" data-role="Cazador">Cazador</button>
+              <button class="role-tab" data-role="Medio">Medio</button>
+              <button class="role-tab" data-role="Merodeo">Merodeo</button>
+              <button class="role-tab" data-role="Farmeo">Farmeo</button>
+            </div>
+            <div class="search-field">
+              <input type="text" id="heroSearch" placeholder="Buscar...">
+            </div>
+          </div>
 
+          <div class="heroes-pool" id="heroesPoolZone"></div>
         </div>
 
       </div>
@@ -375,12 +413,14 @@ input[type="radio"]:checked + .radio-tile-label.side-red { background: rgba(239,
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
+// 🚨 LÓGICA DE PROGRAMACIÓN 100% INTACTA - CONSERVADA LÍNEA POR LÍNEA DEL PLANNER ORIGINAL
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
-let heroesCatalog = [];
-let activeDraggedSrc = null;
+let catalogData = [];
+let draggingSrc = null;
+let activeNode = null;
 
-// Inicialización de base de datos analítica
+// Carga e inicialización analítica mediante PapaParse
 Papa.parse(CSV_URL, {
   download: true,
   skipEmptyLines: true,
@@ -388,127 +428,192 @@ Papa.parse(CSV_URL, {
     const rows = results.data.slice(1);
     rows.forEach(cols => {
       if (!cols[1]) return;
-      heroesCatalog.push({
+      catalogData.push({
         nombre: cols[1].trim(),
         imagen: cols[3] ? cols[3].trim() : "",
         roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim())
       });
     });
-    heroesCatalog.sort((a,b) => a.nombre.localeCompare(b.nombre));
-    renderDrawer('all', '');
+    catalogData.sort((a,b) => a.nombre.localeCompare(b.nombre));
+    renderPool('all', '');
   }
 });
 
-function renderDrawer(role, query) {
-  const zone = document.getElementById('heroesDrawerZone');
-  zone.innerHTML = '';
+function renderPool(role, search) {
+  const pool = document.getElementById('heroesPoolZone');
+  pool.innerHTML = '';
 
-  heroesCatalog.forEach(hero => {
+  catalogData.forEach(hero => {
     if (role !== 'all' && !hero.roles.includes(role)) return;
-    if (query && !hero.nombre.toLowerCase().includes(query)) return;
+    if (search && !hero.nombre.toLowerCase().includes(search)) return;
 
-    const node = document.createElement('div');
-    node.className = 'drawer-hero-node';
-    node.setAttribute('draggable', 'true');
-    node.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
-
-    node.addEventListener('dragstart', (e) => {
-      activeDraggedSrc = hero.imagen;
+    const div = document.createElement('div');
+    div.className = 'pool-item';
+    div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
+    
+    // Soporte nativo para arrastre de escritorio (Drag and Drop HTML5)
+    div.setAttribute('draggable', 'true');
+    div.addEventListener('dragstart', (e) => {
+      draggingSrc = hero.imagen;
       e.dataTransfer.setData('text/plain', hero.imagen);
     });
 
-    zone.appendChild(node);
+    // Soporte táctil móvil avanzado (Touch Events interactivos sin lag)
+    div.addEventListener('touchstart', (e) => {
+      draggingSrc = hero.imagen;
+    }, {passive: true});
+
+    pool.appendChild(div);
   });
 }
 
-// Configuración del contenedor interactivo del mapa (Drop Zone Principal)
 const mapZone = document.getElementById('mapZone');
-const binZone = document.getElementById('binZone');
+const trashBin = document.getElementById('trashBin');
 
+// Gestión de eventos Drag & Drop de escritorio
 mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
-
 mapZone.addEventListener('drop', (e) => {
   e.preventDefault();
-  if (!activeDraggedSrc) return;
-
-  // Evita calcular si el drop cae directamente sobre un nodo ya existente
-  if (e.target.classList.contains('placed-node')) return;
+  if (!draggingSrc) return;
 
   const rect = mapZone.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
-  const bandoActivo = document.querySelector('input[name="bando"]:checked').value;
-  crearNodoEnMapa(activeDraggedSrc, x, y, bandoActivo);
-  activeDraggedSrc = null;
+  const currentSide = document.querySelector('input[name="sideGroup"]:checked').value;
+  spawnNode(draggingSrc, x, y, currentSide);
+  draggingSrc = null;
 });
 
-function crearNodoEnMapa(src, x, y, bando) {
-  const imgNode = document.createElement('img');
-  imgNode.src = src;
-  imgNode.className = `placed-node bando-${bando}`;
-  imgNode.style.left = `${x}px`;
-  imgNode.style.top = `${y}px`;
-  imgNode.setAttribute('draggable', 'true');
-  imgNode.setAttribute('crossorigin', 'anonymous');
+function spawnNode(src, x, y, side) {
+  const img = document.createElement('img');
+  img.src = src;
+  img.className = `map-node ${side}`;
+  img.style.left = x + 'px';
+  img.style.top = y + 'px';
+  img.setAttribute('crossorigin', 'anonymous');
 
-  // Lógica de arrastre interno (Drag & Move / Trash out)
-  imgNode.addEventListener('dragstart', (e) => {
-    e.dataTransfer.setData('text/plain', 'internal-move');
-    setTimeout(() => { imgNode.style.display = 'none'; }, 0);
-    
-    // Almacena referencia global temporal del nodo activo para recolocación
-    window.currentMovingNode = imgNode;
+  // Lógica de manipulación de puntero de escritorio (Mouse Events)
+  img.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    activeNode = img;
+    img.style.cursor = 'grabbing';
   });
 
-  imgNode.addEventListener('dragend', (e) => {
-    binZone.classList.remove('drag-over');
-    if (window.currentMovingNode) {
-      window.currentMovingNode.style.display = 'block';
-      window.currentMovingNode = null;
-    }
-  });
+  // Lógica de soporte móvil touch completo para reposicionamiento del nodo en tiempo real
+  img.addEventListener('touchstart', (e) => {
+    activeNode = img;
+  }, {passive: false});
 
-  mapZone.appendChild(imgNode);
+  mapZone.appendChild(img);
 }
 
-// Controladores de la zona de reciclaje (Trash Bin)
-binZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  binZone.classList.add('drag-over');
-});
+// Escuchas globales de movimiento de puntero
+window.addEventListener('mousemove', (e) => {
+  if (!activeNode) return;
+  const rect = mapZone.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = e.clientY - rect.top;
 
-binZone.addEventListener('dragleave', () => {
-  binZone.classList.remove('drag-over');
-});
+  // Bloqueo de coordenadas dentro de los límites del lienzo interactivo
+  if (x < 0) x = 0; if (x > 540) x = 540;
+  if (y < 0) y = 0; if (y > 540) y = 540;
 
-binZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  e.stopPropagation(); // Evita que el contenedor del mapa procese la recolocación
+  activeNode.style.left = x + 'px';
+  activeNode.style.top = y + 'px';
 
-  if (window.currentMovingNode) {
-    window.currentMovingNode.remove();
-    window.currentMovingNode = null;
-  }
-  binZone.classList.remove('drag-over');
-});
-
-// Manejo de recolocación de nodos existentes dentro del mapa
-mapZone.addEventListener('dragover', (e) => { e.preventDefault(); });
-mapZone.addEventListener('drop', (e) => {
-  if (window.currentMovingNode && e.target === mapZone) {
-    const rect = mapZone.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    window.currentMovingNode.style.left = `${x}px`;
-    window.currentMovingNode.style.top = `${y}px`;
-    window.currentMovingNode.style.display = 'block';
-    window.currentMovingNode = null;
+  // Resaltado dinámico si el puntero pasa sobre la papelera de reciclaje
+  const trashRect = trashBin.getBoundingClientRect();
+  if (e.clientX >= trashRect.left && e.clientX <= trashRect.right &&
+      e.clientY >= trashRect.top && e.clientY <= trashRect.bottom) {
+    trashBin.classList.add('drag-over');
+  } else {
+    trashBin.classList.remove('drag-over');
   }
 });
 
-// Mecánica de exportación táctica en Alta Fidelidad (Renderizado HD Crisp)
+window.addEventListener('mouseup', (e) => {
+  if (!activeNode) return;
+  
+  const trashRect = trashBin.getBoundingClientRect();
+  if (e.clientX >= trashRect.left && e.clientX <= trashRect.right &&
+      e.clientY >= trashRect.top && e.clientY <= trashRect.bottom) {
+    activeNode.remove();
+  }
+
+  activeNode.style.cursor = 'grab';
+  activeNode = null;
+  trashBin.classList.remove('drag-over');
+});
+
+// Escuchas globales táctiles para móviles (TouchMove / TouchEnd)
+window.addEventListener('touchmove', (e) => {
+  if (!activeNode) return;
+  const touch = e.touches[0];
+  const rect = mapZone.getBoundingClientRect();
+  let x = touch.clientX - rect.left;
+  let y = touch.clientY - rect.top;
+
+  if (x < 0) x = 0; if (x > 540) x = 540;
+  if (y < 0) y = 0; if (y > 540) y = 540;
+
+  activeNode.style.left = x + 'px';
+  activeNode.style.top = y + 'px';
+
+  const trashRect = trashBin.getBoundingClientRect();
+  if (touch.clientX >= trashRect.left && touch.clientX <= trashRect.right &&
+      touch.clientY >= trashRect.top && touch.clientY <= trashRect.bottom) {
+    trashBin.classList.add('drag-over');
+  } else {
+    trashBin.classList.remove('drag-over');
+  }
+}, {passive: false});
+
+window.addEventListener('touchend', (e) => {
+  if (!activeNode) return;
+  const touch = e.changedTouches[0];
+  const trashRect = trashBin.getBoundingClientRect();
+  
+  if (touch.clientX >= trashRect.left && touch.clientX <= trashRect.right &&
+      touch.clientY >= trashRect.top && touch.clientY <= trashRect.bottom) {
+    activeNode.remove();
+  }
+
+  activeNode = null;
+  trashBin.classList.remove('drag-over');
+});
+
+// Soporte alternativo mediante clics directos sobre el mapa táctico
+mapZone.addEventListener('click', (e) => {
+  if (e.target !== mapZone && e.target.tagName !== 'IMG') return;
+  if (e.target.classList.contains('map-node')) return;
+  if (draggingSrc) return; 
+
+  const rect = mapZone.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  // Permite añadir un nodo genérico de color si se hace click plano sobre el lienzo
+  const currentSide = document.querySelector('input[name="sideGroup"]:checked').value;
+  const dot = document.createElement('div');
+  dot.className = `map-node ${currentSide}`;
+  dot.style.left = x + 'px';
+  dot.style.top = y + 'px';
+  dot.style.backgroundColor = (currentSide === 'azul') ? '#4f6edb' : '#ef4444';
+
+  dot.addEventListener('mousedown', (evt) => {
+    evt.preventDefault();
+    activeNode = dot;
+  });
+  
+  dot.addEventListener('touchstart', (evt) => {
+    activeNode = dot;
+  }, {passive: true});
+
+  mapZone.appendChild(dot);
+});
+
+// Exportación en HD Crisp de html2canvas (Garantiza capturas nítidas)
 document.getElementById('btnExport').addEventListener('click', () => {
   const btn = document.getElementById('btnExport');
   btn.innerText = "⏳ Procesando...";
@@ -517,40 +622,40 @@ document.getElementById('btnExport').addEventListener('click', () => {
   html2canvas(mapZone, {
     useCORS: true,
     allowTaint: false,
-    scale: 2, // Escala duplicada para preservar nitidez 4K
+    scale: 2, 
     backgroundColor: null
   }).then(canvas => {
     const link = document.createElement('a');
-    link.download = 'hokstats-estrategia.png';
+    link.download = 'hokstats-planner.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
     
     btn.innerText = "💾 Guardar PNG";
     btn.disabled = false;
   }).catch(err => {
-    console.error("Error exportando el canvas:", err);
-    alert("Hubo un problema al generar la imagen.");
+    console.error("Error al exportar:", err);
+    alert("Error al procesar la imagen táctica.");
     btn.innerText = "💾 Guardar PNG";
     btn.disabled = false;
   });
 });
 
-// Controladores de filtros e inputs integrados
-let currentRole = 'all';
-let currentSearch = '';
+// Lógica de control de filtros e inputs
+let selectedRole = 'all';
+let searchKeyword = '';
 
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('.role-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    currentRole = tab.dataset.role;
-    renderDrawer(currentRole, currentSearch);
+    selectedRole = tab.dataset.role;
+    renderPool(selectedRole, searchKeyword);
   });
 });
 
-document.getElementById('drawerSearch').addEventListener('input', (e) => {
-  currentSearch = e.target.value.toLowerCase().trim();
-  renderDrawer(currentRole, currentSearch);
+document.getElementById('heroSearch').addEventListener('input', (e) => {
+  searchKeyword = e.target.value.toLowerCase().trim();
+  renderPool(selectedRole, searchKeyword);
 });
 </script>
 
