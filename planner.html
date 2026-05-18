@@ -154,6 +154,14 @@ body {
   display: inline-block;
 }
 
+/* Panel izquierdo heroes */
+.planner-left {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ── BODY: héroes izquierda + mapa derecha ── */
 .planner-body {
   display: flex;
@@ -161,21 +169,49 @@ body {
   align-items: flex-start;
 }
 
-/* PANEL IZQUIERDO: héroes */
-.planner-left {
-  width: 200px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Zoom indicator */
+.zoom-indicator {
+  font-size: 10px;
+  color: #7b7a8e;
+  font-family: monospace;
+  min-width: 32px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
-/* Panel izquierdo heroes */
-.planner-left {
-  width: 200px;
-  flex-shrink: 0;
+/* Botones con etiqueta de texto */
+.btn-tool-labeled {
+  background: #31313c;
+  border: 1px solid #444452;
+  color: #ccc;
+  padding: 0 10px;
+  height: 32px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  font-family: Arial, sans-serif;
+}
+
+.btn-tool-labeled:hover { background: #3a3a46; color: white; }
+.btn-tool-labeled.active { background: #4f6edb; color: white; border-color: #4f6edb; }
+.btn-tool-labeled:disabled { opacity: 0.25; cursor: not-allowed; }
+.btn-tool-labeled.danger { border-color: #ef4444; color: #f87171; }
+.btn-tool-labeled.success { border-color: #22c55e; color: #22c55e; }
+
+/* Toolbar section label */
+.toolbar-label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4a4a5a;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .heroes-panel {
@@ -185,7 +221,7 @@ body {
   border: 1px solid #444452;
   border-radius: 6px;
   overflow: hidden;
-  height: 600px;
+  height: 700px;
 }
 
 .heroes-grid {
@@ -273,13 +309,13 @@ body {
 .planner-right {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .map-viewport {
   position: relative;
-  width: 600px;
-  height: 600px;
+  width: 100%;
+  height: 700px;
   background: #1a1a20;
   border: 1px solid #444452;
   border-radius: 6px;
@@ -289,9 +325,14 @@ body {
 }
 
 .map-background {
+  position: absolute;
+  top: 0; left: 0;
   width: 100%; height: 100%;
   display: block;
   pointer-events: none;
+  object-fit: cover;
+  transform-origin: center center;
+  transition: transform 0.2s ease;
 }
 
 .svg-draw-layer {
@@ -403,32 +444,51 @@ body {
 
       <!-- TOOLBAR HORIZONTAL SUPERIOR -->
       <div class="planner-toolbar">
-        <button class="btn-tool active" id="tool-move" data-tip="Mover">🖐️</button>
-        <button class="btn-tool" id="tool-draw" data-tip="Lápiz">✏️</button>
-        <button class="btn-tool" id="tool-arrow" data-tip="Flecha">🏹</button>
-        <button class="btn-tool" id="tool-eraser" data-tip="Goma">🧽</button>
+
+        <!-- Herramientas -->
+        <span class="toolbar-label">Herramienta</span>
+        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe">🖐️ Mover</button>
+        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria">✏️ Lápiz</button>
+        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha">🏹 Flecha</button>
+        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento">🧽 Goma</button>
 
         <div class="toolbar-divider"></div>
 
+        <!-- Historial -->
+        <span class="toolbar-label">Historial</span>
         <button class="btn-tool" id="hist-undo" disabled data-tip="Deshacer">↩️</button>
         <button class="btn-tool" id="hist-redo" disabled data-tip="Rehacer">↪️</button>
 
         <div class="toolbar-divider"></div>
 
-        <button class="btn-tool" id="aura-none" data-tip="Sin aura">⚪</button>
-        <button class="btn-tool" id="aura-blue" data-tip="Aura Azul">🔵</button>
-        <button class="btn-tool" id="aura-red" data-tip="Aura Roja">🔴</button>
+        <!-- Zoom -->
+        <span class="toolbar-label">Zoom</span>
+        <button class="btn-tool" id="zoom-out" data-tip="Alejar">🔍−</button>
+        <span class="zoom-indicator" id="zoom-level">100%</span>
+        <button class="btn-tool" id="zoom-in" data-tip="Acercar">🔍+</button>
 
         <div class="toolbar-divider"></div>
 
+        <!-- Aura -->
+        <span class="toolbar-label">Bando</span>
+        <button class="btn-tool" id="aura-none" data-tip="Sin aura">⚪</button>
+        <button class="btn-tool" id="aura-blue" data-tip="Azul">🔵</button>
+        <button class="btn-tool" id="aura-red" data-tip="Rojo">🔴</button>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Color trazo -->
+        <span class="toolbar-label">Trazo</span>
         <button class="btn-tool active" id="color-yellow" data-tip="Amarillo"><span class="color-dot" style="background:#eab308"></span></button>
         <button class="btn-tool" id="color-green" data-tip="Verde"><span class="color-dot" style="background:#22c55e"></span></button>
         <button class="btn-tool" id="color-white" data-tip="Blanco"><span class="color-dot" style="background:#ffffff"></span></button>
 
         <div class="toolbar-divider"></div>
 
-        <button class="btn-tool" id="save-png" data-tip="Guardar PNG" style="border-color:#22c55e; color:#22c55e;">💾</button>
-        <button class="btn-tool" id="clear-all" data-tip="Reset todo" style="border-color:#ef4444; color:#f87171;">🔄</button>
+        <!-- Acciones -->
+        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG">💾 Guardar</button>
+        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo">🔄 Reset</button>
+
       </div>
 
       <!-- BODY: héroes izquierda + mapa derecha -->
@@ -458,8 +518,8 @@ body {
         <!-- MAPA DERECHA -->
         <div class="planner-right">
           <div class="map-viewport tool-move" id="mapZone">
-            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Mapa HoK" crossorigin="anonymous">
-            <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
+            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
+            <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600"></svg>
           </div>
         </div>
 
@@ -800,12 +860,12 @@ document.getElementById('save-png').addEventListener('click', () => {
     link.href = canvas.toDataURL('image/png');
     link.click();
     
-    btn.innerText = "💾 Guardar PNG";
+    btn.innerText = "💾 Guardar";
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
     alert("Hubo un problema al generar la imagen. Revisa la consola.");
-    btn.innerText = "💾 Guardar PNG";
+    btn.innerText = "💾 Guardar";
     btn.disabled = false;
   });
 });
@@ -826,6 +886,42 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value.toLowerCase().trim();
   renderDrawer(currentRole, currentSearch);
 });
+
+// ── ZOOM DEL MAPA ──
+let mapZoom = 1;
+const ZOOM_STEP = 0.15;
+const ZOOM_MIN  = 0.5;
+const ZOOM_MAX  = 2.5;
+
+function applyZoom() {
+  const mapBg  = document.getElementById('mapBg');
+  const svg    = document.getElementById('svgLayer');
+  const label  = document.getElementById('zoom-level');
+  const scale  = `scale(${mapZoom})`;
+  mapBg.style.transform = scale;
+  svg.style.transform   = scale;
+  svg.style.transformOrigin = 'center center';
+  label.textContent = Math.round(mapZoom * 100) + '%';
+}
+
+document.getElementById('zoom-in').addEventListener('click', () => {
+  if (mapZoom < ZOOM_MAX) { mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2)); applyZoom(); }
+});
+
+document.getElementById('zoom-out').addEventListener('click', () => {
+  if (mapZoom > ZOOM_MIN) { mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2)); applyZoom(); }
+});
+
+// Zoom con rueda del ratón sobre el mapa
+document.getElementById('mapZone').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (e.deltaY < 0) {
+    if (mapZoom < ZOOM_MAX) { mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2)); applyZoom(); }
+  } else {
+    if (mapZoom > ZOOM_MIN) { mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2)); applyZoom(); }
+  }
+}, { passive: false });
+
 </script>
 
 </body>
