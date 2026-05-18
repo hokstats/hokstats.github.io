@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Map Planner - HoKstats</title>
+
 <style>
 /* 📊 IDENTIDAD GLOBAL UNIFICADA (REPLICA EXACTA INDEX) */
 body {
@@ -47,7 +48,7 @@ body {
   cursor: pointer;
   color: #a0a0b5;
   text-decoration: none;
-  white-space: nowrap;
+  white-space: nowrap; /* Evita micro-deformaciones del texto */
 }
 
 .view-tab.active {
@@ -64,14 +65,14 @@ body {
   padding: 0 0 30px 0;
 }
 
-/* CONTENEDOR INTERNO PARA DAR CONTINUIDAD AL ANCHO DE CONTENIDO */
+/* 🎯 ZONA DE AISLAMIENTO DE CONTINUIDAD VISUAL (LA CLAVE DEL FIX) */
 .content-padding-zone {
   padding: 40px 30px 10px 30px;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA (ADAPTADA AL DISEÑO OSCURO) */
+/* 🛠️ BARRA DE HERRAMIENTAS INTERNA (CON CONTENCION ANTI-DEFORMACIÓN) */
 .planner-toolbar {
-  background: #24242b;
+  background: #282830;
   padding: 14px 20px;
   display: flex;
   align-items: center;
@@ -81,6 +82,7 @@ body {
   border-radius: 6px;
   margin-bottom: 25px;
   flex-wrap: wrap;
+  box-sizing: border-box; /* Previene que el padding altere el ancho general */
 }
 
 .tool-group {
@@ -134,13 +136,12 @@ body {
   display: inline-block;
 }
 
-/* 🗺️ ÁREA OPERATIVA DEL MAPA (GRID INMUNE CON ASPECT-RATIO 1/1) */
+/* 🗺️ ÁREA OPERATIVA DEL MAPA */
 .map-viewport {
   position: relative;
   width: 600px;
-  max-width: 100%;
-  aspect-ratio: 1 / 1;
-  margin: 0 auto 30px auto;
+  height: 600px;
+  margin: 0 auto 30px auto; /* Centrado perfecto sin romper flujos superiores */
   background: #1a1a20;
   border: 1px solid #444452;
   border-radius: 6px;
@@ -153,7 +154,6 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
-  object-fit: cover;
 }
 
 /* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
@@ -331,7 +331,7 @@ body {
   object-fit: cover;
 }
 
-/* SCROLLBAR REPLICA INDEX */
+/* FORZADO DE SCROLLBAR IDENTICA AL INDEX CONTRA RECALCULOS DE ANCHO */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
@@ -344,6 +344,7 @@ body {
 
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
+    
     <div class="view-tabs">
       <a href="index.html" class="view-tab">General</a>
       <a href="stats.html" class="view-tab">Estadísticas</a>
@@ -355,6 +356,7 @@ body {
   </div>
 
   <div class="main-box">
+    
     <div class="content-padding-zone">
 
       <div class="planner-toolbar">
@@ -411,18 +413,18 @@ body {
             <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
           </div>
         </div>
+
         <div class="heroes-grid" id="available-heroes"></div>
       </div>
 
-    </div>
-  </div>
+    </div> </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
-// El motor lógico y operativo de la pizarra se mantiene al 100% sin modificaciones disruptivas
+// El motor JS se mantiene al 100% idéntico para no corromper la excelente lógica funcional
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 const mapZone = document.getElementById('mapZone');
@@ -576,6 +578,7 @@ function handleStartContainer(e) {
       e.target.remove();
       return;
     }
+    
     const targetEl = e.target.closest('.vector-arrow');
     if (targetEl) {
       saveState('delete', targetEl, { parent: targetEl.parentNode });
