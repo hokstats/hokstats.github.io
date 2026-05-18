@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Map Planner - HoKstats</title>
-
 <style>
-/* 📊 IDENTIDAD GLOBAL UNIFICADA (Réplica Exacta de index.html) */
+/* 📊 IDENTIDAD GLOBAL UNIFICADA (REPLICA EXACTA INDEX) */
 body {
   background: #1c1c1f;
   font-family: Arial, sans-serif;
@@ -56,7 +55,7 @@ body {
   color: white;
 }
 
-/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA EN TODAS LAS PÁGINAS) */
+/* 📦 CAJA MAESTRA UNIVERSAL (REPLICA EXACTA INDEX) */
 .main-box {
   background: #31313c;
   border-radius: 6px;
@@ -70,7 +69,7 @@ body {
   padding: 40px 30px 10px 30px;
 }
 
-/* 🛠️ BARRA DE HERRAMIENTAS INTERNA (Alineada al pixel-perfect de la caja) */
+/* 🛠️ BARRA DE HERRAMIENTAS SUPERIOR EXTENDIDA (ADAPTADA AL DISEÑO OSCURO) */
 .planner-toolbar {
   background: #24242b;
   padding: 14px 20px;
@@ -78,9 +77,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  border-bottom: 1px solid #1c1c1f;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  margin-bottom: 25px;
   flex-wrap: wrap;
-  margin-top: 0;
 }
 
 .tool-group {
@@ -134,16 +134,18 @@ body {
   display: inline-block;
 }
 
-/* 🗺️ ÁREA OPERATIVA DEL MAPA */
+/* 🗺️ ÁREA OPERATIVA DEL MAPA (GRID INMUNE CON ASPECT-RATIO 1/1) */
 .map-viewport {
   position: relative;
   width: 600px;
-  height: 600px;
-  margin: 15px auto 35px auto;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 30px auto;
   background: #1a1a20;
+  border: 1px solid #444452;
+  border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   overflow: hidden;
-  border-radius: 6px;
 }
 
 .map-background {
@@ -151,8 +153,10 @@ body {
   height: 100%;
   display: block;
   pointer-events: none;
+  object-fit: cover;
 }
 
+/* 🖌️ Capa SVG para Trazo Libre Súper Preciso */
 .svg-draw-layer {
   position: absolute;
   top: 0;
@@ -167,6 +171,7 @@ body {
   pointer-events: auto;
 }
 
+/* MODO GOMA ACTIVO SOBRE TRAZOS DE LÁPIZ */
 .map-viewport.tool-eraser .svg-draw-layer {
   pointer-events: auto;
 }
@@ -182,7 +187,7 @@ body {
   stroke-linejoin: round;
 }
 
-/* Modo Goma interactivo */
+/* Modo Goma sobre elementos borrables */
 .map-viewport.tool-eraser .placed-hero,
 .map-viewport.tool-eraser .vector-arrow,
 .map-viewport.tool-eraser .free-path {
@@ -196,7 +201,7 @@ body {
   opacity: 0.7;
 }
 
-/* HÉROES Y FLECHAS */
+/* 🎯 HÉROES Y FLECHAS NATIVAS HTML */
 .placed-hero {
   position: absolute;
   width: 40px;
@@ -289,44 +294,44 @@ body {
   padding: 6px 10px;
   border-radius: 4px;
   border: 1px solid #444452;
-  background: #24242b;
+  background: #282830;
   color: #ccc;
   font-size: 11px;
   outline: none;
 }
 
 .heroes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   max-height: 140px;
   overflow-y: auto;
   background: #24242b;
   padding: 12px;
   border-radius: 6px;
-  border: 1px solid #444452;
+  border: 1px solid #1c1c1f;
 }
 
 .hero-avatar-item {
-  width: 100%;
-  aspect-ratio: 1 / 1 !important;
+  width: 42px;
+  height: 42px;
   border-radius: 6px;
-  overflow: hidden;
   cursor: pointer;
   transition: transform 0.1s ease;
 }
 
 .hero-avatar-item:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .hero-avatar-item img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
+/* SCROLLBAR REPLICA INDEX */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
@@ -334,6 +339,7 @@ body {
 </head>
 
 <body>
+
 <div class="container">
 
   <div class="top-bar">
@@ -349,44 +355,43 @@ body {
   </div>
 
   <div class="main-box">
+    <div class="content-padding-zone">
 
-    <div class="planner-toolbar">
-      <div class="tool-group">
-        <span class="tool-label">Acciones</span>
-        <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
-        <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
-        <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
-        <button class="btn-tool" id="tool-eraser">🧽 Goma</button>
+      <div class="planner-toolbar">
+        <div class="tool-group">
+          <span class="tool-label">Acciones</span>
+          <button class="btn-tool active" id="tool-move">🖐️ Mover</button>
+          <button class="btn-tool" id="tool-draw">✏️ Lápiz</button>
+          <button class="btn-tool" id="tool-arrow">🏹 Flecha</button>
+          <button class="btn-tool" id="tool-eraser">🧽 Goma</button>
+        </div>
+
+        <div class="tool-group">
+          <span class="tool-label">Historial</span>
+          <button class="btn-tool" id="hist-undo" disabled>↩️ Deshacer</button>
+          <button class="btn-tool" id="hist-redo" disabled>↪️ Rehacer</button>
+        </div>
+
+        <div class="tool-group">
+          <span class="tool-label">Aura de Bando</span>
+          <button class="btn-tool" id="aura-none">⚪ Ninguno</button>
+          <button class="btn-tool" id="aura-blue">🔵 Azul</button>
+          <button class="btn-tool" id="aura-red">🔴 Rojo</button>
+        </div>
+
+        <div class="tool-group">
+          <span class="tool-label">Color Trazo</span>
+          <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
+          <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
+          <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
+        </div>
+
+        <div class="tool-group">
+          <button class="btn-tool" id="save-png" style="border-color:#22c55e; color:#22c55e; font-weight:bold;">💾 Guardar PNG</button>
+          <button class="btn-tool" id="clear-all" style="border-color:#ef4444; color:#f87171;">🔄 Reset Todo</button>
+        </div>
       </div>
 
-      <div class="tool-group">
-        <span class="tool-label">Historial</span>
-        <button class="btn-tool" id="hist-undo" disabled>↩️ Deshacer</button>
-        <button class="btn-tool" id="hist-redo" disabled>↪️ Rehacer</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Aura de Bando</span>
-        <button class="btn-tool" id="aura-none">⚪ Ninguno</button>
-        <button class="btn-tool" id="aura-blue">🔵 Azul</button>
-        <button class="btn-tool" id="aura-red">🔴 Rojo</button>
-      </div>
-
-      <div class="tool-group">
-        <span class="tool-label">Color Trazo</span>
-        <button class="btn-tool active" id="color-yellow"><span class="color-dot" style="background:#eab308"></span></button>
-        <button class="btn-tool" id="color-green"><span class="color-dot" style="background:#22c55e"></span></button>
-        <button class="btn-tool" id="color-white"><span class="color-dot" style="background:#ffffff"></span></button>
-      </div>
-
-      <div class="tool-group">
-        <button class="btn-tool" id="save-png" style="border-color:#22c55e; color:#22c55e; font-weight:bold;">💾 Guardar PNG</button>
-        <button class="btn-tool" id="clear-all" style="border-color:#ef4444; color:#f87171;">🔄 Reset Todo</button>
-      </div>
-    </div>
-
-    <div class="content-padding-zone" style="padding-top: 25px;">
-      
       <div class="map-viewport tool-move" id="mapZone">
         <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" alt="Grieta HoK" crossorigin="anonymous">
         <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 600 600" width="600" height="600"></svg>
@@ -406,14 +411,18 @@ body {
             <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
           </div>
         </div>
-
         <div class="heroes-grid" id="available-heroes"></div>
       </div>
 
-    </div> </div> </div> <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
+// El motor lógico y operativo de la pizarra se mantiene al 100% sin modificaciones disruptivas
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 const mapZone = document.getElementById('mapZone');
@@ -744,7 +753,7 @@ document.getElementById('save-png').addEventListener('click', () => {
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
-    alert("Hubo un problema al generar la imagen.");
+    alert("Hubo un problema al generar la imagen. Revisa la consola.");
     btn.innerText = "💾 Guardar PNG";
     btn.disabled = false;
   });
