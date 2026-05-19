@@ -228,12 +228,11 @@ body {
 .card-relation-label {
   font-size: 9px;
   font-weight: bold;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
   flex-shrink: 0;
-  width: 48px;
+  width: 52px;
   line-height: 1;
-  opacity: 0.85;
 }
 
 .rel-strong-label { color: #fb923c; }
@@ -255,26 +254,26 @@ body {
 }
 
 .rel-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
   object-fit: cover;
   flex-shrink: 0;
-  background: #1c1c1f;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
-.rel-dot:hover { transform: scale(1.15); }
+.rel-dot:hover { transform: scale(1.12); filter: brightness(1.15); }
 
-.rel-dot-strong { border: 1.5px solid rgba(249,115,22,0.5); }
-.rel-dot-weak   { border: 1.5px solid rgba(168,85,247,0.5); }
-.rel-dot-syn    { border: 1.5px solid rgba(34,197,94,0.5);  }
-
-.rel-dot-placeholder {
-  width: 24px; height: 24px;
-  border-radius: 50%;
-  background: #1e1e25;
-  border: 1.5px dashed #2e2e38;
-  flex-shrink: 0;
+.rel-dot-strong {
+  border: 1.5px solid rgba(249,115,22,0.55);
+  box-shadow: inset 0 0 0 26px rgba(249,115,22,0.06), 0 0 6px rgba(249,115,22,0.12);
+}
+.rel-dot-weak {
+  border: 1.5px solid rgba(168,85,247,0.55);
+  box-shadow: inset 0 0 0 26px rgba(168,85,247,0.06), 0 0 6px rgba(168,85,247,0.12);
+}
+.rel-dot-syn {
+  border: 1.5px solid rgba(34,197,94,0.55);
+  box-shadow: inset 0 0 0 26px rgba(34,197,94,0.06), 0 0 6px rgba(34,197,94,0.12);
 }
 
 .rel-dot-empty {
@@ -283,8 +282,6 @@ body {
   font-style: italic;
   line-height: 1;
 }
-
-/* CONTENEDOR DE TIER - eliminado */
 
 /* 🎚️ INTERFAZ DE DETALLE SEGURO */
 .detail-view-container {
@@ -614,6 +611,10 @@ function cargarBaseDatos() {
   });
 }
 
+function normalizeStr(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
 function buildRelationRow(nameList, labelClass, labelText, dotClass) {
   const maxDots = 5;
   const slice = nameList.slice(0, maxDots);
@@ -626,12 +627,22 @@ function buildRelationRow(nameList, labelClass, labelText, dotClass) {
       </div>`;
   }
   const dots = slice.map(name => {
-    const found = heroesData.find(h => h.nombre.toLowerCase() === name.toLowerCase());
+    const normName = normalizeStr(name);
+    const found = heroesData.find(h => normalizeStr(h.nombre) === normName);
     if (found && found.imagen) {
       return `<img class="rel-dot ${dotClass}" src="${found.imagen}" title="${found.nombre}">`;
     }
-    return `<div class="rel-dot-placeholder"></div>`;
-  }).join('');
+    return '';
+  }).filter(Boolean).join('');
+
+  if (!dots) {
+    return `
+      <div class="card-relation-row">
+        <span class="card-relation-label ${labelClass}">${labelText}</span>
+        <div class="card-relation-divider"></div>
+        <span class="rel-dot-empty">—</span>
+      </div>`;
+  }
 
   return `
     <div class="card-relation-row">
@@ -651,6 +662,9 @@ function renderCatalogo() {
 
     const wrColor = obtenerColorWinrate(hero.winrate);
 
+    const lang = localStorage.getItem('hokstats_lang') || 'es';
+    const dict = i18n[lang];
+
     const card = document.createElement('div');
     card.className = 'hero-compact-card';
     card.innerHTML = `
@@ -658,9 +672,9 @@ function renderCatalogo() {
       <div class="card-meta-info">
         <div class="card-hero-name">${hero.nombre}</div>
         <div class="card-relations-zone">
-          ${buildRelationRow(hero.fuerteContra, 'rel-strong-label', 'Fuerte', 'rel-dot-strong')}
-          ${buildRelationRow(hero.debilContra,   'rel-weak-label',   'Débil',  'rel-dot-weak')}
-          ${hero.sinergiaCon.length > 0 ? buildRelationRow(hero.sinergiaCon, 'rel-syn-label', 'Sinergia', 'rel-dot-syn') : ''}
+          ${buildRelationRow(hero.fuerteContra, 'rel-strong-label', dict.lbl_strong, 'rel-dot-strong')}
+          ${buildRelationRow(hero.debilContra,   'rel-weak-label',   dict.lbl_weak,   'rel-dot-weak')}
+          ${hero.sinergiaCon.length > 0 ? buildRelationRow(hero.sinergiaCon, 'rel-syn-label', dict.lbl_syn, 'rel-dot-syn') : ''}
         </div>
       </div>
     `;
@@ -823,6 +837,9 @@ const i18n = {
     col_weak:         '⚠️ Es Débil Contra',
     col_synergy:      '🤝 Excelentes Sinergias',
     empty_records:    'Sin registros directos.',
+    lbl_strong:       'Fuerte vs',
+    lbl_weak:         'Débil vs',
+    lbl_syn:          'Sinergia',
     txt_normal:       '<strong>MODO NORMAL:</strong> Muestra las relaciones analíticas oficiales registradas en el servidor de origen (China), optimizadas con métricas de rendimiento del servidor global y variaciones específicas del metajuego actual.',
     txt_cross:        '<strong>MODO CRUZADO:</strong> Ejecuta un escaneo inverso bidireccional en la matriz de datos. Descubre y añade automáticamente interacciones ocultas de héroes que impactan a este personaje desde sus propios perfiles competitivos.'
   },
@@ -847,6 +864,9 @@ const i18n = {
     col_weak:         '⚠️ Weak Against',
     col_synergy:      '🤝 Excellent Synergies',
     empty_records:    'No direct records.',
+    lbl_strong:       'Strong vs',
+    lbl_weak:         'Weak vs',
+    lbl_syn:          'Synergy',
     txt_normal:       '<strong>NORMAL MODE:</strong> Shows official analytical relationships registered on the source server (China), optimized with global server performance metrics and current meta-specific variations.',
     txt_cross:        '<strong>CROSS MODE:</strong> Runs a bidirectional reverse scan across the data matrix. Automatically discovers and adds hidden hero interactions that impact this character from their own competitive profiles.'
   },
@@ -871,6 +891,9 @@ const i18n = {
     col_weak:         '⚠️ Fraco Contra',
     col_synergy:      '🤝 Excelentes Sinergias',
     empty_records:    'Sem registros diretos.',
+    lbl_strong:       'Forte vs',
+    lbl_weak:         'Fraco vs',
+    lbl_syn:          'Sinergia',
     txt_normal:       '<strong>MODO NORMAL:</strong> Exibe as relações analíticas oficiais registradas no servidor de origem (China), otimizadas com métricas de desempenho do servidor global e variações específicas do meta atual.',
     txt_cross:        '<strong>MODO CRUZADO:</strong> Executa uma varredura inversa bidirecional na matriz de dados. Descobre e adiciona automaticamente interações ocultas de heróis que impactam este personagem a partir de seus próprios perfis competitivos.'
   }
@@ -927,6 +950,9 @@ function applyLang(lang) {
   }
 
   document.documentElement.lang = lang;
+
+  // Re-renderizar catálogo para actualizar etiquetas de relaciones
+  if (heroesData.length > 0) renderCatalogo();
 }
 
 const savedLang = localStorage.getItem('hokstats_lang') || 'es';
