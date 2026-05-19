@@ -324,16 +324,24 @@ body {
   flex-shrink: 0;
 }
 
+/* Contenedor interno que escala — todo va aquí adentro */
+.map-inner {
+  position: absolute;
+  top: 0; left: 0;
+  width: 700px;
+  height: 700px;
+  transform-origin: top left;
+}
+
 .map-background {
   position: absolute;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 700px;
+  height: 700px;
   display: block;
   pointer-events: none;
   object-fit: cover;
 }
-
-/* map-inner no se usa más */
 
 .map-background {
   position: absolute;
@@ -526,9 +534,11 @@ body {
 
         <!-- MAPA DERECHA -->
         <div class="planner-right">
-          <div class="map-viewport tool-move" id="mapZone">
-            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
-            <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 700 700"></svg>
+          <div class="map-viewport" id="mapZone">
+            <div class="map-inner" id="mapInner">
+              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
+              <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 700 700"></svg>
+            </div>
           </div>
         </div>
 
@@ -612,30 +622,31 @@ function renderDrawer(role, query) {
 }
 
 function createHeroNode(imgUrl, x, y, recordHistory = true) {
+  const inner = document.getElementById('mapInner');
   const el = document.createElement('div');
   el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
-  el.dataset.zoom = mapZoom;
   el.innerHTML = `<img src="${imgUrl}" crossorigin="anonymous">`;
   
   el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
   el.addEventListener('touchstart', (e) => handleHeroClickOrDrag(e, el), {passive: false});
   
-  mapZone.appendChild(el);
+  inner.appendChild(el);
   if (recordHistory) saveState('add', el);
 }
 
 function handleHeroClickOrDrag(e, element) {
   if (currentTool === 'eraser') {
-    saveState('delete', element, { parent: mapZone });
+    saveState('delete', element, { parent: document.getElementById('mapInner') });
     element.remove();
     return;
   }
   if (currentTool !== 'move') return;
   e.preventDefault();
   
-  const rect = mapZone.getBoundingClientRect();
+  const inner = document.getElementById('mapInner');
+  const rect = inner.getBoundingClientRect();
   const initialX = element.style.left;
   const initialY = element.style.top;
   let hasMoved = false;
@@ -649,7 +660,7 @@ function handleHeroClickOrDrag(e, element) {
     let y = (clientY - rect.top)  / mapZoom;
     
     if(x < 0 || x > MAP_BASE || y < 0 || y > MAP_BASE) {
-      saveState('delete', element, { parent: mapZone });
+      saveState('delete', element, { parent: inner });
       element.remove();
       endHandler();
       return;
@@ -657,7 +668,6 @@ function handleHeroClickOrDrag(e, element) {
     
     element.style.left = `${x}px`;
     element.style.top = `${y}px`;
-    element.dataset.zoom = mapZoom;
   }
   
   function endHandler() {
@@ -678,7 +688,8 @@ function handleHeroClickOrDrag(e, element) {
 }
 
 function getLocalCoords(e) {
-  const rect = mapZone.getBoundingClientRect();
+  const inner = document.getElementById('mapInner');
+  const rect = inner.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return {
@@ -691,7 +702,7 @@ mapZone.addEventListener('mousedown', (e) => { handleStartContainer(e); });
 mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
 
 function handleStartContainer(e) {
-  const isBg = e.target === mapZone || e.target.className === 'map-background' || e.target === svgLayer;
+  const isBg = e.target === mapZone || e.target === document.getElementById('mapInner') || e.target.className === 'map-background' || e.target === svgLayer;
   
   if (currentTool === 'eraser' && !isBg) {
     if (e.target.classList.contains('free-path')) {
@@ -723,7 +734,7 @@ function handleStartContainer(e) {
     activeArrowElement.style.left = `${startX}px`;
     activeArrowElement.style.top = `${startY}px`;
     
-    mapZone.appendChild(activeArrowElement);
+    document.getElementById('mapInner').appendChild(activeArrowElement);
   } 
   else if (currentTool === 'draw') {
     isDrawing = true;
@@ -812,7 +823,7 @@ document.getElementById('hist-redo').addEventListener('click', () => {
     if (action.element.classList.contains('free-path')) {
       svgLayer.appendChild(action.element);
     } else {
-      mapZone.appendChild(action.element);
+      document.getElementById('mapInner').appendChild(action.element);
     }
   } else if (action.type === 'delete') {
     action.element.remove();
@@ -905,31 +916,14 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
 });
 
 // ── ZOOM DEL MAPA ──
-// Zoom visual: escala la imagen de fondo y reposiciona los héroes y trazos
 let mapZoom = 1;
 const ZOOM_STEP = 0.2;
 const ZOOM_MIN  = 0.5;
 const ZOOM_MAX  = 2.5;
 
 function applyZoom() {
-  const newSize = MAP_BASE * mapZoom;
-  // Escalar imagen de fondo
-  const bg = document.getElementById('mapBg');
-  bg.style.width  = newSize + 'px';
-  bg.style.height = newSize + 'px';
-  // Escalar SVG
-  svgLayer.style.width  = newSize + 'px';
-  svgLayer.style.height = newSize + 'px';
-  svgLayer.setAttribute('viewBox', `0 0 ${MAP_BASE} ${MAP_BASE}`);
-  // Reposicionar héroes
-  document.querySelectorAll('.placed-hero').forEach(hero => {
-    const prevZoom = hero.dataset.zoom ? parseFloat(hero.dataset.zoom) : 1;
-    const lx = parseFloat(hero.style.left) / prevZoom * mapZoom;
-    const ly = parseFloat(hero.style.top)  / prevZoom * mapZoom;
-    hero.style.left = lx + 'px';
-    hero.style.top  = ly + 'px';
-    hero.dataset.zoom = mapZoom;
-  });
+  const inner = document.getElementById('mapInner');
+  inner.style.transform = `scale(${mapZoom})`;
 }
 
 document.getElementById('zoom-in').addEventListener('click', () => {
