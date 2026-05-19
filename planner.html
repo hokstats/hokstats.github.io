@@ -320,17 +320,24 @@ body {
   border: 1px solid #444452;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  overflow: hidden;
+  overflow: auto;
   flex-shrink: 0;
+  cursor: default;
 }
+
+/* Scrollbar del mapa */
+.map-viewport::-webkit-scrollbar { width: 8px; height: 8px; }
+.map-viewport::-webkit-scrollbar-track { background: #1a1a20; }
+.map-viewport::-webkit-scrollbar-thumb { background: #444452; border-radius: 4px; }
+.map-viewport::-webkit-scrollbar-corner { background: #1a1a20; }
 
 /* Contenedor interno que escala — todo va aquí adentro */
 .map-inner {
-  position: absolute;
-  top: 0; left: 0;
+  position: relative;
   width: 700px;
   height: 700px;
   transform-origin: top left;
+  flex-shrink: 0;
 }
 
 .map-background {
@@ -361,7 +368,8 @@ body {
   pointer-events: none;
 }
 
-.svg-draw-layer.active-drawing { pointer-events: auto; }
+.map-viewport.tool-pan { cursor: grab; }
+.map-viewport.tool-pan.panning { cursor: grabbing; }
 .map-viewport.tool-eraser .svg-draw-layer { pointer-events: auto; }
 .map-viewport.tool-eraser .svg-draw-layer path { cursor: pointer; }
 
@@ -466,6 +474,7 @@ body {
         <!-- Herramientas -->
         <span class="toolbar-label">Herr.</span>
         <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe">🖐️</button>
+        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa">✋</button>
         <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria">✏️</button>
         <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha">🏹</button>
         <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento">🧽</button>
@@ -615,7 +624,9 @@ function renderDrawer(role, query) {
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
     
     div.addEventListener('click', () => {
-      createHeroNode(hero.imagen, MAP_BASE / 2, MAP_BASE / 2, true);
+      const cx = mapZone.scrollLeft + mapZone.clientWidth  / 2;
+      const cy = mapZone.scrollTop  + mapZone.clientHeight / 2;
+      createHeroNode(hero.imagen, cx, cy, true);
     });
     grid.appendChild(div);
   });
@@ -645,8 +656,7 @@ function handleHeroClickOrDrag(e, element) {
   if (currentTool !== 'move') return;
   e.preventDefault();
   
-  const inner = document.getElementById('mapInner');
-  const rect = inner.getBoundingClientRect();
+  const rect = mapZone.getBoundingClientRect();
   const initialX = element.style.left;
   const initialY = element.style.top;
   let hasMoved = false;
@@ -656,11 +666,12 @@ function handleHeroClickOrDrag(e, element) {
     const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     
-    let x = (clientX - rect.left) / mapZoom;
-    let y = (clientY - rect.top)  / mapZoom;
+    let x = (clientX - rect.left + mapZone.scrollLeft);
+    let y = (clientY - rect.top  + mapZone.scrollTop);
     
-    if(x < 0 || x > MAP_BASE || y < 0 || y > MAP_BASE) {
-      saveState('delete', element, { parent: inner });
+    const maxSize = MAP_BASE * mapZoom;
+    if(x < 0 || x > maxSize || y < 0 || y > maxSize) {
+      saveState('delete', element, { parent: document.getElementById('mapInner') });
       element.remove();
       endHandler();
       return;
@@ -688,20 +699,51 @@ function handleHeroClickOrDrag(e, element) {
 }
 
 function getLocalCoords(e) {
-  const inner = document.getElementById('mapInner');
-  const rect = inner.getBoundingClientRect();
+  const rect = mapZone.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return {
-    x: (clientX - rect.left) / mapZoom,
-    y: (clientY - rect.top)  / mapZoom
+    x: (clientX - rect.left + mapZone.scrollLeft),
+    y: (clientY - rect.top  + mapZone.scrollTop)
   };
 }
 
-mapZone.addEventListener('mousedown', (e) => { handleStartContainer(e); });
-mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
+// ── PAN DEL MAPA ──
+let isPanning = false;
+let panStartX = 0, panStartY = 0;
+let panScrollLeft = 0, panScrollTop = 0;
+
+mapZone.addEventListener('mousedown', (e) => {
+  if (currentTool === 'pan') {
+    isPanning = true;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    panScrollLeft = mapZone.scrollLeft;
+    panScrollTop  = mapZone.scrollTop;
+    mapZone.classList.add('panning');
+    e.preventDefault();
+  }
+  handleStartContainer(e);
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (isPanning) {
+    mapZone.scrollLeft = panScrollLeft - (e.clientX - panStartX);
+    mapZone.scrollTop  = panScrollTop  - (e.clientY - panStartY);
+  }
+  handleMoveContainer(e);
+});
+
+window.addEventListener('mouseup', () => {
+  if (isPanning) {
+    isPanning = false;
+    mapZone.classList.remove('panning');
+  }
+  handleEndContainer();
+});
 
 function handleStartContainer(e) {
+  if (currentTool === 'pan') return;
   const isBg = e.target === mapZone || e.target === document.getElementById('mapInner') || e.target.className === 'map-background' || e.target === svgLayer;
   
   if (currentTool === 'eraser' && !isBg) {
@@ -751,14 +793,13 @@ function handleStartContainer(e) {
   }
 }
 
-window.addEventListener('mousemove', (e) => { handleMoveContainer(e); });
 window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passive: false});
 
 function handleMoveContainer(e) {
   if (!isDrawing) return;
   const coords = getLocalCoords(e);
-  const currentX = Math.max(0, Math.min(MAP_BASE, coords.x));
-  const currentY = Math.max(0, Math.min(MAP_BASE, coords.y));
+  const currentX = Math.max(0, Math.min(MAP_BASE * mapZoom, coords.x));
+  const currentY = Math.max(0, Math.min(MAP_BASE * mapZoom, coords.y));
 
   if (currentTool === 'arrow' && activeArrowElement) {
     if (e.cancelable) e.preventDefault();
@@ -777,7 +818,6 @@ function handleMoveContainer(e) {
   }
 }
 
-window.addEventListener('mouseup', () => { handleEndContainer(); });
 window.addEventListener('touchend', () => { handleEndContainer(); });
 
 function handleEndContainer() {
@@ -917,35 +957,106 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
 
 // ── ZOOM DEL MAPA ──
 let mapZoom = 1;
-const ZOOM_STEP = 0.2;
-const ZOOM_MIN  = 0.5;
-const ZOOM_MAX  = 2.5;
+const ZOOM_STEP = 0.15;
+const ZOOM_MIN  = 0.4;
+const ZOOM_MAX  = 3.0;
 
 function applyZoom() {
   const inner = document.getElementById('mapInner');
-  inner.style.transform = `scale(${mapZoom})`;
+  inner.style.width  = (MAP_BASE * mapZoom) + 'px';
+  inner.style.height = (MAP_BASE * mapZoom) + 'px';
+  inner.style.transform = `scale(1)`; // no scale, real size
+  // Actualizar SVG
+  svgLayer.style.width  = (MAP_BASE * mapZoom) + 'px';
+  svgLayer.style.height = (MAP_BASE * mapZoom) + 'px';
+  svgLayer.setAttribute('viewBox', `0 0 ${MAP_BASE * mapZoom} ${MAP_BASE * mapZoom}`);
+}
+
+function zoomAtPoint(delta, mouseX, mouseY) {
+  const zone = mapZone;
+  const prevZoom = mapZoom;
+  
+  if (delta > 0) {
+    mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2));
+  } else {
+    mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2));
+  }
+  if (mapZoom === prevZoom) return;
+
+  // Punto del mouse relativo al contenido antes del zoom
+  const scrollLeft = zone.scrollLeft;
+  const scrollTop  = zone.scrollTop;
+  const pointX = (scrollLeft + mouseX) / prevZoom;
+  const pointY = (scrollTop  + mouseY) / prevZoom;
+
+  // Reposicionar héroes y trazos al nuevo espacio
+  const ratio = mapZoom / prevZoom;
+  document.querySelectorAll('.placed-hero').forEach(hero => {
+    hero.style.left = (parseFloat(hero.style.left) * ratio) + 'px';
+    hero.style.top  = (parseFloat(hero.style.top)  * ratio) + 'px';
+  });
+  document.querySelectorAll('.vector-arrow').forEach(arrow => {
+    arrow.style.left = (parseFloat(arrow.style.left) * ratio) + 'px';
+    arrow.style.top  = (parseFloat(arrow.style.top)  * ratio) + 'px';
+    const w = parseFloat(arrow.style.width) || 0;
+    arrow.style.width = (w * ratio) + 'px';
+  });
+
+  // Resize inner
+  const inner = document.getElementById('mapInner');
+  const newW = MAP_BASE * mapZoom;
+  const newH = MAP_BASE * mapZoom;
+  inner.style.width  = newW + 'px';
+  inner.style.height = newH + 'px';
+  svgLayer.style.width  = newW + 'px';
+  svgLayer.style.height = newH + 'px';
+  svgLayer.setAttribute('viewBox', `0 0 ${newW} ${newH}`);
+
+  // Scroll para mantener el punto bajo el cursor
+  zone.scrollLeft = pointX * mapZoom - mouseX;
+  zone.scrollTop  = pointY * mapZoom - mouseY;
 }
 
 document.getElementById('zoom-in').addEventListener('click', () => {
-  if (mapZoom < ZOOM_MAX) { mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2)); applyZoom(); }
+  const zone = mapZone;
+  zoomAtPoint(1, zone.clientWidth / 2, zone.clientHeight / 2);
 });
 
 document.getElementById('zoom-out').addEventListener('click', () => {
-  if (mapZoom > ZOOM_MIN) { mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2)); applyZoom(); }
+  const zone = mapZone;
+  zoomAtPoint(-1, zone.clientWidth / 2, zone.clientHeight / 2);
 });
 
 document.getElementById('zoom-reset').addEventListener('click', () => {
+  const prevZoom = mapZoom;
   mapZoom = 1;
-  applyZoom();
+  const ratio = mapZoom / prevZoom;
+  document.querySelectorAll('.placed-hero').forEach(hero => {
+    hero.style.left = (parseFloat(hero.style.left) * ratio) + 'px';
+    hero.style.top  = (parseFloat(hero.style.top)  * ratio) + 'px';
+  });
+  document.querySelectorAll('.vector-arrow').forEach(arrow => {
+    arrow.style.left = (parseFloat(arrow.style.left) * ratio) + 'px';
+    arrow.style.top  = (parseFloat(arrow.style.top)  * ratio) + 'px';
+    const w = parseFloat(arrow.style.width) || 0;
+    arrow.style.width = (w * ratio) + 'px';
+  });
+  const inner = document.getElementById('mapInner');
+  inner.style.width  = MAP_BASE + 'px';
+  inner.style.height = MAP_BASE + 'px';
+  svgLayer.style.width  = MAP_BASE + 'px';
+  svgLayer.style.height = MAP_BASE + 'px';
+  svgLayer.setAttribute('viewBox', `0 0 ${MAP_BASE} ${MAP_BASE}`);
+  mapZone.scrollLeft = 0;
+  mapZone.scrollTop  = 0;
 });
 
 mapZone.addEventListener('wheel', (e) => {
   e.preventDefault();
-  if (e.deltaY < 0) {
-    if (mapZoom < ZOOM_MAX) { mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2)); applyZoom(); }
-  } else {
-    if (mapZoom > ZOOM_MIN) { mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2)); applyZoom(); }
-  }
+  const rect = mapZone.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  zoomAtPoint(e.deltaY < 0 ? 1 : -1, mouseX, mouseY);
 }, { passive: false });
 </script>
 
