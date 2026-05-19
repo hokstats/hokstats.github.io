@@ -445,6 +445,16 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #5a5a6b;
 }
+
+/* 🌐 SELECTOR DE IDIOMA */
+.lang-selector { display: flex; gap: 4px; align-items: center; margin-right: 8px; }
+.lang-btn {
+  background: none; border: 1px solid transparent; border-radius: 4px;
+  padding: 3px 5px; font-size: 16px; cursor: pointer; line-height: 1;
+  opacity: 0.45; color: white; transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.lang-btn:hover { opacity: 0.85; }
+.lang-btn.active { opacity: 1; border-color: #444452; }
 </style>
 </head>
 <body>
@@ -454,12 +464,18 @@ body {
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
     <div class="view-tabs">
-      <a href="index.html" class="view-tab">General</a>
-      <a href="stats.html" class="view-tab">Estadísticas</a>
-      <a href="counter.html" class="view-tab">Counters</a>
-      <a href="planner.html" class="view-tab active">Planner</a>
-      <a href="draft.html" class="view-tab">Draft</a>
-      <a href="acerca.html" class="view-tab">Acerca de</a>
+    <div class="view-tabs">
+      <div class="lang-selector">
+        <button class="lang-btn" onclick="setLang('es')" title="Español">🇪🇸</button>
+        <button class="lang-btn" onclick="setLang('pt')" title="Português">🇧🇷</button>
+        <button class="lang-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+      </div>
+      <a href="index.html" class="view-tab" data-i18n="nav_general">General</a>
+      <a href="stats.html" class="view-tab" data-i18n="nav_stats">Estadísticas</a>
+      <a href="counter.html" class="view-tab" data-i18n="nav_counters">Counters</a>
+      <a href="planner.html" class="view-tab active" data-i18n="nav_planner">Planner</a>
+      <a href="draft.html" class="view-tab" data-i18n="nav_draft">Draft</a>
+      <a href="acerca.html" class="view-tab" data-i18n="nav_about">Acerca de</a>
     </div>
   </div>
 
@@ -470,49 +486,49 @@ body {
       <div class="planner-toolbar">
 
         <!-- Herramientas -->
-        <span class="toolbar-label">Herr.</span>
-        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe">🖐️</button>
-        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa">🗺️</button>
-        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria">✏️</button>
-        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha">🏹</button>
-        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento">🧽</button>
+        <span class="toolbar-label" data-i18n="lbl_tools">Herr.</span>
+        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe" data-i18n-tip="tip_move">🖐️</button>
+        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa" data-i18n-tip="tip_pan">🗺️</button>
+        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria" data-i18n-tip="tip_draw">✏️</button>
+        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha" data-i18n-tip="tip_arrow">🏹</button>
+        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento" data-i18n-tip="tip_eraser">🧽</button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Historial -->
-        <span class="toolbar-label">Hist.</span>
-        <button class="btn-tool" id="hist-undo" disabled data-tip="Deshacer">↩️</button>
-        <button class="btn-tool" id="hist-redo" disabled data-tip="Rehacer">↪️</button>
+        <span class="toolbar-label" data-i18n="lbl_hist">Hist.</span>
+        <button class="btn-tool" id="hist-undo" disabled data-tip="Deshacer" data-i18n-tip="tip_undo">↩️</button>
+        <button class="btn-tool" id="hist-redo" disabled data-tip="Rehacer" data-i18n-tip="tip_redo">↪️</button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Zoom -->
         <span class="toolbar-label">Zoom</span>
-        <button class="btn-tool" id="zoom-out" data-tip="Alejar">−</button>
-        <button class="btn-tool" id="zoom-in" data-tip="Acercar">+</button>
-        <button class="btn-tool" id="zoom-reset" data-tip="Restablecer vista" style="font-size:10px; color:#a0a0b5;">⌂</button>
+        <button class="btn-tool" id="zoom-out" data-tip="Alejar" data-i18n-tip="tip_zoomout">−</button>
+        <button class="btn-tool" id="zoom-in" data-tip="Acercar" data-i18n-tip="tip_zoomin">+</button>
+        <button class="btn-tool" id="zoom-reset" data-tip="Restablecer vista" data-i18n-tip="tip_zoomreset" style="font-size:10px; color:#a0a0b5;">⌂</button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Aura -->
-        <span class="toolbar-label">Bdo.</span>
-        <button class="btn-tool" id="aura-none" data-tip="Sin aura">⚪</button>
-        <button class="btn-tool" id="aura-blue" data-tip="Azul">🔵</button>
-        <button class="btn-tool" id="aura-red" data-tip="Rojo">🔴</button>
+        <span class="toolbar-label" data-i18n="lbl_aura">Bdo.</span>
+        <button class="btn-tool" id="aura-none" data-tip="Sin aura" data-i18n-tip="tip_aura_none">⚪</button>
+        <button class="btn-tool" id="aura-blue" data-tip="Azul" data-i18n-tip="tip_aura_blue">🔵</button>
+        <button class="btn-tool" id="aura-red" data-tip="Rojo" data-i18n-tip="tip_aura_red">🔴</button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Color trazo -->
-        <span class="toolbar-label">Trz.</span>
-        <button class="btn-tool active" id="color-yellow" data-tip="Amarillo"><span class="color-dot" style="background:#eab308"></span></button>
-        <button class="btn-tool" id="color-green" data-tip="Verde"><span class="color-dot" style="background:#22c55e"></span></button>
+        <span class="toolbar-label" data-i18n="lbl_stroke">Trz.</span>
+        <button class="btn-tool active" id="color-yellow" data-tip="Amarillo" data-i18n-tip="tip_yellow"><span class="color-dot" style="background:#eab308"></span></button>
+        <button class="btn-tool" id="color-green" data-tip="Verde" data-i18n-tip="tip_green"><span class="color-dot" style="background:#22c55e"></span></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Acciones -->
-        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG">💾</button>
-        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo">🔄</button>
-        <button class="btn-tool-labeled" id="load-map" data-tip="Cargar mapa propio" style="border-color:#a855f7; color:#c084fc;">🖼️</button>
+        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save">💾</button>
+        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset">🔄</button>
+        <button class="btn-tool-labeled" id="load-map" data-tip="Cargar mapa propio" data-i18n-tip="tip_loadmap" style="border-color:#a855f7; color:#c084fc;">🖼️</button>
         <input type="file" id="map-file-input" accept="image/*" style="display:none;">
 
       </div>
@@ -525,17 +541,17 @@ body {
           <div class="heroes-panel">
             <div class="heroes-grid" id="available-heroes"></div>
             <div class="heroes-panel-footer">
-              <div class="panel-section-label">Filtrar héroes</div>
+              <div class="panel-section-label" data-i18n="filter_label">Filtrar héroes</div>
               <div class="tabs">
-                <div class="tab active" data-role="all">Todo</div>
-                <div class="tab" data-role="Choque">Choque</div>
-                <div class="tab" data-role="Cazador">Caza</div>
-                <div class="tab" data-role="Medio">Medio</div>
-                <div class="tab" data-role="Merodeo">Merod.</div>
-                <div class="tab" data-role="Farmeo">Farmeo</div>
+                <div class="tab active" data-role="all" data-i18n="role_all">Todo</div>
+                <div class="tab" data-role="Choque" data-i18n="role_choque">Choque</div>
+                <div class="tab" data-role="Cazador" data-i18n="role_cazador">Caza</div>
+                <div class="tab" data-role="Medio" data-i18n="role_medio">Medio</div>
+                <div class="tab" data-role="Merodeo" data-i18n="role_merodeo">Merod.</div>
+                <div class="tab" data-role="Farmeo" data-i18n="role_farmeo">Farmeo</div>
               </div>
               <div class="search-box">
-                <input type="text" id="drawerSearch" placeholder="Buscar héroe...">
+                <input type="text" id="drawerSearch" data-i18n-placeholder="search_placeholder" placeholder="Buscar héroe...">
               </div>
             </div>
           </div>
@@ -1035,9 +1051,92 @@ document.getElementById('map-file-input').addEventListener('change', (e) => {
     document.getElementById('mapBg').src = ev.target.result;
   };
   reader.readAsDataURL(file);
-  e.target.value = ''; // reset para permitir cargar la misma imagen otra vez
+  e.target.value = '';
 });
 
 </script>
+
+<script>
+const i18n = {
+  es: {
+    nav_general: 'General', nav_stats: 'Estadísticas', nav_counters: 'Counters',
+    nav_planner: 'Planner', nav_draft: 'Draft', nav_about: 'Acerca de',
+    lbl_tools: 'Herr.', lbl_hist: 'Hist.', lbl_aura: 'Bdo.', lbl_stroke: 'Trz.',
+    tip_move: 'Mover héroe', tip_pan: 'Mover mapa', tip_draw: 'Dibujar trayectoria',
+    tip_arrow: 'Trazar flecha', tip_eraser: 'Borrar elemento',
+    tip_undo: 'Deshacer', tip_redo: 'Rehacer',
+    tip_zoomout: 'Alejar', tip_zoomin: 'Acercar', tip_zoomreset: 'Restablecer vista',
+    tip_aura_none: 'Sin aura', tip_aura_blue: 'Azul', tip_aura_red: 'Rojo',
+    tip_yellow: 'Amarillo', tip_green: 'Verde',
+    tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_loadmap: 'Cargar mapa propio',
+    filter_label: 'Filtrar héroes',
+    role_all: 'Todo', role_choque: 'Choque', role_cazador: 'Caza',
+    role_medio: 'Medio', role_merodeo: 'Merod.', role_farmeo: 'Farmeo',
+    search_placeholder: 'Buscar héroe...'
+  },
+  en: {
+    nav_general: 'General', nav_stats: 'Statistics', nav_counters: 'Counters',
+    nav_planner: 'Planner', nav_draft: 'Draft', nav_about: 'About',
+    lbl_tools: 'Tools', lbl_hist: 'Hist.', lbl_aura: 'Aura', lbl_stroke: 'Stroke',
+    tip_move: 'Move hero', tip_pan: 'Pan map', tip_draw: 'Draw path',
+    tip_arrow: 'Draw arrow', tip_eraser: 'Erase element',
+    tip_undo: 'Undo', tip_redo: 'Redo',
+    tip_zoomout: 'Zoom out', tip_zoomin: 'Zoom in', tip_zoomreset: 'Reset view',
+    tip_aura_none: 'No aura', tip_aura_blue: 'Blue', tip_aura_red: 'Red',
+    tip_yellow: 'Yellow', tip_green: 'Green',
+    tip_save: 'Save PNG', tip_reset: 'Reset all', tip_loadmap: 'Load custom map',
+    filter_label: 'Filter heroes',
+    role_all: 'All', role_choque: 'Fighter', role_cazador: 'Jungle',
+    role_medio: 'Mid', role_merodeo: 'Roam', role_farmeo: 'Farmer',
+    search_placeholder: 'Search hero...'
+  },
+  pt: {
+    nav_general: 'Geral', nav_stats: 'Estatísticas', nav_counters: 'Counters',
+    nav_planner: 'Planner', nav_draft: 'Draft', nav_about: 'Sobre',
+    lbl_tools: 'Ferr.', lbl_hist: 'Hist.', lbl_aura: 'Aura', lbl_stroke: 'Traço',
+    tip_move: 'Mover herói', tip_pan: 'Mover mapa', tip_draw: 'Desenhar trajeto',
+    tip_arrow: 'Traçar seta', tip_eraser: 'Apagar elemento',
+    tip_undo: 'Desfazer', tip_redo: 'Refazer',
+    tip_zoomout: 'Afastar', tip_zoomin: 'Aproximar', tip_zoomreset: 'Restaurar vista',
+    tip_aura_none: 'Sem aura', tip_aura_blue: 'Azul', tip_aura_red: 'Vermelho',
+    tip_yellow: 'Amarelo', tip_green: 'Verde',
+    tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_loadmap: 'Carregar mapa próprio',
+    filter_label: 'Filtrar heróis',
+    role_all: 'Tudo', role_choque: 'Lutador', role_cazador: 'Caçador',
+    role_medio: 'Meio', role_merodeo: 'Suporte', role_farmeo: 'Carry',
+    search_placeholder: 'Buscar herói...'
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('hokstats_lang', lang);
+  applyLang(lang);
+}
+
+function applyLang(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key] !== undefined) el.placeholder = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+    const key = el.getAttribute('data-i18n-tip');
+    if (dict[key] !== undefined) el.setAttribute('data-tip', dict[key]);
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
+  });
+  document.documentElement.lang = lang;
+}
+
+const savedLang = localStorage.getItem('hokstats_lang') || 'es';
+applyLang(savedLang);
+</script>
+
 </body>
 </html>
