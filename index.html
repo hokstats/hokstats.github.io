@@ -233,19 +233,45 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #5a5a6b;
 }
+
+/* 🌐 SELECTOR DE IDIOMA */
+.lang-selector {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-right: 8px;
+}
+.lang-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.45;
+  color: white;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.lang-btn:hover { opacity: 0.85; }
+.lang-btn.active { opacity: 1; border-color: #444452; }
 </style>
-</head>
 <body>
 <div class="container">
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
     <div class="view-tabs">
-      <a href="index.html" class="view-tab active">General</a>
-      <a href="stats.html" class="view-tab">Estadísticas</a>
-      <a href="counter.html" class="view-tab">Counters</a>
-      <a href="planner.html" class="view-tab">Planner</a>
-      <a href="draft.html" class="view-tab">Draft</a>
-      <a href="acerca.html" class="view-tab">Acerca de</a>
+      <div class="lang-selector">
+        <button class="lang-btn active" onclick="setLang('es')" title="Español">🇪🇸</button>
+        <button class="lang-btn" onclick="setLang('pt')" title="Português">🇧🇷</button>
+        <button class="lang-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+      </div>
+      <a href="index.html" class="view-tab active" data-i18n="nav_general">General</a>
+      <a href="stats.html" class="view-tab" data-i18n="nav_stats">Estadísticas</a>
+      <a href="counter.html" class="view-tab" data-i18n="nav_counters">Counters</a>
+      <a href="planner.html" class="view-tab" data-i18n="nav_planner">Planner</a>
+      <a href="draft.html" class="view-tab" data-i18n="nav_draft">Draft</a>
+      <a href="acerca.html" class="view-tab" data-i18n="nav_about">Acerca de</a>
     </div>
   </div>
 
@@ -255,7 +281,7 @@ body {
       <div class="welcome-header">
         <div class="welcome-title">HoKstats</div>
         <div class="welcome-divider"></div>
-        <div class="welcome-subtitle">Plataforma analítica avanzada y herramientas estratégicas optimizadas para el metajuego competitivo de Honor of Kings.</div>
+        <div class="welcome-subtitle" data-i18n="welcome_subtitle">Plataforma analítica avanzada y herramientas estratégicas optimizadas para el metajuego competitivo de Honor of Kings.</div>
       </div>
 
       <div class="hub-grid">
@@ -284,10 +310,10 @@ body {
           </div>
           <div class="card-info">
             <div class="card-title-row">
-              <div class="card-title">Estadísticas del meta</div>
-              <div class="card-badge badge-data">Data</div>
+              <div class="card-title" data-i18n="card_stats_title">Estadísticas del meta</div>
+              <div class="card-badge badge-data" data-i18n="badge_data">Data</div>
             </div>
-            <div class="card-desc">Monitoreo dinámico de win rates, pick rates y rendimiento segmentado por fases de juego.</div>
+            <div class="card-desc" data-i18n="card_stats_desc">Monitoreo dinámico de win rates, pick rates y rendimiento segmentado por fases de juego.</div>
           </div>
         </a>
 
@@ -312,10 +338,10 @@ body {
           </div>
           <div class="card-info">
             <div class="card-title-row">
-              <div class="card-title">Counters uni y bidireccionales</div>
-              <div class="card-badge badge-versus">Versus</div>
+              <div class="card-title" data-i18n="card_counters_title">Counters uni y bidireccionales</div>
+              <div class="card-badge badge-versus" data-i18n="badge_versus">Versus</div>
             </div>
-            <div class="card-desc">Análisis avanzado de enfrentamientos directos, sinergias de equipo y escaneo inverso bidireccional.</div>
+            <div class="card-desc" data-i18n="card_counters_desc">Análisis avanzado de enfrentamientos directos, sinergias de equipo y escaneo inverso bidireccional.</div>
           </div>
         </a>
 
@@ -342,10 +368,10 @@ body {
           </div>
           <div class="card-info">
             <div class="card-title-row">
-              <div class="card-title">Tactical map planner</div>
-              <div class="card-badge badge-tactica">Táctica</div>
+              <div class="card-title" data-i18n="card_planner_title">Tactical map planner</div>
+              <div class="card-badge badge-tactica" data-i18n="badge_tactica">Táctica</div>
             </div>
-            <div class="card-desc">Pizarra táctica interactiva sobre el mapa del Desfiladero del Héroe para trazar rutas de rotación y objetivos.</div>
+            <div class="card-desc" data-i18n="card_planner_desc">Pizarra táctica interactiva sobre el mapa del Desfiladero del Héroe para trazar rutas de rotación y objetivos.</div>
           </div>
         </a>
 
@@ -374,10 +400,10 @@ body {
           </div>
           <div class="card-info">
             <div class="card-title-row">
-              <div class="card-title">Simulador de draft</div>
-              <div class="card-badge badge-draft">Pick & Ban</div>
+              <div class="card-title" data-i18n="card_draft_title">Simulador de draft</div>
+              <div class="card-badge badge-draft" data-i18n="badge_draft">Pick & Ban</div>
             </div>
-            <div class="card-desc">Simulación de fase competitiva con detección automática de roles y sugerencias algorítmicas de contra-selección.</div>
+            <div class="card-desc" data-i18n="card_draft_desc">Simulación de fase competitiva con detección automática de roles y sugerencias algorítmicas de contra-selección.</div>
           </div>
         </a>
 
@@ -385,10 +411,109 @@ body {
     </div>
   </div>
 
-  <div class="disclaimer">
+  <div class="disclaimer" data-i18n="disclaimer">
     HoKstats es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con Honor of Kings, Tencent Games, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad.
   </div>
 
 </div>
+
+<script>
+const i18n = {
+  es: {
+    nav_general:        'General',
+    nav_stats:          'Estadísticas',
+    nav_counters:       'Counters',
+    nav_planner:        'Planner',
+    nav_draft:          'Draft',
+    nav_about:          'Acerca de',
+    welcome_subtitle:   'Plataforma analítica avanzada y herramientas estratégicas optimizadas para el metajuego competitivo de Honor of Kings.',
+    card_stats_title:   'Estadísticas del meta',
+    badge_data:         'Data',
+    card_stats_desc:    'Monitoreo dinámico de win rates, pick rates y rendimiento segmentado por fases de juego.',
+    card_counters_title:'Counters uni y bidireccionales',
+    badge_versus:       'Versus',
+    card_counters_desc: 'Análisis avanzado de enfrentamientos directos, sinergias de equipo y escaneo inverso bidireccional.',
+    card_planner_title: 'Tactical map planner',
+    badge_tactica:      'Táctica',
+    card_planner_desc:  'Pizarra táctica interactiva sobre el mapa del Desfiladero del Héroe para trazar rutas de rotación y objetivos.',
+    card_draft_title:   'Simulador de draft',
+    badge_draft:        'Pick & Ban',
+    card_draft_desc:    'Simulación de fase competitiva con detección automática de roles y sugerencias algorítmicas de contra-selección.',
+    disclaimer:         'HoKstats es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con Honor of Kings, Tencent Games, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad.'
+  },
+  en: {
+    nav_general:        'General',
+    nav_stats:          'Statistics',
+    nav_counters:       'Counters',
+    nav_planner:        'Planner',
+    nav_draft:          'Draft',
+    nav_about:          'About',
+    welcome_subtitle:   'Advanced analytics platform and strategic tools optimized for the Honor of Kings competitive meta.',
+    card_stats_title:   'Meta statistics',
+    badge_data:         'Data',
+    card_stats_desc:    'Dynamic tracking of win rates, pick rates and performance segmented by game phases.',
+    card_counters_title:'Uni and bidirectional counters',
+    badge_versus:       'Versus',
+    card_counters_desc: 'Advanced analysis of direct matchups, team synergies and bidirectional reverse scanning.',
+    card_planner_title: 'Tactical map planner',
+    badge_tactica:      'Tactics',
+    card_planner_desc:  'Interactive tactical board on the Hero Rift map to plan rotation routes and objectives.',
+    card_draft_title:   'Draft simulator',
+    badge_draft:        'Pick & Ban',
+    card_draft_desc:    'Competitive phase simulation with automatic role detection and algorithmic counter-pick suggestions.',
+    disclaimer:         'HoKstats is a personal project, strictly informational and non-profit. This platform has no relation, affiliation, sponsorship or official connection with Honor of Kings, Tencent Games, or any of its subsidiaries. The development, maintenance and data analysis on this site are carried out independently and professionally with the sole purpose of supporting the community.'
+  },
+  pt: {
+    nav_general:        'Geral',
+    nav_stats:          'Estatísticas',
+    nav_counters:       'Counters',
+    nav_planner:        'Planner',
+    nav_draft:          'Draft',
+    nav_about:          'Sobre',
+    welcome_subtitle:   'Plataforma analítica avançada e ferramentas estratégicas otimizadas para o meta competitivo de Honor of Kings.',
+    card_stats_title:   'Estatísticas do meta',
+    badge_data:         'Data',
+    card_stats_desc:    'Monitoramento dinâmico de win rates, pick rates e desempenho segmentado por fases do jogo.',
+    card_counters_title:'Counters uni e bidirecionais',
+    badge_versus:       'Versus',
+    card_counters_desc: 'Análise avançada de confrontos diretos, sinergias de equipe e varredura inversa bidirecional.',
+    card_planner_title: 'Planejador tático de mapa',
+    badge_tactica:      'Tática',
+    card_planner_desc:  'Quadro tático interativo no mapa do Desfiladeiro do Herói para traçar rotas de rotação e objetivos.',
+    card_draft_title:   'Simulador de draft',
+    badge_draft:        'Pick & Ban',
+    card_draft_desc:    'Simulação de fase competitiva com detecção automática de funções e sugestões algorítmicas de contra-seleção.',
+    disclaimer:         'HoKstats é um projeto pessoal, de caráter estritamente informativo e sem fins lucrativos. Esta plataforma não possui relação, afiliação, patrocínio ou vinculação oficial com Honor of Kings, Tencent Games, nem nenhuma de suas subsidiárias. O desenvolvimento, manutenção e análise de dados expostos neste site são realizados de forma independente e profissional com o único objetivo de apoiar a comunidade.'
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('hokstats_lang', lang);
+  applyLang(lang);
+}
+
+function applyLang(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+
+  // Actualizar textos
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+
+  // Actualizar botones activos
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
+  });
+
+  // Actualizar lang del html
+  document.documentElement.lang = lang;
+}
+
+// Al cargar, aplicar idioma guardado o español por defecto
+const savedLang = localStorage.getItem('hokstats_lang') || 'es';
+applyLang(savedLang);
+</script>
 </body>
 </html>
