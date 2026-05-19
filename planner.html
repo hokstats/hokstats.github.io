@@ -511,6 +511,8 @@ body {
         <!-- Acciones -->
         <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG">💾</button>
         <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo">🔄</button>
+        <button class="btn-tool-labeled" id="load-map" data-tip="Cargar mapa propio" style="border-color:#a855f7; color:#c084fc;">🖼️</button>
+        <input type="file" id="map-file-input" accept="image/*" style="display:none;">
 
       </div>
 
@@ -1018,6 +1020,22 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
 
 // Centrar mapa al inicio
 window.addEventListener('load', () => { applyTransform(); });
+
+// ── CARGAR MAPA PROPIO ──
+document.getElementById('load-map').addEventListener('click', () => {
+  document.getElementById('map-file-input').click();
+});
+
+document.getElementById('map-file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('mapBg').src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = ''; // reset para permitir cargar la misma imagen otra vez
+});
 
 </script>
 </body>
