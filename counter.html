@@ -169,43 +169,36 @@ body {
 /* TARJETA COMPACTA */
 .hero-compact-card {
   background: #24242b;
-  border: 1px solid #444452;
+  border: 1px solid #3a3a46;
   border-radius: 6px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   cursor: pointer;
   box-sizing: border-box;
   overflow: hidden;
-  min-height: 70px;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 .hero-compact-card:hover {
   border-color: #4f6edb;
   background: #292932;
 }
 
-.card-left-block {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  flex: 1;
-}
-
 .card-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 4px;
+  width: 48px;
+  height: 48px;
+  border-radius: 5px;
   object-fit: cover;
   border: 1px solid #444452;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .card-meta-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
   min-width: 0;
   flex: 1;
 }
@@ -213,56 +206,75 @@ body {
 .card-hero-name {
   color: white;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.3px;
 }
 
 .card-relations-zone {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  flex: 1;
-  margin-top: 2px;
+  gap: 5px;
 }
 
 .card-relation-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 7px;
 }
 
 .card-relation-label {
   font-size: 9px;
   font-weight: bold;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  width: 14px;
   flex-shrink: 0;
+  width: 48px;
   line-height: 1;
+  opacity: 0.85;
 }
 
-.rel-strong-label { color: #f97316; }
-.rel-weak-label   { color: #a855f7; }
-.rel-syn-label    { color: #22c55e; }
+.rel-strong-label { color: #fb923c; }
+.rel-weak-label   { color: #c084fc; }
+.rel-syn-label    { color: #4ade80; }
+
+.card-relation-divider {
+  width: 1px;
+  height: 14px;
+  background: #36363f;
+  flex-shrink: 0;
+}
 
 .card-relation-dots {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   flex-wrap: nowrap;
   align-items: center;
 }
 
 .rel-dot {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
   background: #1c1c1f;
+  transition: transform 0.15s ease;
+}
+.rel-dot:hover { transform: scale(1.15); }
+
+.rel-dot-strong { border: 1.5px solid rgba(249,115,22,0.5); }
+.rel-dot-weak   { border: 1.5px solid rgba(168,85,247,0.5); }
+.rel-dot-syn    { border: 1.5px solid rgba(34,197,94,0.5);  }
+
+.rel-dot-placeholder {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #1e1e25;
+  border: 1.5px dashed #2e2e38;
+  flex-shrink: 0;
 }
 
 .rel-dot-empty {
@@ -272,7 +284,7 @@ body {
   line-height: 1;
 }
 
-/* CONTENEDOR DE TIER - eliminado, ahora se muestra en la vista de detalle */
+/* CONTENEDOR DE TIER - eliminado */
 
 /* 🎚️ INTERFAZ DE DETALLE SEGURO */
 .detail-view-container {
@@ -602,21 +614,29 @@ function cargarBaseDatos() {
   });
 }
 
-function buildRelationRow(nameList, labelClass, symbol) {
-  // Toma hasta 5 héroes, busca su imagen en heroesData
+function buildRelationRow(nameList, labelClass, labelText, dotClass) {
   const maxDots = 5;
   const slice = nameList.slice(0, maxDots);
+  if (slice.length === 0) {
+    return `
+      <div class="card-relation-row">
+        <span class="card-relation-label ${labelClass}">${labelText}</span>
+        <div class="card-relation-divider"></div>
+        <span class="rel-dot-empty">—</span>
+      </div>`;
+  }
   const dots = slice.map(name => {
     const found = heroesData.find(h => h.nombre.toLowerCase() === name.toLowerCase());
     if (found && found.imagen) {
-      return `<img class="rel-dot" src="${found.imagen}" title="${found.nombre}">`;
+      return `<img class="rel-dot ${dotClass}" src="${found.imagen}" title="${found.nombre}">`;
     }
-    return `<div class="rel-dot" title="${name}"></div>`;
+    return `<div class="rel-dot-placeholder"></div>`;
   }).join('');
 
   return `
     <div class="card-relation-row">
-      <span class="card-relation-label ${labelClass}">${symbol}</span>
+      <span class="card-relation-label ${labelClass}">${labelText}</span>
+      <div class="card-relation-divider"></div>
       <div class="card-relation-dots">${dots}</div>
     </div>`;
 }
@@ -634,15 +654,13 @@ function renderCatalogo() {
     const card = document.createElement('div');
     card.className = 'hero-compact-card';
     card.innerHTML = `
-      <div class="card-left-block">
-        <img src="${hero.imagen}" class="card-avatar">
-        <div class="card-meta-info">
-          <div class="card-hero-name">${hero.nombre}</div>
-          <div class="card-relations-zone">
-            ${buildRelationRow(hero.fuerteContra, 'rel-strong-label', '▲')}
-            ${buildRelationRow(hero.debilContra,   'rel-weak-label',   '▼')}
-            ${hero.sinergiaCon.length > 0 ? buildRelationRow(hero.sinergiaCon, 'rel-syn-label', '✦') : ''}
-          </div>
+      <img src="${hero.imagen}" class="card-avatar">
+      <div class="card-meta-info">
+        <div class="card-hero-name">${hero.nombre}</div>
+        <div class="card-relations-zone">
+          ${buildRelationRow(hero.fuerteContra, 'rel-strong-label', 'Fuerte', 'rel-dot-strong')}
+          ${buildRelationRow(hero.debilContra,   'rel-weak-label',   'Débil',  'rel-dot-weak')}
+          ${hero.sinergiaCon.length > 0 ? buildRelationRow(hero.sinergiaCon, 'rel-syn-label', 'Sinergia', 'rel-dot-syn') : ''}
         </div>
       </div>
     `;
