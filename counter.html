@@ -178,11 +178,33 @@ body {
   cursor: pointer;
   box-sizing: border-box;
   overflow: hidden;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease;
+  position: relative;
 }
 .hero-compact-card:hover {
   border-color: #4f6edb;
-  background: #292932;
+}
+
+/* Imagen de fondo desaturada y oscurecida */
+.card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  filter: saturate(0.4) brightness(0.28);
+  z-index: 0;
+  transition: filter 0.2s ease;
+}
+.hero-compact-card:hover .card-bg {
+  filter: saturate(0.5) brightness(0.32);
+}
+
+/* Gradiente oscuro encima de la imagen: más opaco a la izquierda, se abre a la derecha */
+.card-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(20,20,26,0.82) 0%, rgba(20,20,26,0.55) 55%, rgba(20,20,26,0.25) 100%);
+  z-index: 1;
 }
 
 .card-avatar {
@@ -190,9 +212,11 @@ body {
   height: 48px;
   border-radius: 5px;
   object-fit: cover;
-  border: 1px solid #444452;
+  border: 1px solid rgba(255,255,255,0.12);
   flex-shrink: 0;
   align-self: center;
+  position: relative;
+  z-index: 2;
 }
 
 .card-meta-info {
@@ -201,6 +225,8 @@ body {
   gap: 6px;
   min-width: 0;
   flex: 1;
+  position: relative;
+  z-index: 2;
 }
 
 .card-hero-name {
@@ -223,16 +249,18 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
+  white-space: nowrap;
 }
 
 .card-relation-label {
   font-size: 9px;
   font-weight: bold;
-  letter-spacing: 0.7px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   flex-shrink: 0;
-  width: 52px;
+  white-space: nowrap;
   line-height: 1;
+  width: 56px;
 }
 
 .rel-strong-label { color: #fb923c; }
@@ -242,7 +270,7 @@ body {
 .card-relation-divider {
   width: 1px;
   height: 14px;
-  background: #36363f;
+  background: rgba(255,255,255,0.1);
   flex-shrink: 0;
 }
 
@@ -251,6 +279,7 @@ body {
   gap: 4px;
   flex-wrap: nowrap;
   align-items: center;
+  overflow: hidden;
 }
 
 .rel-dot {
@@ -668,6 +697,8 @@ function renderCatalogo() {
     const card = document.createElement('div');
     card.className = 'hero-compact-card';
     card.innerHTML = `
+      <div class="card-bg" style="background-image: url('${hero.imagen}')"></div>
+      <div class="card-bg-overlay"></div>
       <img src="${hero.imagen}" class="card-avatar">
       <div class="card-meta-info">
         <div class="card-hero-name">${hero.nombre}</div>
