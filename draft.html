@@ -925,7 +925,9 @@ function updateRecommendations() {
     enemies.forEach(enemy => {
       const enemigoNombre = enemy.nombre.toLowerCase();
 
-      // CAJA NARANJA: héroes fuertes vs rival (uni o bidireccional)
+      // CAJA NARANJA: héroes fuertes vs rival
+      // Dato PROPIO del héroe: él dice ser fuerte vs enemigo (modo normal)
+      // Dato CRUZADO: el enemigo dice ser débil ante este héroe (modo cruzado)
       let esCounter = false;
       if (hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
       if (useCrossModel && enemy.debilContra.includes(miNombre)) esCounter = true;
@@ -940,7 +942,9 @@ function updateRecommendations() {
     allies.forEach(allied => {
       const aliadoNombre = allied.nombre.toLowerCase();
       let tieneSinergia = false;
+      // Dato PROPIO del héroe del pool: él dice tener sinergia con el aliado (modo normal)
       if (hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
+      // Dato CRUZADO: el aliado dice tener sinergia con este héroe (modo cruzado)
       if (useCrossModel && allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
       if (tieneSinergia) {
         synergiesGrouped[allied.nombre].list.push(hero);
@@ -956,12 +960,12 @@ function updateRecommendations() {
     pool.forEach(hero => {
       const miNombre = hero.nombre.toLowerCase();
 
-      // El enemigo es fuerte contra este héroe (aparece en su fuerteContra)
-      // O este héroe tiene al enemigo en su debilContra — ambas direcciones
+      // El enemigo es fuerte contra este héroe (aparece en su fuerteContra) — dato del ENEMIGO (cruzado)
       const enemyEsFuerteVsHero = enemy.fuerteContra.includes(miNombre);
+      // Este héroe dice en sus propios datos que es débil ante el enemigo — dato PROPIO del héroe (normal)
       const heroEsDebilVsEnemy = hero.debilContra.includes(enemigoNombre);
 
-      if (enemyEsFuerteVsHero || (useCrossModel && heroEsDebilVsEnemy)) {
+      if (heroEsDebilVsEnemy || (useCrossModel && enemyEsFuerteVsHero)) {
         weaknessesGrouped[enemy.nombre].list.push(hero);
       }
     });
