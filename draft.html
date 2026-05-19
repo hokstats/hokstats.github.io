@@ -418,6 +418,59 @@ table.main-layout {
 ::-webkit-scrollbar-thumb:hover {
   background: #5a5a6b;
 }
+
+/* 🔀 TOGGLE MODELO CRUZADO */
+.cross-model-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  color: #a0a0b5;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.cross-model-toggle:hover {
+  border-color: #a855f7;
+  color: #c084fc;
+}
+.cross-model-toggle.active {
+  border-color: #a855f7;
+  color: #c084fc;
+  background: #1e1229;
+}
+.toggle-pill {
+  width: 30px;
+  height: 16px;
+  background: #444452;
+  border-radius: 8px;
+  position: relative;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+.toggle-pill::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: #a0a0b5;
+  border-radius: 50%;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.cross-model-toggle.active .toggle-pill {
+  background: #7c3aed;
+}
+.cross-model-toggle.active .toggle-pill::after {
+  transform: translateX(14px);
+  background: #c084fc;
+}
 </style>
 </head>
 <body>
@@ -508,6 +561,10 @@ table.main-layout {
           <button type="button" class="btn-refresh-heroes" id="refresh-heroes-action">🔄 Actualizar héroes en caso de que no se muestren</button>
           <button class="view-tab" id="undo-action" style="border-color:#eab308; color:#facc15; border-radius:4px; font-weight:bold;">↩️ Deshacer Último Cambio</button>
           <button class="view-tab" id="reset-draft" style="border-color:#ef4444; color:#f87171; border-radius:4px;">🔄 Cambiar de Bando / Reset</button>
+          <div class="cross-model-toggle active" id="cross-model-btn" onclick="toggleCrossModel()" title="Modelo cruzado: detecta relaciones aunque solo estén registradas en uno de los dos héroes">
+            <div class="toggle-pill"></div>
+            <span id="cross-model-label">Modelo Cruzado</span>
+          </div>
         </div>
 
         <div class="drawer-section" id="drawer-box">
@@ -565,6 +622,7 @@ let DRAFT_SEQUENCE = [];
 let currentStepIndex = 0;
 let currentRole = 'all';
 let currentSearch = '';
+let useCrossModel = true; // Por defecto: modelo cruzado activo
 
 function ejecutarParseCSV() {
   heroesData = []; 
@@ -870,7 +928,7 @@ function updateRecommendations() {
       // CAJA NARANJA: héroes fuertes vs rival (uni o bidireccional)
       let esCounter = false;
       if (hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
-      if (enemy.debilContra.includes(miNombre)) esCounter = true;
+      if (useCrossModel && enemy.debilContra.includes(miNombre)) esCounter = true;
       if (esCounter) {
         countersGrouped[enemy.nombre].list.push(hero);
       }
@@ -883,7 +941,7 @@ function updateRecommendations() {
       const aliadoNombre = allied.nombre.toLowerCase();
       let tieneSinergia = false;
       if (hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
-      if (allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
+      if (useCrossModel && allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
       if (tieneSinergia) {
         synergiesGrouped[allied.nombre].list.push(hero);
       }
@@ -903,7 +961,7 @@ function updateRecommendations() {
       const enemyEsFuerteVsHero = enemy.fuerteContra.includes(miNombre);
       const heroEsDebilVsEnemy = hero.debilContra.includes(enemigoNombre);
 
-      if (enemyEsFuerteVsHero || heroEsDebilVsEnemy) {
+      if (enemyEsFuerteVsHero || (useCrossModel && heroEsDebilVsEnemy)) {
         weaknessesGrouped[enemy.nombre].list.push(hero);
       }
     });
@@ -1051,6 +1109,20 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
 });
 
 document.getElementById('undo-action').addEventListener('click', undoLastAction);
+
+function toggleCrossModel() {
+  useCrossModel = !useCrossModel;
+  const btn = document.getElementById('cross-model-btn');
+  const label = document.getElementById('cross-model-label');
+  if (useCrossModel) {
+    btn.classList.add('active');
+    label.textContent = 'Modelo Cruzado';
+  } else {
+    btn.classList.remove('active');
+    label.textContent = 'Modelo Normal';
+  }
+  updateRecommendations();
+}
 
 document.getElementById('reset-draft').addEventListener('click', () => {
   document.getElementById('setup-box').style.display = 'block';
