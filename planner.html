@@ -320,24 +320,18 @@ body {
   border: 1px solid #444452;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  overflow: auto;
+  overflow: hidden;
   flex-shrink: 0;
   cursor: default;
 }
 
-/* Scrollbar del mapa */
-.map-viewport::-webkit-scrollbar { width: 8px; height: 8px; }
-.map-viewport::-webkit-scrollbar-track { background: #1a1a20; }
-.map-viewport::-webkit-scrollbar-thumb { background: #444452; border-radius: 4px; }
-.map-viewport::-webkit-scrollbar-corner { background: #1a1a20; }
-
-/* Contenedor interno que escala — todo va aquí adentro */
+/* Contenedor interno que escala y se mueve — todo va aquí adentro */
 .map-inner {
-  position: relative;
+  position: absolute;
+  top: 0; left: 0;
   width: 700px;
   height: 700px;
   transform-origin: top left;
-  flex-shrink: 0;
 }
 
 .map-background {
@@ -345,15 +339,6 @@ body {
   top: 0; left: 0;
   width: 700px;
   height: 700px;
-  display: block;
-  pointer-events: none;
-  object-fit: cover;
-}
-
-.map-background {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
   display: block;
   pointer-events: none;
   object-fit: cover;
@@ -656,27 +641,17 @@ function handleHeroClickOrDrag(e, element) {
   if (currentTool !== 'move') return;
   e.preventDefault();
   
-  const rect = mapZone.getBoundingClientRect();
-  const initialX = element.style.left;
-  const initialY = element.style.top;
-  let hasMoved = false;
-  
   function moveHandler(evt) {
     hasMoved = true;
-    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-    
-    let x = (clientX - rect.left + mapZone.scrollLeft);
-    let y = (clientY - rect.top  + mapZone.scrollTop);
-    
-    const maxSize = MAP_BASE * mapZoom;
-    if(x < 0 || x > maxSize || y < 0 || y > maxSize) {
+    const coords = getLocalCoords(evt);
+    const x = coords.x;
+    const y = coords.y;
+    if(x < 0 || x > MAP_BASE || y < 0 || y > MAP_BASE) {
       saveState('delete', element, { parent: document.getElementById('mapInner') });
       element.remove();
       endHandler();
       return;
     }
-    
     element.style.left = `${x}px`;
     element.style.top = `${y}px`;
   }
@@ -698,49 +673,102 @@ function handleHeroClickOrDrag(e, element) {
   window.addEventListener('touchend', endHandler);
 }
 
+// ── ZOOM Y PAN CON TRANSFORM (sin scroll) ──
+let mapZoom  = 1;
+let panX     = 0;
+let panY     = 0;
+const ZOOM_STEP = 0.15;
+const ZOOM_MIN  = 0.4;
+const ZOOM_MAX  = 3.0;
+
+function applyTransform() {
+  const inner = document.getElementById('mapInner');
+  const vw = mapZone.clientWidth;
+  const vh = mapZone.clientHeight;
+  const scaledW = MAP_BASE * mapZoom;
+  const scaledH = MAP_BASE * mapZoom;
+  // Clamp: el mapa nunca se sale del viewport
+  if (scaledW >= vw) panX = Math.min(0, Math.max(panX, vw - scaledW));
+  else panX = (vw - scaledW) / 2;
+  if (scaledH >= vh) panY = Math.min(0, Math.max(panY, vh - scaledH));
+  else panY = (vh - scaledH) / 2;
+  inner.style.transform = `translate(${panX}px, ${panY}px) scale(${mapZoom})`;
+}
+
+function zoomAtPoint(delta, mouseX, mouseY) {
+  const prev = mapZoom;
+  if (delta > 0) mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2));
+  else           mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2));
+  if (mapZoom === prev) return;
+  const ratio = mapZoom / prev;
+  panX = mouseX - ratio * (mouseX - panX);
+  panY = mouseY - ratio * (mouseY - panY);
+  applyTransform();
+}
+
 function getLocalCoords(e) {
   const rect = mapZone.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return {
-    x: (clientX - rect.left + mapZone.scrollLeft),
-    y: (clientY - rect.top  + mapZone.scrollTop)
+    x: (clientX - rect.left - panX) / mapZoom,
+    y: (clientY - rect.top  - panY) / mapZoom
   };
 }
 
-// ── PAN DEL MAPA ──
-let isPanning = false;
-let panStartX = 0, panStartY = 0;
-let panScrollLeft = 0, panScrollTop = 0;
+// PAN
+let isPanning  = false;
+let panStartX  = 0, panStartY  = 0;
+let panOriginX = 0, panOriginY = 0;
 
 mapZone.addEventListener('mousedown', (e) => {
   if (currentTool === 'pan') {
-    isPanning = true;
-    panStartX = e.clientX;
-    panStartY = e.clientY;
-    panScrollLeft = mapZone.scrollLeft;
-    panScrollTop  = mapZone.scrollTop;
+    isPanning  = true;
+    panStartX  = e.clientX;
+    panStartY  = e.clientY;
+    panOriginX = panX;
+    panOriginY = panY;
     mapZone.classList.add('panning');
     e.preventDefault();
+    return;
   }
   handleStartContainer(e);
 });
 
+mapZone.addEventListener('touchstart', (e) => { handleStartContainer(e); }, {passive: false});
+
 window.addEventListener('mousemove', (e) => {
   if (isPanning) {
-    mapZone.scrollLeft = panScrollLeft - (e.clientX - panStartX);
-    mapZone.scrollTop  = panScrollTop  - (e.clientY - panStartY);
+    panX = panOriginX + (e.clientX - panStartX);
+    panY = panOriginY + (e.clientY - panStartY);
+    applyTransform();
+    return;
   }
   handleMoveContainer(e);
 });
 
 window.addEventListener('mouseup', () => {
-  if (isPanning) {
-    isPanning = false;
-    mapZone.classList.remove('panning');
-  }
+  if (isPanning) { isPanning = false; mapZone.classList.remove('panning'); return; }
   handleEndContainer();
 });
+
+window.addEventListener('touchmove',  (e) => { handleMoveContainer(e); }, {passive: false});
+window.addEventListener('touchend',   () =>  { handleEndContainer(); });
+
+document.getElementById('zoom-in').addEventListener('click', () => {
+  zoomAtPoint(1, mapZone.clientWidth / 2, mapZone.clientHeight / 2);
+});
+document.getElementById('zoom-out').addEventListener('click', () => {
+  zoomAtPoint(-1, mapZone.clientWidth / 2, mapZone.clientHeight / 2);
+});
+document.getElementById('zoom-reset').addEventListener('click', () => {
+  mapZoom = 1; panX = 0; panY = 0; applyTransform();
+});
+mapZone.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = mapZone.getBoundingClientRect();
+  zoomAtPoint(e.deltaY < 0 ? 1 : -1, e.clientX - rect.left, e.clientY - rect.top);
+}, { passive: false });
 
 function handleStartContainer(e) {
   if (currentTool === 'pan') return;
@@ -798,8 +826,8 @@ window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passiv
 function handleMoveContainer(e) {
   if (!isDrawing) return;
   const coords = getLocalCoords(e);
-  const currentX = Math.max(0, Math.min(MAP_BASE * mapZoom, coords.x));
-  const currentY = Math.max(0, Math.min(MAP_BASE * mapZoom, coords.y));
+  const currentX = Math.max(0, Math.min(MAP_BASE, coords.x));
+  const currentY = Math.max(0, Math.min(MAP_BASE, coords.y));
 
   if (currentTool === 'arrow' && activeArrowElement) {
     if (e.cancelable) e.preventDefault();
@@ -955,110 +983,6 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
   renderDrawer(currentRole, currentSearch);
 });
 
-// ── ZOOM DEL MAPA ──
-let mapZoom = 1;
-const ZOOM_STEP = 0.15;
-const ZOOM_MIN  = 0.4;
-const ZOOM_MAX  = 3.0;
-
-function applyZoom() {
-  const inner = document.getElementById('mapInner');
-  inner.style.width  = (MAP_BASE * mapZoom) + 'px';
-  inner.style.height = (MAP_BASE * mapZoom) + 'px';
-  inner.style.transform = `scale(1)`; // no scale, real size
-  // Actualizar SVG
-  svgLayer.style.width  = (MAP_BASE * mapZoom) + 'px';
-  svgLayer.style.height = (MAP_BASE * mapZoom) + 'px';
-  svgLayer.setAttribute('viewBox', `0 0 ${MAP_BASE * mapZoom} ${MAP_BASE * mapZoom}`);
-}
-
-function zoomAtPoint(delta, mouseX, mouseY) {
-  const zone = mapZone;
-  const prevZoom = mapZoom;
-  
-  if (delta > 0) {
-    mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2));
-  } else {
-    mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2));
-  }
-  if (mapZoom === prevZoom) return;
-
-  // Punto del mouse relativo al contenido antes del zoom
-  const scrollLeft = zone.scrollLeft;
-  const scrollTop  = zone.scrollTop;
-  const pointX = (scrollLeft + mouseX) / prevZoom;
-  const pointY = (scrollTop  + mouseY) / prevZoom;
-
-  // Reposicionar héroes y trazos al nuevo espacio
-  const ratio = mapZoom / prevZoom;
-  document.querySelectorAll('.placed-hero').forEach(hero => {
-    hero.style.left = (parseFloat(hero.style.left) * ratio) + 'px';
-    hero.style.top  = (parseFloat(hero.style.top)  * ratio) + 'px';
-  });
-  document.querySelectorAll('.vector-arrow').forEach(arrow => {
-    arrow.style.left = (parseFloat(arrow.style.left) * ratio) + 'px';
-    arrow.style.top  = (parseFloat(arrow.style.top)  * ratio) + 'px';
-    const w = parseFloat(arrow.style.width) || 0;
-    arrow.style.width = (w * ratio) + 'px';
-  });
-
-  // Resize inner
-  const inner = document.getElementById('mapInner');
-  const newW = MAP_BASE * mapZoom;
-  const newH = MAP_BASE * mapZoom;
-  inner.style.width  = newW + 'px';
-  inner.style.height = newH + 'px';
-  svgLayer.style.width  = newW + 'px';
-  svgLayer.style.height = newH + 'px';
-  svgLayer.setAttribute('viewBox', `0 0 ${newW} ${newH}`);
-
-  // Scroll para mantener el punto bajo el cursor
-  zone.scrollLeft = pointX * mapZoom - mouseX;
-  zone.scrollTop  = pointY * mapZoom - mouseY;
-}
-
-document.getElementById('zoom-in').addEventListener('click', () => {
-  const zone = mapZone;
-  zoomAtPoint(1, zone.clientWidth / 2, zone.clientHeight / 2);
-});
-
-document.getElementById('zoom-out').addEventListener('click', () => {
-  const zone = mapZone;
-  zoomAtPoint(-1, zone.clientWidth / 2, zone.clientHeight / 2);
-});
-
-document.getElementById('zoom-reset').addEventListener('click', () => {
-  const prevZoom = mapZoom;
-  mapZoom = 1;
-  const ratio = mapZoom / prevZoom;
-  document.querySelectorAll('.placed-hero').forEach(hero => {
-    hero.style.left = (parseFloat(hero.style.left) * ratio) + 'px';
-    hero.style.top  = (parseFloat(hero.style.top)  * ratio) + 'px';
-  });
-  document.querySelectorAll('.vector-arrow').forEach(arrow => {
-    arrow.style.left = (parseFloat(arrow.style.left) * ratio) + 'px';
-    arrow.style.top  = (parseFloat(arrow.style.top)  * ratio) + 'px';
-    const w = parseFloat(arrow.style.width) || 0;
-    arrow.style.width = (w * ratio) + 'px';
-  });
-  const inner = document.getElementById('mapInner');
-  inner.style.width  = MAP_BASE + 'px';
-  inner.style.height = MAP_BASE + 'px';
-  svgLayer.style.width  = MAP_BASE + 'px';
-  svgLayer.style.height = MAP_BASE + 'px';
-  svgLayer.setAttribute('viewBox', `0 0 ${MAP_BASE} ${MAP_BASE}`);
-  mapZone.scrollLeft = 0;
-  mapZone.scrollTop  = 0;
-});
-
-mapZone.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const rect = mapZone.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-  zoomAtPoint(e.deltaY < 0 ? 1 : -1, mouseX, mouseY);
-}, { passive: false });
 </script>
-
 </body>
 </html>
