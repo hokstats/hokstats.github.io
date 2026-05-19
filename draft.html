@@ -926,11 +926,11 @@ function updateRecommendations() {
       const enemigoNombre = enemy.nombre.toLowerCase();
 
       // CAJA NARANJA: héroes fuertes vs rival
-      // Dato PROPIO del héroe: él dice ser fuerte vs enemigo (modo normal)
-      // Dato CRUZADO: el enemigo dice ser débil ante este héroe (modo cruzado)
+      // Modo normal: el ENEMIGO en sus datos dice ser débil ante este héroe del pool
+      // Modo cruzado: además, el héroe del pool en sus datos dice ser fuerte vs el enemigo
       let esCounter = false;
-      if (hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
-      if (useCrossModel && enemy.debilContra.includes(miNombre)) esCounter = true;
+      if (enemy.debilContra.includes(miNombre)) esCounter = true;
+      if (useCrossModel && hero.fuerteContra.includes(enemigoNombre)) esCounter = true;
       if (esCounter) {
         countersGrouped[enemy.nombre].list.push(hero);
       }
@@ -942,10 +942,10 @@ function updateRecommendations() {
     allies.forEach(allied => {
       const aliadoNombre = allied.nombre.toLowerCase();
       let tieneSinergia = false;
-      // Dato PROPIO del héroe del pool: él dice tener sinergia con el aliado (modo normal)
-      if (hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
-      // Dato CRUZADO: el aliado dice tener sinergia con este héroe (modo cruzado)
-      if (useCrossModel && allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
+      // Modo normal: el ALIADO en sus datos dice tener sinergia con este héroe del pool
+      if (allied.sinergiaCon.includes(miNombre)) tieneSinergia = true;
+      // Modo cruzado: además, el héroe del pool en sus datos dice tener sinergia con el aliado
+      if (useCrossModel && hero.sinergiaCon.includes(aliadoNombre)) tieneSinergia = true;
       if (tieneSinergia) {
         synergiesGrouped[allied.nombre].list.push(hero);
       }
@@ -960,12 +960,13 @@ function updateRecommendations() {
     pool.forEach(hero => {
       const miNombre = hero.nombre.toLowerCase();
 
-      // El enemigo es fuerte contra este héroe (aparece en su fuerteContra) — dato del ENEMIGO (cruzado)
+      // CAJA VIOLETA: héroes del pool que son débiles ante el enemigo
+      // Modo normal: el ENEMIGO en sus datos dice ser fuerte ante este héroe del pool
+      // Modo cruzado: además, el héroe del pool en sus datos dice ser débil ante el enemigo
       const enemyEsFuerteVsHero = enemy.fuerteContra.includes(miNombre);
-      // Este héroe dice en sus propios datos que es débil ante el enemigo — dato PROPIO del héroe (normal)
       const heroEsDebilVsEnemy = hero.debilContra.includes(enemigoNombre);
 
-      if (heroEsDebilVsEnemy || (useCrossModel && enemyEsFuerteVsHero)) {
+      if (enemyEsFuerteVsHero || (useCrossModel && heroEsDebilVsEnemy)) {
         weaknessesGrouped[enemy.nombre].list.push(hero);
       }
     });
