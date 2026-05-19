@@ -166,284 +166,150 @@ body {
   gap: 10px;
 }
 
-/* TARJETA COMPACTA */
-.hero-compact-card {
-  background: #24242b;
-  border: 1px solid #3a3a46;
-  border-radius: 6px;
-  padding: 12px 14px;
+/* ═══ TABLA COUNTER — estilo idéntico a stats ═══ */
+.catalog-padding-zone {
+  padding-top: 0;
+}
+
+.counter-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.counter-table thead {
+  background: #282830;
+}
+
+.counter-table thead tr {
+  border-bottom: 1px solid #444452;
+  border-top: 1px solid #444452;
+}
+
+.counter-table thead th {
+  padding: 8px 4px;
+  font-size: 11px;
+  color: #b3b2bf;
+  font-weight: bold;
+  text-align: center;
+}
+
+.counter-table tbody tr {
+  background: #31313c;
+  border-top: 1px solid #444452;
+  border-bottom: 1px solid #444452;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.counter-table tbody tr:hover {
+  background: #3a3a46;
+}
+
+.counter-table tbody td {
+  padding: 6px 4px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Perímetro lateral */
+.counter-table tbody tr td:first-child,
+.counter-table thead tr th:first-child { border-left: 1px solid #444452; }
+.counter-table tbody tr td:last-child,
+.counter-table thead tr th:last-child  { border-right: 1px solid #444452; }
+
+/* Anchos de columna */
+.ct-pos  { width: 4%; }
+.ct-hero { width: 14%; text-align: left !important; }
+.ct-tier { width: 5%; }
+.ct-rol  { width: 9%; }
+.ct-rel  { width: 22.67%; }
+
+/* Celda héroe */
+.ct-champion {
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: border-color 0.2s ease;
-  position: relative;
+  gap: 10px;
+  padding-left: 8px;
+  color: white;
 }
-.hero-compact-card:hover {
-  border-color: #4f6edb;
-}
-
-/* Imagen de fondo estirada y desenfocada */
-.card-bg {
-  position: absolute;
-  inset: 0;
-  background-size: 100% 100%;
-  background-position: center;
-  filter: blur(18px) saturate(0.85) brightness(0.55);
-  z-index: 0;
-  transform: scale(1.15);
-  transition: filter 0.2s ease;
-}
-.hero-compact-card:hover .card-bg {
-  filter: blur(18px) saturate(1.1) brightness(0.65);
-}
-
-/* Capa oscura suave encima — solo para dar contraste al texto */
-.card-bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10, 10, 16, 0.38);
-  z-index: 1;
-}
-
-.card-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 5px;
-  object-fit: cover;
-  border: 1px solid rgba(255,255,255,0.12);
+.ct-champion img {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   flex-shrink: 0;
-  align-self: center;
-  position: relative;
-  z-index: 2;
+}
+.ct-champion span {
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card-meta-info {
+/* Pos */
+.ct-pos-val {
+  font-size: 11px;
+  color: #a0a0b5;
+}
+
+/* Tier badge — rombo idéntico a stats */
+.tier-badge {
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  transform: rotate(45deg);
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-  flex: 1;
-  position: relative;
-  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1c1c1f;
 }
-
-.card-hero-name {
+.tier-badge span {
+  transform: rotate(-45deg);
   color: white;
   font-weight: bold;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: 0.3px;
+  font-size: 11px;
 }
+.tier-S { background: #1c7ed6; }
+.tier-A { background: #099268; }
+.tier-B { background: #ff922b; }
+.tier-C { background: #868e96; }
 
-.card-relations-zone {
+/* Roles como imágenes — idéntico a stats */
+.ct-role-cell {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.card-relation-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-}
-
-.card-relation-label {
-  font-size: 9px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-  white-space: nowrap;
-  line-height: 1;
-  width: 56px;
-}
-
-.rel-strong-label { color: #fb923c; }
-.rel-weak-label   { color: #c084fc; }
-.rel-syn-label    { color: #4ade80; }
-
-.card-relation-divider {
-  width: 1px;
-  height: 14px;
-  background: rgba(255,255,255,0.1);
-  flex-shrink: 0;
-}
-
-.card-relation-dots {
-  display: flex;
-  gap: 4px;
-  flex-wrap: nowrap;
-  align-items: center;
-  overflow: hidden;
-}
-
-.rel-dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  object-fit: cover;
-  flex-shrink: 0;
-  transition: transform 0.15s ease, filter 0.15s ease;
-}
-.rel-dot:hover { transform: scale(1.12); filter: brightness(1.15); }
-
-/* TARJETA COMPACTA */
-.hero-compact-card {
-  background: #1e1e24;
-  border: 1px solid #3a3a46;
-  border-radius: 6px;
-  padding: 0;
-  display: flex;
-  align-items: stretch;
-  cursor: pointer;
-  box-sizing: border-box;
-  overflow: hidden;
-  transition: border-color 0.18s ease, background 0.18s ease;
-  position: relative;
-}
-.hero-compact-card:hover {
-  border-color: #4f6edb;
-  background: #222229;
-}
-.hero-compact-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 2px;
-  background: #4f6edb;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-  z-index: 5;
-}
-.hero-compact-card:hover::before { opacity: 1; }
-
-.card-avatar-block {
-  width: 54px;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.card-avatar {
-  width: 54px;
-  height: 100%;
-  min-height: 84px;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
-  border-right: 1px solid #2e2e3a;
-}
-
-.card-meta-info {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  min-width: 0;
-  flex: 1;
-  padding: 9px 11px;
-  gap: 0;
-}
-
-.card-header-row {
-  display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 5px;
+  height: 32px;
 }
-.card-hero-name {
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: 0.2px;
-  flex-shrink: 1;
-  min-width: 0;
-}
-.card-role-badge {
-  font-size: 8.5px;
-  font-weight: bold;
-  color: #6b6a7e;
-  background: #28282f;
-  border: 1px solid #36363f;
-  border-radius: 3px;
-  padding: 1px 5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.card-header-divider {
-  height: 1px;
-  background: #28282f;
-  margin-bottom: 6px;
-}
-
-.card-relations-zone {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.card-relation-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-.card-relation-label {
-  font-size: 8.5px;
-  font-weight: bold;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-  white-space: nowrap;
-  line-height: 1;
-  width: 54px;
-}
-.rel-strong-label { color: #fb923c; }
-.rel-weak-label   { color: #c084fc; }
-.rel-syn-label    { color: #4ade80; }
-
-.card-relation-divider {
-  width: 1px;
-  height: 12px;
-  background: #333340;
-  flex-shrink: 0;
-}
-.card-relation-dots {
-  display: flex;
-  gap: 3px;
-  flex-wrap: nowrap;
-  align-items: center;
-  overflow: hidden;
-}
-.rel-dot {
+.ct-role-cell img {
   width: 22px;
   height: 22px;
-  border-radius: 4px;
+  object-fit: contain;
+  opacity: 0.55;
+  filter: brightness(0.9);
+}
+
+/* Celdas de relaciones */
+.ct-rel-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+.ct-rel-cell img {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
   object-fit: cover;
-  flex-shrink: 0;
-  transition: transform 0.15s ease, filter 0.15s ease;
-  position: relative;
 }
-.rel-dot:hover { transform: scale(1.18); filter: brightness(1.2); z-index: 10; }
+.ct-rel-strong img { border: 1px solid rgba(249,115,22,0.5); }
+.ct-rel-weak   img { border: 1px solid rgba(168,85,247,0.5); }
+.ct-rel-syn    img { border: 1px solid rgba(34,197,94,0.5);  }
 
-.rel-dot-strong { border: 1px solid rgba(249,115,22,0.45); }
-.rel-dot-weak   { border: 1px solid rgba(168,85,247,0.45); }
-.rel-dot-syn    { border: 1px solid rgba(34,197,94,0.45);  }
 
-.rel-dot-empty {
-  font-size: 9px;
-  color: #3a3a4a;
-  font-style: italic;
-  line-height: 1;
-}
 
 /* 🎚️ INTERFAZ DE DETALLE SEGURO */
 .detail-view-container {
@@ -666,7 +532,20 @@ body {
       </div>
 
       <div id="catalog-view" class="catalog-padding-zone">
-        <div class="catalog-grid" id="catalogGridZone"></div>
+        <table class="counter-table">
+          <thead>
+            <tr>
+              <th class="ct-pos" data-i18n="col_pos">Pos</th>
+              <th class="ct-hero" data-i18n="col_hero">Héroe</th>
+              <th class="ct-tier" data-i18n="col_tier">Tier</th>
+              <th class="ct-rol" data-i18n="col_rol">Rol</th>
+              <th class="ct-rel" data-i18n="col_strong">Fuerte vs</th>
+              <th class="ct-rel" data-i18n="col_weak">Débil vs</th>
+              <th class="ct-rel" data-i18n="col_syn">Sinergia</th>
+            </tr>
+          </thead>
+          <tbody id="catalogTableBody"></tbody>
+        </table>
       </div>
 
       <div id="detail-view" class="detail-view-container">
@@ -758,6 +637,8 @@ function cargarBaseDatos() {
           nombre: cols[1].trim(),
           imagen: cols[3] ? cols[3].trim() : "",
           roles: [cols[5], cols[6], cols[7]].filter(Boolean).map(r => r.trim()),
+          roleImgs: [cols[64], cols[65], cols[66]].map(x => x ? x.trim() : '').filter(x => x && x !== '#N/A'),
+          pos: parseInt(cols[63]) || 9999,
           winrate: cols[8] ? cols[8].trim() : "0%",
           pickrate: cols[9] ? cols[9].trim() : "0%",
           banrate: cols[10] ? cols[10].trim() : "0%",
@@ -767,7 +648,7 @@ function cargarBaseDatos() {
           sinergiaCon: sinergiasNames
         });
       });
-      heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre));
+      heroesData.sort((a,b) => a.pos - b.pos);
       renderCatalogo();
     }
   });
@@ -814,51 +695,62 @@ function buildRelationRow(nameList, labelClass, labelText, dotClass) {
     </div>`;
 }
 
-function renderCatalogo() {
-  const grid = document.getElementById('catalogGridZone');
-  grid.innerHTML = '';
+function renderRelCell(nameList, cellClass) {
+  const max = 5;
+  const slice = nameList.slice(0, max).map(name => {
+    const normName = normalizeStr(name);
+    const found = heroesData.find(h => normalizeStr(h.nombre) === normName);
+    return (found && found.imagen)
+      ? `<img src="${found.imagen}" title="${found.nombre}">`
+      : '';
+  }).filter(Boolean).join('');
+  return `<div class="ct-rel-cell ${cellClass}">${slice}</div>`;
+}
 
+function renderCatalogo() {
+  const tbody = document.getElementById('catalogTableBody');
+  tbody.innerHTML = '';
+
+  let pos = 1;
   heroesData.forEach(hero => {
     if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return;
     if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return;
 
-    const wrColor = obtenerColorWinrate(hero.winrate);
+    const tr = document.createElement('tr');
 
-    const lang = localStorage.getItem('hokstats_lang') || 'es';
-    const dict = i18n[lang];
+    // Roles como imágenes
+    const roleImgsHtml = (hero.roleImgs || [])
+      .map(img => `<img src="${img}">`)
+      .join('');
 
-    const card = document.createElement('div');
-    card.className = 'hero-compact-card';
-    const roleMap = {
-      es: { Choque: 'Choque', Cazador: 'Cazador', Medio: 'Medio', Merodeo: 'Merodeo', Farmeo: 'Farmeo' },
-      en: { Choque: 'Fighter', Cazador: 'Jungler', Medio: 'Mid', Merodeo: 'Roamer', Farmeo: 'Farmer' },
-      pt: { Choque: 'Lutador', Cazador: 'Caçador', Medio: 'Meio', Merodeo: 'Suporte', Farmeo: 'Carry' }
-    };
-    const roleLabel = hero.roles[0] ? (roleMap[lang]?.[hero.roles[0]] || hero.roles[0]) : '';
+    tr.innerHTML = `
+      <td class="ct-pos"><span class="ct-pos-val">${pos}</span></td>
 
-    card.innerHTML = `
-      <div class="card-avatar-block">
-        <img src="${hero.imagen}" class="card-avatar">
-      </div>
-      <div class="card-meta-info">
-        <div class="card-header-row">
-          <span class="card-hero-name">${hero.nombre}</span>
-          ${roleLabel ? `<span class="card-role-badge">${roleLabel}</span>` : ''}
+      <td class="ct-hero">
+        <div class="ct-champion">
+          <img src="${hero.imagen}">
+          <span>${hero.nombre}</span>
         </div>
-        <div class="card-header-divider"></div>
-        <div class="card-relations-zone">
-          ${buildRelationRow(hero.fuerteContra, 'rel-strong-label', dict.lbl_strong, 'rel-dot-strong')}
-          ${buildRelationRow(hero.debilContra,   'rel-weak-label',   dict.lbl_weak,   'rel-dot-weak')}
-          ${hero.sinergiaCon.length > 0 ? buildRelationRow(hero.sinergiaCon, 'rel-syn-label', dict.lbl_syn, 'rel-dot-syn') : ''}
+      </td>
+
+      <td class="ct-tier">
+        <div class="tier-badge tier-${hero.tier}">
+          <span>${hero.tier}</span>
         </div>
-      </div>
+      </td>
+
+      <td class="ct-rol">
+        <div class="ct-role-cell">${roleImgsHtml}</div>
+      </td>
+
+      <td class="ct-rel">${renderRelCell(hero.fuerteContra, 'ct-rel-strong')}</td>
+      <td class="ct-rel">${renderRelCell(hero.debilContra,   'ct-rel-weak')}</td>
+      <td class="ct-rel">${renderRelCell(hero.sinergiaCon,   'ct-rel-syn')}</td>
     `;
 
-    card.addEventListener('click', () => {
-      desplegarFichaDetalle(hero);
-    });
-
-    grid.appendChild(card);
+    tr.addEventListener('click', () => desplegarFichaDetalle(hero));
+    tbody.appendChild(tr);
+    pos++;
   });
 }
 
@@ -1012,9 +904,8 @@ const i18n = {
     col_weak:         '⚠️ Es Débil Contra',
     col_synergy:      '🤝 Excelentes Sinergias',
     empty_records:    'Sin registros directos.',
-    lbl_strong:       'Fuerte vs',
-    lbl_weak:         'Débil vs',
-    lbl_syn:          'Sinergia',
+    lbl_strong: 'Fuerte vs', lbl_weak: 'Débil vs', lbl_syn: 'Sinergia',
+    col_strong: 'Fuerte vs', col_weak: 'Débil vs', col_syn: 'Sinergia',
     txt_normal:       '<strong>MODO NORMAL:</strong> Muestra las relaciones analíticas oficiales registradas en el servidor de origen (China), optimizadas con métricas de rendimiento del servidor global y variaciones específicas del metajuego actual.',
     txt_cross:        '<strong>MODO CRUZADO:</strong> Ejecuta un escaneo inverso bidireccional en la matriz de datos. Descubre y añade automáticamente interacciones ocultas de héroes que impactan a este personaje desde sus propios perfiles competitivos.'
   },
@@ -1039,9 +930,8 @@ const i18n = {
     col_weak:         '⚠️ Weak Against',
     col_synergy:      '🤝 Excellent Synergies',
     empty_records:    'No direct records.',
-    lbl_strong:       'Strong vs',
-    lbl_weak:         'Weak vs',
-    lbl_syn:          'Synergy',
+    lbl_strong: 'Strong vs', lbl_weak: 'Weak vs', lbl_syn: 'Synergy',
+    col_strong: 'Strong vs', col_weak: 'Weak vs', col_syn: 'Synergy',
     txt_normal:       '<strong>NORMAL MODE:</strong> Shows official analytical relationships registered on the source server (China), optimized with global server performance metrics and current meta-specific variations.',
     txt_cross:        '<strong>CROSS MODE:</strong> Runs a bidirectional reverse scan across the data matrix. Automatically discovers and adds hidden hero interactions that impact this character from their own competitive profiles.'
   },
@@ -1066,9 +956,8 @@ const i18n = {
     col_weak:         '⚠️ Fraco Contra',
     col_synergy:      '🤝 Excelentes Sinergias',
     empty_records:    'Sem registros diretos.',
-    lbl_strong:       'Forte vs',
-    lbl_weak:         'Fraco vs',
-    lbl_syn:          'Sinergia',
+    lbl_strong: 'Forte vs', lbl_weak: 'Fraco vs', lbl_syn: 'Sinergia',
+    col_strong: 'Forte vs', col_weak: 'Fraco vs', col_syn: 'Sinergia',
     txt_normal:       '<strong>MODO NORMAL:</strong> Exibe as relações analíticas oficiais registradas no servidor de origem (China), otimizadas com métricas de desempenho do servidor global e variações específicas do meta atual.',
     txt_cross:        '<strong>MODO CRUZADO:</strong> Executa uma varredura inversa bidirecional na matriz de dados. Descobre e adiciona automaticamente interações ocultas de heróis que impactam este personagem a partir de seus próprios perfis competitivos.'
   }
