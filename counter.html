@@ -412,6 +412,28 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #5a5a6b;
 }
+
+/* 🌐 SELECTOR DE IDIOMA */
+.lang-selector {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-right: 8px;
+}
+.lang-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.45;
+  color: white;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.lang-btn:hover { opacity: 0.85; }
+.lang-btn.active { opacity: 1; border-color: #444452; }
 </style>
 </head>
 <body>
@@ -421,12 +443,17 @@ body {
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
     <div class="view-tabs">
-      <a href="index.html" class="view-tab">General</a>
-      <a href="stats.html" class="view-tab">Estadísticas</a>
-      <a href="counter.html" class="view-tab active">Counters</a>
-      <a href="planner.html" class="view-tab">Planner</a>
-      <a href="draft.html" class="view-tab">Draft</a>
-      <a href="acerca.html" class="view-tab">Acerca de</a>
+      <div class="lang-selector">
+        <button class="lang-btn" onclick="setLang('es')" title="Español">🇪🇸</button>
+        <button class="lang-btn" onclick="setLang('pt')" title="Português">🇧🇷</button>
+        <button class="lang-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+      </div>
+      <a href="index.html" class="view-tab" data-i18n="nav_general">General</a>
+      <a href="stats.html" class="view-tab" data-i18n="nav_stats">Estadísticas</a>
+      <a href="counter.html" class="view-tab active" data-i18n="nav_counters">Counters</a>
+      <a href="planner.html" class="view-tab" data-i18n="nav_planner">Planner</a>
+      <a href="draft.html" class="view-tab" data-i18n="nav_draft">Draft</a>
+      <a href="acerca.html" class="view-tab" data-i18n="nav_about">Acerca de</a>
     </div>
   </div>
 
@@ -436,15 +463,15 @@ body {
       <div class="tabs-container" id="filtersBlock">
         <div class="tabs-wrapper">
           <div class="tabs">
-            <button class="role-tab active" data-role="all">Todo</button>
-            <button class="role-tab" data-role="Choque">Choque</button>
-            <button class="role-tab" data-role="Cazador">Cazador</button>
-            <button class="role-tab" data-role="Medio">Medio</button>
-            <button class="role-tab" data-role="Merodeo">Merodeo</button>
-            <button class="role-tab" data-role="Farmeo">Farmeo</button>
+            <button class="role-tab active" data-role="all" data-i18n="role_all">Todo</button>
+            <button class="role-tab" data-role="Choque" data-i18n="role_choque">Choque</button>
+            <button class="role-tab" data-role="Cazador" data-i18n="role_cazador">Cazador</button>
+            <button class="role-tab" data-role="Medio" data-i18n="role_medio">Medio</button>
+            <button class="role-tab" data-role="Merodeo" data-i18n="role_merodeo">Merodeo</button>
+            <button class="role-tab" data-role="Farmeo" data-i18n="role_farmeo">Farmeo</button>
           </div>
           <div class="search-box">
-            <input type="text" id="searchHero" placeholder="Buscar héroe...">
+            <input type="text" id="searchHero" data-i18n-placeholder="search_placeholder" placeholder="Buscar héroe...">
           </div>
         </div>
       </div>
@@ -466,8 +493,8 @@ body {
 
           <div class="analysis-control-panel">
             <div class="control-action-row">
-              <button class="btn-back" onclick="volverAlCatalogo()">⬅️ Volver</button>
-              <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()">MODO CRUZADO: OFF</button>
+              <button class="btn-back" onclick="volverAlCatalogo()" data-i18n="btn_back">⬅️ Volver</button>
+              <button class="btn-toggle-mode" id="toggleAnalysisMode" onclick="cambiarModoAnalisis()" data-i18n="btn_cross_off">MODO CRUZADO: OFF</button>
             </div>
             <div class="analysis-explanation-text" id="explanationText"></div>
           </div>
@@ -475,17 +502,17 @@ body {
 
         <div class="relationships-grid">
           <div class="column-card col-strong">
-            <div class="column-header">⚔️ Es Fuerte Contra</div>
+            <div class="column-header" data-i18n="col_strong">⚔️ Es Fuerte Contra</div>
             <div class="cards-list-container" id="strong-list"></div>
           </div>
 
           <div class="column-card col-weak">
-            <div class="column-header">⚠️ Es Débil Contra</div>
+            <div class="column-header" data-i18n="col_weak">⚠️ Es Débil Contra</div>
             <div class="cards-list-container" id="weak-list"></div>
           </div>
 
           <div class="column-card col-synergy">
-            <div class="column-header">🤝 Excelentes Sinergias</div>
+            <div class="column-header" data-i18n="col_synergy">🤝 Excelentes Sinergias</div>
             <div class="cards-list-container" id="synergy-list"></div>
           </div>
         </div>
@@ -599,10 +626,11 @@ function desplegarFichaDetalle(targetHero) {
   selectedHeroInFocus = targetHero;
   
   bidireccionalMode = false;
+  const dict = i18n[localStorage.getItem('hokstats_lang')||'es'];
   const btn = document.getElementById('toggleAnalysisMode');
-  btn.innerText = "MODO CRUZADO: OFF";
+  btn.innerText = dict.btn_cross_off;
   btn.classList.remove('active');
-  document.getElementById('explanationText').innerHTML = TXT_MODO_NORMAL;
+  document.getElementById('explanationText').innerHTML = dict.txt_normal;
 
   document.getElementById('filtersBlock').style.display = 'none';
   document.getElementById('catalog-view').style.display = 'none';
@@ -652,24 +680,25 @@ function procesarRelacionesColumnas() {
     if (tieneSinergia) crearMiniTarjetaRelacion(hero, synergyList);
   });
 
-  if (strongList.children.length === 0) strongList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
-  if (weakList.children.length === 0) weakList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
-  if (synergyList.children.length === 0) synergyList.innerHTML = '<div class="empty-column-state">Sin registros directos.</div>';
+  if (strongList.children.length === 0) strongList.innerHTML = `<div class="empty-column-state">${i18n[localStorage.getItem('hokstats_lang')||'es'].empty_records}</div>`;
+  if (weakList.children.length === 0) weakList.innerHTML = `<div class="empty-column-state">${i18n[localStorage.getItem('hokstats_lang')||'es'].empty_records}</div>`;
+  if (synergyList.children.length === 0) synergyList.innerHTML = `<div class="empty-column-state">${i18n[localStorage.getItem('hokstats_lang')||'es'].empty_records}</div>`;
 }
 
 function cambiarModoAnalisis() {
   bidireccionalMode = !bidireccionalMode;
   const btn = document.getElementById('toggleAnalysisMode');
   const exp = document.getElementById('explanationText');
-  
+  const dict = i18n[localStorage.getItem('hokstats_lang')||'es'];
+
   if (bidireccionalMode) {
-    btn.innerText = "MODO CRUZADO: ON";
+    btn.innerText = dict.btn_cross_on;
     btn.classList.add('active');
-    exp.innerHTML = TXT_MODO_CRUZADO;
+    exp.innerHTML = dict.txt_cross;
   } else {
-    btn.innerText = "MODO CRUZADO: OFF";
+    btn.innerText = dict.btn_cross_off;
     btn.classList.remove('active');
-    exp.innerHTML = TXT_MODO_NORMAL;
+    exp.innerHTML = dict.txt_normal;
   }
   procesarRelacionesColumnas();
 }
@@ -711,6 +740,122 @@ document.getElementById('searchHero').addEventListener('input', (e) => {
 });
 
 cargarBaseDatos();
+</script>
+
+<script>
+const i18n = {
+  es: {
+    nav_general:      'General',
+    nav_stats:        'Estadísticas',
+    nav_counters:     'Counters',
+    nav_planner:      'Planner',
+    nav_draft:        'Draft',
+    nav_about:        'Acerca de',
+    role_all:         'Todo',
+    role_choque:      'Choque',
+    role_cazador:     'Cazador',
+    role_medio:       'Medio',
+    role_merodeo:     'Merodeo',
+    role_farmeo:      'Farmeo',
+    search_placeholder: 'Buscar héroe...',
+    btn_back:         '⬅️ Volver',
+    btn_cross_off:    'MODO CRUZADO: OFF',
+    btn_cross_on:     'MODO CRUZADO: ON',
+    col_strong:       '⚔️ Es Fuerte Contra',
+    col_weak:         '⚠️ Es Débil Contra',
+    col_synergy:      '🤝 Excelentes Sinergias',
+    empty_records:    'Sin registros directos.',
+    txt_normal:       '<strong>MODO NORMAL:</strong> Muestra las relaciones analíticas oficiales registradas en el servidor de origen (China), optimizadas con métricas de rendimiento del servidor global y variaciones específicas del metajuego actual.',
+    txt_cross:        '<strong>MODO CRUZADO:</strong> Ejecuta un escaneo inverso bidireccional en la matriz de datos. Descubre y añade automáticamente interacciones ocultas de héroes que impactan a este personaje desde sus propios perfiles competitivos.'
+  },
+  en: {
+    nav_general:      'General',
+    nav_stats:        'Statistics',
+    nav_counters:     'Counters',
+    nav_planner:      'Planner',
+    nav_draft:        'Draft',
+    nav_about:        'About',
+    role_all:         'All',
+    role_choque:      'Fighter',
+    role_cazador:     'Jungler',
+    role_medio:       'Mid',
+    role_merodeo:     'Roamer',
+    role_farmeo:      'Farmer',
+    search_placeholder: 'Search hero...',
+    btn_back:         '⬅️ Back',
+    btn_cross_off:    'CROSS MODE: OFF',
+    btn_cross_on:     'CROSS MODE: ON',
+    col_strong:       '⚔️ Strong Against',
+    col_weak:         '⚠️ Weak Against',
+    col_synergy:      '🤝 Excellent Synergies',
+    empty_records:    'No direct records.',
+    txt_normal:       '<strong>NORMAL MODE:</strong> Shows official analytical relationships registered on the source server (China), optimized with global server performance metrics and current meta-specific variations.',
+    txt_cross:        '<strong>CROSS MODE:</strong> Runs a bidirectional reverse scan across the data matrix. Automatically discovers and adds hidden hero interactions that impact this character from their own competitive profiles.'
+  },
+  pt: {
+    nav_general:      'Geral',
+    nav_stats:        'Estatísticas',
+    nav_counters:     'Counters',
+    nav_planner:      'Planner',
+    nav_draft:        'Draft',
+    nav_about:        'Sobre',
+    role_all:         'Tudo',
+    role_choque:      'Lutador',
+    role_cazador:     'Caçador',
+    role_medio:       'Meio',
+    role_merodeo:     'Suporte',
+    role_farmeo:      'Carry',
+    search_placeholder: 'Buscar herói...',
+    btn_back:         '⬅️ Voltar',
+    btn_cross_off:    'MODO CRUZADO: OFF',
+    btn_cross_on:     'MODO CRUZADO: ON',
+    col_strong:       '⚔️ Forte Contra',
+    col_weak:         '⚠️ Fraco Contra',
+    col_synergy:      '🤝 Excelentes Sinergias',
+    empty_records:    'Sem registros diretos.',
+    txt_normal:       '<strong>MODO NORMAL:</strong> Exibe as relações analíticas oficiais registradas no servidor de origem (China), otimizadas com métricas de desempenho do servidor global e variações específicas do meta atual.',
+    txt_cross:        '<strong>MODO CRUZADO:</strong> Executa uma varredura inversa bidirecional na matriz de dados. Descobre e adiciona automaticamente interações ocultas de heróis que impactam este personagem a partir de seus próprios perfis competitivos.'
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('hokstats_lang', lang);
+  applyLang(lang);
+}
+
+function applyLang(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key] !== undefined) el.placeholder = dict[key];
+  });
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
+  });
+
+  // Actualizar textos dinámicos del JS si la vista detalle está abierta
+  const toggleBtn = document.getElementById('toggleAnalysisMode');
+  if (toggleBtn) {
+    toggleBtn.textContent = bidireccionalMode ? dict.btn_cross_on : dict.btn_cross_off;
+  }
+  const expText = document.getElementById('explanationText');
+  if (expText && expText.innerHTML !== '') {
+    expText.innerHTML = bidireccionalMode ? dict.txt_cross : dict.txt_normal;
+  }
+
+  document.documentElement.lang = lang;
+}
+
+const savedLang = localStorage.getItem('hokstats_lang') || 'es';
+applyLang(savedLang);
 </script>
 </body>
 </html>
