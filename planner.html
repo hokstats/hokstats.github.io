@@ -353,10 +353,18 @@ body {
   pointer-events: none;
 }
 
+/* Solo captura eventos cuando está en modo dibujo, pero nunca sobre héroes */
+.svg-draw-layer.active-drawing {
+  pointer-events: auto;
+}
+
 .map-viewport.tool-pan { cursor: grab; }
 .map-viewport.tool-pan.panning { cursor: grabbing; }
 .map-viewport.tool-eraser .svg-draw-layer { pointer-events: auto; }
 .map-viewport.tool-eraser .svg-draw-layer path { cursor: pointer; }
+
+/* Héroes siempre por encima del SVG para recibir eventos */
+.placed-hero { z-index: 20 !important; }
 
 .free-path {
   fill: none;
@@ -736,6 +744,14 @@ mapZone.addEventListener('mousedown', (e) => {
     e.preventDefault();
     return;
   }
+
+  // Héroe tiene prioridad sobre cualquier herramienta
+  const heroEl = e.target.closest('.placed-hero');
+  if (heroEl) {
+    handleHeroClickOrDrag(e, heroEl);
+    return;
+  }
+
   handleStartContainer(e);
 });
 
@@ -994,6 +1010,9 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value.toLowerCase().trim();
   renderDrawer(currentRole, currentSearch);
 });
+
+// Centrar mapa al inicio
+window.addEventListener('load', () => { applyTransform(); });
 
 </script>
 </body>
