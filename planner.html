@@ -650,9 +650,14 @@ function handleHeroClickOrDrag(e, element) {
     element.remove();
     return;
   }
-  if (currentTool !== 'move') return;
+
   e.preventDefault();
-  
+  e.stopPropagation(); // evita que el evento llegue al SVG
+
+  const initialX = element.style.left;
+  const initialY = element.style.top;
+  let hasMoved = false;
+
   function moveHandler(evt) {
     hasMoved = true;
     const coords = getLocalCoords(evt);
