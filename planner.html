@@ -388,6 +388,10 @@ body {
   z-index: 10;
 }
 
+/* Siempre mostrar grab al pasar sobre un héroe, sin importar la herramienta activa */
+.map-viewport .placed-hero { cursor: grab !important; }
+.map-viewport .placed-hero:active { cursor: grabbing !important; }
+
 .placed-hero img {
   width: 100%; height: 100%;
   border-radius: 50%;
@@ -459,7 +463,7 @@ body {
         <!-- Herramientas -->
         <span class="toolbar-label">Herr.</span>
         <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe">🖐️</button>
-        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa">✋</button>
+        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa">🗺️</button>
         <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria">✏️</button>
         <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha">🏹</button>
         <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento">🧽</button>
@@ -772,6 +776,14 @@ mapZone.addEventListener('wheel', (e) => {
 
 function handleStartContainer(e) {
   if (currentTool === 'pan') return;
+
+  // Si el click es sobre un héroe, siempre lo movemos sin importar la herramienta
+  const heroEl = e.target.closest('.placed-hero');
+  if (heroEl) {
+    handleHeroClickOrDrag(e, heroEl);
+    return;
+  }
+
   const isBg = e.target === mapZone || e.target === document.getElementById('mapInner') || e.target.className === 'map-background' || e.target === svgLayer;
   
   if (currentTool === 'eraser' && !isBg) {
