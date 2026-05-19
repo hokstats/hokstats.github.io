@@ -320,18 +320,20 @@ body {
   border: 1px solid #444452;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  overflow: auto;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-/* Contenedor interno que escala */
-.map-inner {
-  position: relative;
-  width: 700px;
-  height: 700px;
-  transform-origin: top left;
-  transition: transform 0.15s ease;
+.map-background {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: block;
+  pointer-events: none;
+  object-fit: cover;
 }
+
+/* map-inner no se usa más */
 
 .map-background {
   position: absolute;
@@ -525,10 +527,8 @@ body {
         <!-- MAPA DERECHA -->
         <div class="planner-right">
           <div class="map-viewport tool-move" id="mapZone">
-            <div class="map-inner" id="mapInner">
-              <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
-              <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 700 700"></svg>
-            </div>
+            <img src="https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/imagenes/minimapa.png" class="map-background" id="mapBg" alt="Mapa HoK" crossorigin="anonymous">
+            <svg class="svg-draw-layer" id="svgLayer" viewBox="0 0 700 700"></svg>
           </div>
         </div>
 
@@ -543,6 +543,8 @@ body {
 <script>
 // El JavaScript del Planner se conserva intacto y funcional
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
+
+const MAP_BASE = 700; // tamaño base del mapa en px
 
 const mapZone = document.getElementById('mapZone');
 const svgLayer = document.getElementById('svgLayer');
@@ -603,7 +605,7 @@ function renderDrawer(role, query) {
     div.innerHTML = `<img src="${hero.imagen}" title="${hero.nombre}" crossorigin="anonymous">`;
     
     div.addEventListener('click', () => {
-      createHeroNode(hero.imagen, 300, 300, true);
+      createHeroNode(hero.imagen, MAP_BASE / 2, MAP_BASE / 2, true);
     });
     grid.appendChild(div);
   });
@@ -614,6 +616,7 @@ function createHeroNode(imgUrl, x, y, recordHistory = true) {
   el.className = `placed-hero ${currentAura !== 'none' ? 'aura-' + currentAura : ''}`;
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
+  el.dataset.zoom = mapZoom;
   el.innerHTML = `<img src="${imgUrl}" crossorigin="anonymous">`;
   
   el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
@@ -642,10 +645,10 @@ function handleHeroClickOrDrag(e, element) {
     const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
     const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
     
-    let x = clientX - rect.left;
-    let y = clientY - rect.top;
+    let x = (clientX - rect.left) / mapZoom;
+    let y = (clientY - rect.top)  / mapZoom;
     
-    if(x < 0 || x > 600 || y < 0 || y > 600) {
+    if(x < 0 || x > MAP_BASE || y < 0 || y > MAP_BASE) {
       saveState('delete', element, { parent: mapZone });
       element.remove();
       endHandler();
@@ -654,6 +657,7 @@ function handleHeroClickOrDrag(e, element) {
     
     element.style.left = `${x}px`;
     element.style.top = `${y}px`;
+    element.dataset.zoom = mapZoom;
   }
   
   function endHandler() {
@@ -678,8 +682,8 @@ function getLocalCoords(e) {
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
+    x: (clientX - rect.left) / mapZoom,
+    y: (clientY - rect.top)  / mapZoom
   };
 }
 
@@ -742,8 +746,8 @@ window.addEventListener('touchmove', (e) => { handleMoveContainer(e); }, {passiv
 function handleMoveContainer(e) {
   if (!isDrawing) return;
   const coords = getLocalCoords(e);
-  const currentX = Math.max(0, Math.min(600, coords.x));
-  const currentY = Math.max(0, Math.min(600, coords.y));
+  const currentX = Math.max(0, Math.min(MAP_BASE, coords.x));
+  const currentY = Math.max(0, Math.min(MAP_BASE, coords.y));
 
   if (currentTool === 'arrow' && activeArrowElement) {
     if (e.cancelable) e.preventDefault();
@@ -819,28 +823,33 @@ document.getElementById('hist-redo').addEventListener('click', () => {
   updateHistoryButtons();
 });
 
-document.querySelectorAll('.tool-group').forEach(group => {
-  group.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-tool');
-    if (!btn || btn.id.startsWith('hist-') || btn.id === 'save-png') return;
-    
-    btn.parentElement.querySelectorAll('.btn-tool').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
+// ── TOOLBAR: event listeners directos por botón ──
+document.querySelectorAll('.btn-tool, .btn-tool-labeled').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all') return;
+    if (btn.id.startsWith('zoom-')) return;
+
+    // Activo visual: solo dentro del grupo semántico
     if (btn.id.startsWith('tool-')) {
+      document.querySelectorAll('[id^="tool-"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
       currentTool = btn.id.replace('tool-', '');
       mapZone.className = `map-viewport tool-${currentTool}`;
-      
-      if (currentTool === 'draw') {
-        svgLayer.classList.add('active-drawing');
-      } else {
-        svgLayer.classList.remove('active-drawing');
-      }
+      if (currentTool === 'draw') svgLayer.classList.add('active-drawing');
+      else svgLayer.classList.remove('active-drawing');
     }
-    if (btn.id.startsWith('aura-')) currentAura = btn.id.replace('aura-', '');
-    if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
-    if (btn.id === 'color-green') currentStrokeColor = '#22c55e';
-    if (btn.id === 'color-white') currentStrokeColor = '#ffffff';
+    if (btn.id.startsWith('aura-')) {
+      document.querySelectorAll('[id^="aura-"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentAura = btn.id.replace('aura-', '');
+    }
+    if (btn.id.startsWith('color-')) {
+      document.querySelectorAll('[id^="color-"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
+      if (btn.id === 'color-green')  currentStrokeColor = '#22c55e';
+      if (btn.id === 'color-white')  currentStrokeColor = '#ffffff';
+    }
   });
 });
 
@@ -855,7 +864,7 @@ document.getElementById('clear-all').addEventListener('click', () => {
 
 document.getElementById('save-png').addEventListener('click', () => {
   const btn = document.getElementById('save-png');
-  btn.innerText = "⏳ Procesando...";
+  btn.innerHTML = "⏳";
   btn.disabled = true;
 
   html2canvas(mapZone, {
@@ -868,13 +877,12 @@ document.getElementById('save-png').addEventListener('click', () => {
     link.download = 'hokstats-estrategia.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    
-    btn.innerText = "💾 Guardar";
+    btn.innerHTML = "💾";
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
-    alert("Hubo un problema al generar la imagen. Revisa la consola.");
-    btn.innerText = "💾 Guardar";
+    alert("Hubo un problema al generar la imagen.");
+    btn.innerHTML = "💾";
     btn.disabled = false;
   });
 });
@@ -897,14 +905,31 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
 });
 
 // ── ZOOM DEL MAPA ──
+// Zoom visual: escala la imagen de fondo y reposiciona los héroes y trazos
 let mapZoom = 1;
-const ZOOM_STEP = 0.15;
+const ZOOM_STEP = 0.2;
 const ZOOM_MIN  = 0.5;
 const ZOOM_MAX  = 2.5;
 
 function applyZoom() {
-  const inner = document.getElementById('mapInner');
-  inner.style.transform = `scale(${mapZoom})`;
+  const newSize = MAP_BASE * mapZoom;
+  // Escalar imagen de fondo
+  const bg = document.getElementById('mapBg');
+  bg.style.width  = newSize + 'px';
+  bg.style.height = newSize + 'px';
+  // Escalar SVG
+  svgLayer.style.width  = newSize + 'px';
+  svgLayer.style.height = newSize + 'px';
+  svgLayer.setAttribute('viewBox', `0 0 ${MAP_BASE} ${MAP_BASE}`);
+  // Reposicionar héroes
+  document.querySelectorAll('.placed-hero').forEach(hero => {
+    const prevZoom = hero.dataset.zoom ? parseFloat(hero.dataset.zoom) : 1;
+    const lx = parseFloat(hero.style.left) / prevZoom * mapZoom;
+    const ly = parseFloat(hero.style.top)  / prevZoom * mapZoom;
+    hero.style.left = lx + 'px';
+    hero.style.top  = ly + 'px';
+    hero.dataset.zoom = mapZoom;
+  });
 }
 
 document.getElementById('zoom-in').addEventListener('click', () => {
@@ -918,11 +943,9 @@ document.getElementById('zoom-out').addEventListener('click', () => {
 document.getElementById('zoom-reset').addEventListener('click', () => {
   mapZoom = 1;
   applyZoom();
-  document.getElementById('mapZone').scrollTop = 0;
-  document.getElementById('mapZone').scrollLeft = 0;
 });
 
-document.getElementById('mapZone').addEventListener('wheel', (e) => {
+mapZone.addEventListener('wheel', (e) => {
   e.preventDefault();
   if (e.deltaY < 0) {
     if (mapZoom < ZOOM_MAX) { mapZoom = Math.min(ZOOM_MAX, +(mapZoom + ZOOM_STEP).toFixed(2)); applyZoom(); }
@@ -930,7 +953,6 @@ document.getElementById('mapZone').addEventListener('wheel', (e) => {
     if (mapZoom > ZOOM_MIN) { mapZoom = Math.max(ZOOM_MIN, +(mapZoom - ZOOM_STEP).toFixed(2)); applyZoom(); }
   }
 }, { passive: false });
-
 </script>
 
 </body>
