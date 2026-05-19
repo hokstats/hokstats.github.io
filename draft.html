@@ -477,6 +477,18 @@ table.main-layout {
 .draft-arena.red-perspective .center-panel { order: 2; }
 .draft-arena.red-perspective #blue-picks { order: 3; }
 
+/* En perspectiva roja, los slots rojos pasan a la izquierda: cara→nombre como corresponde */
+.draft-arena.red-perspective #red-picks .pick-slot {
+  flex-direction: row;
+  text-align: left;
+}
+
+/* En perspectiva roja, los slots azules pasan a la derecha: nombre→cara mirando al centro */
+.draft-arena.red-perspective #blue-picks .pick-slot {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
 /* Bans: también invertidos en modo rojo */
 .bans-container.red-perspective { flex-direction: row-reverse; }
 </style>
