@@ -182,16 +182,17 @@ body {
 }
 
 .counter-table thead tr {
-  border-bottom: 1px solid #444452;
   border-top: 1px solid #444452;
+  border-bottom: 1px solid #444452;
 }
 
 .counter-table thead th {
-  padding: 8px 4px;
+  padding: 16px 4px;
   font-size: 11px;
   color: #b3b2bf;
   font-weight: bold;
   text-align: center;
+  vertical-align: middle;
 }
 
 .counter-table tbody tr {
@@ -220,7 +221,7 @@ body {
 
 /* Anchos de columna */
 .ct-pos  { width: 4%; }
-.ct-hero { width: 14%; text-align: left !important; }
+.ct-hero { width: 14%; text-align: center !important; }
 .ct-tier { width: 5%; }
 .ct-rol  { width: 9%; }
 .ct-rel  { width: 22.67%; }
@@ -843,13 +844,23 @@ function cambiarModoAnalisis() {
 }
 
 function crearMiniTarjetaRelacion(hero, contenedor) {
+  const lang = localStorage.getItem('hokstats_lang') || 'es';
+  const roleMap = {
+    es: { Choque: 'Choque', Cazador: 'Cazador', Medio: 'Medio', Merodeo: 'Merodeo', Farmeo: 'Farmeo' },
+    en: { Choque: 'Fighter', Cazador: 'Jungler', Medio: 'Mid',    Merodeo: 'Roamer',  Farmeo: 'Farmer' },
+    pt: { Choque: 'Lutador', Cazador: 'Caçador', Medio: 'Meio',   Merodeo: 'Suporte', Farmeo: 'Carry'  }
+  };
+  const rolesTraducidos = hero.roles
+    .map(r => roleMap[lang]?.[r] || r)
+    .join(' / ');
+
   const mini = document.createElement('div');
   mini.className = 'mini-hero-card';
   mini.innerHTML = `
     <img src="${hero.imagen}" class="mini-avatar">
     <div>
       <div class="mini-name">${hero.nombre}</div>
-      <div class="mini-roles">${hero.roles.join(' / ')}</div>
+      <div class="mini-roles">${rolesTraducidos}</div>
     </div>
   `;
   mini.addEventListener('click', () => {
@@ -996,7 +1007,7 @@ function applyLang(lang) {
     expText.innerHTML = bidireccionalMode ? dict.txt_cross : dict.txt_normal;
   }
 
-  // Si hay una ficha abierta, re-renderizar los roles con el nuevo idioma
+  // Si hay una ficha abierta, re-renderizar los roles y las relaciones con el nuevo idioma
   if (typeof selectedHeroInFocus !== 'undefined' && selectedHeroInFocus) {
     const roleMap = {
       es: { Choque: 'Choque', Cazador: 'Cazador', Medio: 'Medio', Merodeo: 'Merodeo', Farmeo: 'Farmeo' },
@@ -1011,6 +1022,7 @@ function applyLang(lang) {
         rolesZone.innerHTML += `<span class="role-badge">${translated}</span>`;
       });
     }
+    procesarRelacionesColumnas();
   }
 
   document.documentElement.lang = lang;
