@@ -641,8 +641,15 @@ function desplegarFichaDetalle(targetHero) {
   
   const rolesZone = document.getElementById('focus-roles-zone');
   rolesZone.innerHTML = '';
+  const lang = localStorage.getItem('hokstats_lang') || 'es';
+  const roleMap = {
+    es: { Choque: 'Choque', Cazador: 'Cazador', Medio: 'Medio', Merodeo: 'Merodeo', Farmeo: 'Farmeo' },
+    en: { Choque: 'Fighter', Cazador: 'Jungler', Medio: 'Mid', Merodeo: 'Roamer', Farmeo: 'Farmer' },
+    pt: { Choque: 'Lutador', Cazador: 'Caçador', Medio: 'Meio', Merodeo: 'Suporte', Farmeo: 'Carry' }
+  };
   targetHero.roles.forEach(role => {
-    rolesZone.innerHTML += `<span class="role-badge">${role}</span>`;
+    const translated = (roleMap[lang] && roleMap[lang][role]) ? roleMap[lang][role] : role;
+    rolesZone.innerHTML += `<span class="role-badge">${translated}</span>`;
   });
 
   procesarRelacionesColumnas();
@@ -849,6 +856,23 @@ function applyLang(lang) {
   const expText = document.getElementById('explanationText');
   if (expText && expText.innerHTML !== '') {
     expText.innerHTML = bidireccionalMode ? dict.txt_cross : dict.txt_normal;
+  }
+
+  // Si hay una ficha abierta, re-renderizar los roles con el nuevo idioma
+  if (typeof selectedHeroInFocus !== 'undefined' && selectedHeroInFocus) {
+    const roleMap = {
+      es: { Choque: 'Choque', Cazador: 'Cazador', Medio: 'Medio', Merodeo: 'Merodeo', Farmeo: 'Farmeo' },
+      en: { Choque: 'Fighter', Cazador: 'Jungler', Medio: 'Mid', Merodeo: 'Roamer', Farmeo: 'Farmer' },
+      pt: { Choque: 'Lutador', Cazador: 'Caçador', Medio: 'Meio', Merodeo: 'Suporte', Farmeo: 'Carry' }
+    };
+    const rolesZone = document.getElementById('focus-roles-zone');
+    if (rolesZone) {
+      rolesZone.innerHTML = '';
+      selectedHeroInFocus.roles.forEach(role => {
+        const translated = (roleMap[lang] && roleMap[lang][role]) ? roleMap[lang][role] : role;
+        rolesZone.innerHTML += `<span class="role-badge">${translated}</span>`;
+      });
+    }
   }
 
   document.documentElement.lang = lang;
