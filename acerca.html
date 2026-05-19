@@ -228,6 +228,16 @@ body {
 ::-webkit-scrollbar-track { background: #1c1c1f; }
 ::-webkit-scrollbar-thumb { background: #444452; border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: #5a5a6b; }
+
+/* 🌐 SELECTOR DE IDIOMA */
+.lang-selector { display: flex; gap: 4px; align-items: center; margin-right: 8px; }
+.lang-btn {
+  background: none; border: 1px solid transparent; border-radius: 4px;
+  padding: 3px 5px; font-size: 16px; cursor: pointer; line-height: 1;
+  opacity: 0.45; color: white; transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.lang-btn:hover { opacity: 0.85; }
+.lang-btn.active { opacity: 1; border-color: #444452; }
 </style>
 </head>
 
@@ -238,12 +248,17 @@ body {
   <div class="top-bar">
     <div class="logo-text">HoKstats</div>
     <div class="view-tabs">
-      <a href="index.html" class="view-tab">General</a>
-      <a href="stats.html" class="view-tab">Estadísticas</a>
-      <a href="counter.html" class="view-tab">Counters</a>
-      <a href="planner.html" class="view-tab">Planner</a>
-      <a href="draft.html" class="view-tab">Draft</a>
-      <a href="acerca.html" class="view-tab active">Acerca de</a>
+      <div class="lang-selector">
+        <button class="lang-btn" onclick="setLang('es')" title="Español">🇪🇸</button>
+        <button class="lang-btn" onclick="setLang('pt')" title="Português">🇧🇷</button>
+        <button class="lang-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+      </div>
+      <a href="index.html" class="view-tab" data-i18n="nav_general">General</a>
+      <a href="stats.html" class="view-tab" data-i18n="nav_stats">Estadísticas</a>
+      <a href="counter.html" class="view-tab" data-i18n="nav_counters">Counters</a>
+      <a href="planner.html" class="view-tab" data-i18n="nav_planner">Planner</a>
+      <a href="draft.html" class="view-tab" data-i18n="nav_draft">Draft</a>
+      <a href="acerca.html" class="view-tab active" data-i18n="nav_about">Acerca de</a>
     </div>
   </div>
 
@@ -251,14 +266,14 @@ body {
     <div class="about-content">
 
       <div class="page-header">
-        <div class="page-title">Acerca de HoKstats</div>
-        <div class="page-subtitle">Plataforma analítica independiente para Honor of Kings</div>
+        <div class="page-title" data-i18n="page_title">Acerca de HoKstats</div>
+        <div class="page-subtitle" data-i18n="page_subtitle">Plataforma analítica independiente para Honor of Kings</div>
       </div>
 
       <!-- SECCIÓN 1 -->
       <div class="about-section">
-        <div class="section-heading"><h3>Declaración de independencia y propósito</h3></div>
-        <p class="section-body">
+        <div class="section-heading"><h3 data-i18n="s1_heading">Declaración de independencia y propósito</h3></div>
+        <p class="section-body" data-i18n="s1_body">
           <strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro.
           Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>,
           <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos
@@ -270,8 +285,8 @@ body {
 
       <!-- SECCIÓN 2 -->
       <div class="about-section">
-        <div class="section-heading"><h3>Origen de datos — Estadísticas</h3></div>
-        <p class="section-body">
+        <div class="section-heading"><h3 data-i18n="s2_heading">Origen de datos — Estadísticas</h3></div>
+        <p class="section-body" data-i18n="s2_body">
           Los indicadores cuantitativos se extraen directamente de las fuentes oficiales del servidor global a través de
           <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">camp.honorofkings.com</a>).
           Con el fin de garantizar la vigencia de las métricas de rendimiento, el conjunto de datos se actualiza
@@ -283,8 +298,8 @@ body {
 
       <!-- SECCIÓN 3 -->
       <div class="about-section">
-        <div class="section-heading"><h3>Metodología — Counters, debilidades y sinergias</h3></div>
-        <p class="section-body">
+        <div class="section-heading"><h3 data-i18n="s3_heading">Metodología — Counters, debilidades y sinergias</h3></div>
+        <p class="section-body" data-i18n="s3_body">
           A diferencia de las estadísticas generales, las interacciones de compatibilidad y contrarresto no se encuentran
           consolidadas públicamente en el ecosistema global. La matriz de relaciones de HoKstats se construye mediante un
           modelo analítico propio que pondera información bajo los siguientes criterios de prioridad:
@@ -292,38 +307,38 @@ body {
 
         <ul class="levels-list">
           <li class="level-item">
-            <span class="level-badge lvl-1">Nivel 1</span>
+            <span class="level-badge lvl-1" data-i18n="lvl1_badge">Nivel 1</span>
             <div class="level-body">
-              <span class="level-title">Datos oficiales — Máxima prioridad</span>
-              La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la
+              <span class="level-title" data-i18n="lvl1_title">Datos oficiales — Máxima prioridad</span>
+              <span data-i18n="lvl1_body">La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la
               aplicación de origen), complementada con infografías y publicaciones periódicas del equipo de desarrollo
               distribuidas en el entorno global a través de HoK Camp. En caso de discrepancias entre versiones, se
-              conservan ambas referencias para enriquecer el marco analítico.
+              conservan ambas referencias para enriquecer el marco analítico.</span>
             </div>
           </li>
           <li class="level-item">
-            <span class="level-badge lvl-2">Nivel 2</span>
+            <span class="level-badge lvl-2" data-i18n="lvl2_badge">Nivel 2</span>
             <div class="level-body">
-              <span class="level-title">Entorno competitivo — Prioridad media</span>
-              Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias
+              <span class="level-title" data-i18n="lvl2_title">Entorno competitivo — Prioridad media</span>
+              <span data-i18n="lvl2_body">Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias
               e interacciones entre héroes se ejecutan bajo condiciones óptimas de coordinación, sirviendo como
-              entorno de validación de alto valor.
+              entorno de validación de alto valor.</span>
             </div>
           </li>
           <li class="level-item">
-            <span class="level-badge lvl-3">Nivel 3</span>
+            <span class="level-badge lvl-3" data-i18n="lvl3_badge">Nivel 3</span>
             <div class="level-body">
-              <span class="level-title">Opinión experta — Prioridad baja</span>
-              Integración de criterios técnicos provistos por creadores de contenido y jugadores de High Elo,
-              orientados a identificar matices estratégicos específicos no capturados por los niveles superiores.
+              <span class="level-title" data-i18n="lvl3_title">Opinión experta — Prioridad baja</span>
+              <span data-i18n="lvl3_body">Integración de criterios técnicos provistos por creadores de contenido y jugadores de High Elo,
+              orientados a identificar matices estratégicos específicos no capturados por los niveles superiores.</span>
             </div>
           </li>
           <li class="level-item">
-            <span class="level-badge lvl-4">Nivel 4</span>
+            <span class="level-badge lvl-4" data-i18n="lvl4_badge">Nivel 4</span>
             <div class="level-body">
-              <span class="level-title">Experiencia empírica — Complementaria</span>
-              Validación propia a través de la experiencia directa en el juego, utilizada exclusivamente como contraste
-              de campo y ajuste fino, sin desplazar la base estructurada de los niveles superiores.
+              <span class="level-title" data-i18n="lvl4_title">Experiencia empírica — Complementaria</span>
+              <span data-i18n="lvl4_body">Validación propia a través de la experiencia directa en el juego, utilizada exclusivamente como contraste
+              de campo y ajuste fino, sin desplazar la base estructurada de los niveles superiores.</span>
             </div>
           </li>
         </ul>
@@ -333,30 +348,30 @@ body {
 
       <!-- SECCIÓN 3B -->
       <div class="about-section">
-        <div class="section-heading"><h3>Metodología — Modelo Cruzado</h3></div>
-        <p class="section-body">
+        <div class="section-heading"><h3 data-i18n="s3b_heading">Metodología — Modelo Cruzado</h3></div>
+        <p class="section-body" data-i18n="s3b_body">
           El sistema de consulta opera bajo dos modos de ejecución que determinan el alcance y la dirección del análisis
           relacional aplicado sobre la matriz de datos:
         </p>
 
         <ul class="levels-list">
           <li class="level-item">
-            <span class="level-badge lvl-2">Modo Normal</span>
+            <span class="level-badge lvl-2" data-i18n="mode_normal_badge">Modo Normal</span>
             <div class="level-body">
-              <span class="level-title">Proyección directa desde el perfil del héroe</span>
-              Muestra las relaciones analíticas del héroe consultado tal como están registradas en la fuente de origen
+              <span class="level-title" data-i18n="mode_normal_title">Proyección directa desde el perfil del héroe</span>
+              <span data-i18n="mode_normal_body">Muestra las relaciones analíticas del héroe consultado tal como están registradas en la fuente de origen
               (server chino): counters y debilidades base. Las sinergias, junto con incorporaciones y ajustes
               adicionales de counters y debilidades, se derivan de las publicaciones periódicas de HoK Camp y del
-              seguimiento del metajuego global actual.
+              seguimiento del metajuego global actual.</span>
             </div>
           </li>
           <li class="level-item">
-            <span class="level-badge lvl-3">Modo Cruzado</span>
+            <span class="level-badge lvl-3" data-i18n="mode_cross_badge">Modo Cruzado</span>
             <div class="level-body">
-              <span class="level-title">Escaneo inverso bidireccional sobre la matriz completa</span>
-              Recorre el perfil de todos los demás héroes de la matriz para detectar referencias entrantes al héroe
+              <span class="level-title" data-i18n="mode_cross_title">Escaneo inverso bidireccional sobre la matriz completa</span>
+              <span data-i18n="mode_cross_body">Recorre el perfil de todos los demás héroes de la matriz para detectar referencias entrantes al héroe
               consultado. Las relaciones encontradas —ausentes en su perfil directo— se suman al resultado,
-              exponiendo vínculos competitivos que de otro modo permanecerían ocultos.
+              exponiendo vínculos competitivos que de otro modo permanecerían ocultos.</span>
             </div>
           </li>
         </ul>
@@ -366,15 +381,15 @@ body {
 
       <!-- SECCIÓN 4 -->
       <div class="about-section">
-        <div class="section-heading"><h3>Objetivo del sistema</h3></div>
-        <p class="section-body">
+        <div class="section-heading"><h3 data-i18n="s4_heading">Objetivo del sistema</h3></div>
+        <p class="section-body" data-i18n="s4_body">
           Ofrecer una interpretación actualizada, coherente y directamente aplicable de las dinámicas de enfrentamiento
           entre héroes dentro del metajuego competitivo actual de Honor of Kings.
         </p>
       </div>
 
       <!-- NOTA AL PIE -->
-      <div class="about-note">
+      <div class="about-note" data-i18n="footer_note">
         Si detectas alguna discrepancia técnica, cuentas con información adicional verificable o deseas proponer un ajuste
         basado en datos, puedes enviar tus sugerencias a
         <a href="mailto:michixhok@gmail.com">michixhok@gmail.com</a> para su revisión e incorporación en el sistema.
@@ -384,6 +399,119 @@ body {
   </div>
 
 </div>
+
+<script>
+const i18n = {
+  es: {
+    nav_general: 'General', nav_stats: 'Estadísticas', nav_counters: 'Counters',
+    nav_planner: 'Planner', nav_draft: 'Draft', nav_about: 'Acerca de',
+    page_title: 'Acerca de HoKstats',
+    page_subtitle: 'Plataforma analítica independiente para Honor of Kings',
+    s1_heading: 'Declaración de independencia y propósito',
+    s1_body: '<strong>HoKstats</strong> es un proyecto personal, de carácter estrictamente informativo y sin fines de lucro. Esta plataforma no posee relación, afiliación, patrocinio ni vinculación oficial con <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, ni ninguna de sus subsidiarias. El desarrollo, mantenimiento y análisis de datos expuestos en este sitio se realizan de manera independiente y profesional con el único objetivo de apoyar a la comunidad.',
+    s2_heading: 'Origen de datos — Estadísticas',
+    s2_body: 'Los indicadores cuantitativos se extraen directamente de las fuentes oficiales del servidor global a través de <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">camp.honorofkings.com</a>). Con el fin de garantizar la vigencia de las métricas de rendimiento, el conjunto de datos se actualiza periódicamente cada <strong>7 días</strong>.',
+    s3_heading: 'Metodología — Counters, debilidades y sinergias',
+    s3_body: 'A diferencia de las estadísticas generales, las interacciones de compatibilidad y contrarresto no se encuentran consolidadas públicamente en el ecosistema global. La matriz de relaciones de HoKstats se construye mediante un modelo analítico propio que pondera información bajo los siguientes criterios de prioridad:',
+    lvl1_badge: 'Nivel 1', lvl1_title: 'Datos oficiales — Máxima prioridad',
+    lvl1_body: 'La base principal deriva del servidor oficial de China (análisis directo <em>caso a caso</em> dentro de la aplicación de origen), complementada con infografías y publicaciones periódicas del equipo de desarrollo distribuidas en el entorno global a través de HoK Camp. En caso de discrepancias entre versiones, se conservan ambas referencias para enriquecer el marco analítico.',
+    lvl2_badge: 'Nivel 2', lvl2_title: 'Entorno competitivo — Prioridad media',
+    lvl2_body: 'Monitoreo y desglose de partidas profesionales, ligas y torneos oficiales. En este escenario, las sinergias e interacciones entre héroes se ejecutan bajo condiciones óptimas de coordinación, sirviendo como entorno de validación de alto valor.',
+    lvl3_badge: 'Nivel 3', lvl3_title: 'Opinión experta — Prioridad baja',
+    lvl3_body: 'Integración de criterios técnicos provistos por creadores de contenido y jugadores de High Elo, orientados a identificar matices estratégicos específicos no capturados por los niveles superiores.',
+    lvl4_badge: 'Nivel 4', lvl4_title: 'Experiencia empírica — Complementaria',
+    lvl4_body: 'Validación propia a través de la experiencia directa en el juego, utilizada exclusivamente como contraste de campo y ajuste fino, sin desplazar la base estructurada de los niveles superiores.',
+    s3b_heading: 'Metodología — Modelo Cruzado',
+    s3b_body: 'El sistema de consulta opera bajo dos modos de ejecución que determinan el alcance y la dirección del análisis relacional aplicado sobre la matriz de datos:',
+    mode_normal_badge: 'Modo Normal', mode_normal_title: 'Proyección directa desde el perfil del héroe',
+    mode_normal_body: 'Muestra las relaciones analíticas del héroe consultado tal como están registradas en la fuente de origen (server chino): counters y debilidades base. Las sinergias, junto con incorporaciones y ajustes adicionales de counters y debilidades, se derivan de las publicaciones periódicas de HoK Camp y del seguimiento del metajuego global actual.',
+    mode_cross_badge: 'Modo Cruzado', mode_cross_title: 'Escaneo inverso bidireccional sobre la matriz completa',
+    mode_cross_body: 'Recorre el perfil de todos los demás héroes de la matriz para detectar referencias entrantes al héroe consultado. Las relaciones encontradas —ausentes en su perfil directo— se suman al resultado, exponiendo vínculos competitivos que de otro modo permanecerían ocultos.',
+    s4_heading: 'Objetivo del sistema',
+    s4_body: 'Ofrecer una interpretación actualizada, coherente y directamente aplicable de las dinámicas de enfrentamiento entre héroes dentro del metajuego competitivo actual de Honor of Kings.',
+    footer_note: 'Si detectas alguna discrepancia técnica, cuentas con información adicional verificable o deseas proponer un ajuste basado en datos, puedes enviar tus sugerencias a <a href="mailto:michixhok@gmail.com">michixhok@gmail.com</a> para su revisión e incorporación en el sistema.'
+  },
+  en: {
+    nav_general: 'General', nav_stats: 'Statistics', nav_counters: 'Counters',
+    nav_planner: 'Planner', nav_draft: 'Draft', nav_about: 'About',
+    page_title: 'About HoKstats',
+    page_subtitle: 'Independent analytics platform for Honor of Kings',
+    s1_heading: 'Independence declaration and purpose',
+    s1_body: '<strong>HoKstats</strong> is a personal project, strictly informational and non-profit. This platform has no relation, affiliation, sponsorship or official connection with <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, or any of its subsidiaries. The development, maintenance and data analysis on this site are carried out independently and professionally with the sole purpose of supporting the community.',
+    s2_heading: 'Data source — Statistics',
+    s2_body: 'Quantitative indicators are extracted directly from official global server sources through <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">camp.honorofkings.com</a>). To ensure the relevance of performance metrics, the dataset is updated periodically every <strong>7 days</strong>.',
+    s3_heading: 'Methodology — Counters, weaknesses and synergies',
+    s3_body: 'Unlike general statistics, compatibility and counter interactions are not publicly consolidated in the global ecosystem. The HoKstats relationship matrix is built through a proprietary analytical model that weighs information under the following priority criteria:',
+    lvl1_badge: 'Level 1', lvl1_title: 'Official data — Highest priority',
+    lvl1_body: 'The main base derives from the official Chinese server (direct <em>case-by-case</em> analysis within the source application), supplemented by infographics and periodic publications from the development team distributed globally through HoK Camp. In case of discrepancies between versions, both references are kept to enrich the analytical framework.',
+    lvl2_badge: 'Level 2', lvl2_title: 'Competitive environment — Medium priority',
+    lvl2_body: 'Monitoring and breakdown of professional matches, leagues and official tournaments. In this scenario, hero synergies and interactions are executed under optimal coordination conditions, serving as a high-value validation environment.',
+    lvl3_badge: 'Level 3', lvl3_title: 'Expert opinion — Low priority',
+    lvl3_body: 'Integration of technical criteria provided by content creators and High Elo players, aimed at identifying specific strategic nuances not captured by higher levels.',
+    lvl4_badge: 'Level 4', lvl4_title: 'Empirical experience — Supplementary',
+    lvl4_body: 'Own validation through direct in-game experience, used exclusively as field contrast and fine-tuning, without displacing the structured base of the higher levels.',
+    s3b_heading: 'Methodology — Cross Model',
+    s3b_body: 'The query system operates under two execution modes that determine the scope and direction of the relational analysis applied to the data matrix:',
+    mode_normal_badge: 'Normal Mode', mode_normal_title: 'Direct projection from the hero profile',
+    mode_normal_body: 'Shows the analytical relationships of the queried hero as recorded in the source (Chinese server): base counters and weaknesses. Synergies, along with additional counter and weakness additions and adjustments, are derived from periodic HoK Camp publications and current global meta tracking.',
+    mode_cross_badge: 'Cross Mode', mode_cross_title: 'Bidirectional reverse scan across the full matrix',
+    mode_cross_body: 'Traverses the profile of all other heroes in the matrix to detect incoming references to the queried hero. The relationships found — absent in its direct profile — are added to the result, exposing competitive links that would otherwise remain hidden.',
+    s4_heading: 'System objective',
+    s4_body: 'To provide an updated, coherent and directly applicable interpretation of hero matchup dynamics within the current competitive meta of Honor of Kings.',
+    footer_note: 'If you detect any technical discrepancy, have additional verifiable information or wish to propose a data-based adjustment, you can send your suggestions to <a href="mailto:michixhok@gmail.com">michixhok@gmail.com</a> for review and incorporation into the system.'
+  },
+  pt: {
+    nav_general: 'Geral', nav_stats: 'Estatísticas', nav_counters: 'Counters',
+    nav_planner: 'Planner', nav_draft: 'Draft', nav_about: 'Sobre',
+    page_title: 'Sobre HoKstats',
+    page_subtitle: 'Plataforma analítica independente para Honor of Kings',
+    s1_heading: 'Declaração de independência e propósito',
+    s1_body: '<strong>HoKstats</strong> é um projeto pessoal, de caráter estritamente informativo e sem fins lucrativos. Esta plataforma não possui relação, afiliação, patrocínio ou vinculação oficial com <strong>Honor of Kings</strong>, <strong>Tencent Games</strong>, nem nenhuma de suas subsidiárias. O desenvolvimento, manutenção e análise de dados expostos neste site são realizados de forma independente e profissional com o único objetivo de apoiar a comunidade.',
+    s2_heading: 'Origem dos dados — Estatísticas',
+    s2_body: 'Os indicadores quantitativos são extraídos diretamente das fontes oficiais do servidor global através do <strong>HoK Camp</strong> (<a href="https://camp.honorofkings.com" target="_blank">camp.honorofkings.com</a>). Para garantir a validade das métricas de desempenho, o conjunto de dados é atualizado periodicamente a cada <strong>7 dias</strong>.',
+    s3_heading: 'Metodologia — Counters, fraquezas e sinergias',
+    s3_body: 'Ao contrário das estatísticas gerais, as interações de compatibilidade e contrarrestação não estão consolidadas publicamente no ecossistema global. A matriz de relações do HoKstats é construída por meio de um modelo analítico próprio que pondera informações sob os seguintes critérios de prioridade:',
+    lvl1_badge: 'Nível 1', lvl1_title: 'Dados oficiais — Máxima prioridade',
+    lvl1_body: 'A base principal deriva do servidor oficial da China (análise direta <em>caso a caso</em> dentro do aplicativo de origem), complementada por infográficos e publicações periódicas da equipe de desenvolvimento distribuídas globalmente através do HoK Camp. Em caso de discrepâncias entre versões, ambas as referências são mantidas para enriquecer o quadro analítico.',
+    lvl2_badge: 'Nível 2', lvl2_title: 'Ambiente competitivo — Prioridade média',
+    lvl2_body: 'Monitoramento e análise de partidas profissionais, ligas e torneios oficiais. Neste cenário, as sinergias e interações entre heróis são executadas sob condições ótimas de coordenação, servindo como ambiente de validação de alto valor.',
+    lvl3_badge: 'Nível 3', lvl3_title: 'Opinião especializada — Prioridade baixa',
+    lvl3_body: 'Integração de critérios técnicos fornecidos por criadores de conteúdo e jogadores de High Elo, orientados a identificar nuances estratégicas específicas não capturadas pelos níveis superiores.',
+    lvl4_badge: 'Nível 4', lvl4_title: 'Experiência empírica — Complementar',
+    lvl4_body: 'Validação própria através da experiência direta no jogo, utilizada exclusivamente como contraste de campo e ajuste fino, sem deslocar a base estruturada dos níveis superiores.',
+    s3b_heading: 'Metodologia — Modelo Cruzado',
+    s3b_body: 'O sistema de consulta opera sob dois modos de execução que determinam o escopo e a direção da análise relacional aplicada sobre a matriz de dados:',
+    mode_normal_badge: 'Modo Normal', mode_normal_title: 'Projeção direta do perfil do herói',
+    mode_normal_body: 'Exibe as relações analíticas do herói consultado conforme registradas na fonte de origem (servidor chinês): counters e fraquezas base. As sinergias, junto com adições e ajustes adicionais de counters e fraquezas, derivam das publicações periódicas do HoK Camp e do acompanhamento do meta global atual.',
+    mode_cross_badge: 'Modo Cruzado', mode_cross_title: 'Varredura inversa bidirecional sobre a matriz completa',
+    mode_cross_body: 'Percorre o perfil de todos os outros heróis da matriz para detectar referências ao herói consultado. As relações encontradas — ausentes em seu perfil direto — são somadas ao resultado, expondo vínculos competitivos que de outra forma permaneceriam ocultos.',
+    s4_heading: 'Objetivo do sistema',
+    s4_body: 'Oferecer uma interpretação atualizada, coerente e diretamente aplicável das dinâmicas de confronto entre heróis dentro do meta competitivo atual de Honor of Kings.',
+    footer_note: 'Se você detectar alguma discrepância técnica, tiver informações adicionais verificáveis ou desejar propor um ajuste baseado em dados, pode enviar suas sugestões para <a href="mailto:michixhok@gmail.com">michixhok@gmail.com</a> para revisão e incorporação no sistema.'
+  }
+};
+
+function setLang(lang) {
+  localStorage.setItem('hokstats_lang', lang);
+  applyLang(lang);
+}
+
+function applyLang(lang) {
+  const dict = i18n[lang];
+  if (!dict) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${lang}'`));
+  });
+  document.documentElement.lang = lang;
+}
+
+const savedLang = localStorage.getItem('hokstats_lang') || 'es';
+applyLang(savedLang);
+</script>
 
 </body>
 </html>
