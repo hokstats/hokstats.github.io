@@ -471,6 +471,14 @@ table.main-layout {
   transform: translateX(14px);
   background: #c084fc;
 }
+
+/* 🔴 MODO ESPEJO: cuando el usuario juega Lado Rojo, columnas invertidas */
+.draft-arena.red-perspective #red-picks  { order: 1; }
+.draft-arena.red-perspective .center-panel { order: 2; }
+.draft-arena.red-perspective #blue-picks { order: 3; }
+
+/* Bans: también invertidos en modo rojo */
+.bans-container.red-perspective { flex-direction: row-reverse; }
 </style>
 </head>
 <body>
@@ -687,6 +695,17 @@ function selectUserSide(side) {
   }
 
   DRAFT_SEQUENCE = [...bansOrdenados, ...PICKS_SEQUENCE];
+
+  // Perspectiva visual: si el usuario juega rojo, invertir columnas
+  const arena = document.getElementById('arena-box');
+  const bansContainer = document.querySelector('.bans-container');
+  if (userSide === 'red') {
+    arena.classList.add('red-perspective');
+    bansContainer.classList.add('red-perspective');
+  } else {
+    arena.classList.remove('red-perspective');
+    bansContainer.classList.remove('red-perspective');
+  }
 
   document.getElementById('setup-box').style.display = 'none';
   document.getElementById('arena-box').style.display = 'flex';
