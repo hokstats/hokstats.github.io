@@ -11,7 +11,7 @@ Disponible en: [hokstats.github.io](https://hokstats.github.io)
 | Página | Descripción |
 |--------|-------------|
 | **General** | Portal principal con acceso a todas las herramientas |
-| **Estadísticas** | Win rates, pick rates, ban rates y rendimiento por fases de juego |
+| **Estadísticas** | Tabla completa por héroe con: Posición, Tier, Rol, Win rate, Pick rate, Ban rate, Rendimiento Early/Mid/Late, Daño por partida, Kills por partida, Oro de caza, Daño por muerte, Asistencias por partida, Torres por partida y Daño a torres |
 | **Counters** | Análisis de fortalezas, debilidades y sinergias entre héroes, con modo cruzado bidireccional |
 | **Planner** | Pizarra táctica interactiva sobre el mapa del Desfiladero del Héroe |
 | **Draft** | Simulador de fase Pick & Ban con recomendaciones algorítmicas en tiempo real |
@@ -32,7 +32,7 @@ Disponible en: [hokstats.github.io](https://hokstats.github.io)
 
 | Dato | Fuente |
 |------|--------|
-| Win rate, pick rate, ban rate, rendimiento por fases | [HoK Camp](https://camp.honorofkings.com) — servidor global oficial |
+| Win rate, Pick rate, Ban rate, Rendimiento Early/Mid/Late, Daño por partida, Kills por partida, Oro de caza, Daño por muerte, Asistencias por partida, Torres por partida, Daño a torres | [HoK Camp](https://camp.honorofkings.com) — servidor global oficial |
 | Fortalezas y debilidades entre héroes | Aplicación oficial (servidor China), complementado periódicamente con publicaciones de HoK Camp |
 | Sinergias | Publicaciones periódicas de HoK Camp exclusivamente |
 
