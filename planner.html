@@ -155,8 +155,49 @@ body {
   display: inline-block;
 }
 
-/* Panel izquierdo heroes */
-.planner-left {
+/* ── MODO PANTALLA COMPLETA ── */
+body.is-fullscreen {
+  padding: 0;
+  background: #1c1c1f;
+}
+body.is-fullscreen .top-bar {
+  display: none;
+}
+body.is-fullscreen .container {
+  max-width: 100%;
+  padding: 8px 10px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+body.is-fullscreen .main-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 0;
+}
+body.is-fullscreen .content-padding-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 10px 12px;
+}
+body.is-fullscreen .planner-toolbar {
+  flex-shrink: 0;
+}
+body.is-fullscreen .planner-body {
+  flex: 1;
+  min-height: 0;
+}
+body.is-fullscreen .heroes-panel {
+  height: 100%;
+}
+body.is-fullscreen .map-viewport {
+  flex: 1;
+  min-height: 0;
+}
   width: 200px;
   flex-shrink: 0;
   display: flex;
@@ -1044,16 +1085,18 @@ const fsBtn = document.getElementById('btn-fullscreen');
 fsBtn.addEventListener('click', () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
+    document.body.classList.add('is-fullscreen');
     fsBtn.textContent = '✕';
-    fsBtn.setAttribute('data-tip', fsBtn.getAttribute('data-tip').replace('Pantalla completa','Salir').replace('Full screen','Exit').replace('Tela cheia','Sair'));
   } else {
     document.exitFullscreen();
-    fsBtn.textContent = '⛶';
   }
 });
 
 document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) fsBtn.textContent = '⛶';
+  if (!document.fullscreenElement) {
+    document.body.classList.remove('is-fullscreen');
+    fsBtn.textContent = '⛶';
+  }
 });
 
 // Centrar mapa al inicio
