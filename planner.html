@@ -752,7 +752,22 @@ let isPanning  = false;
 let panStartX  = 0, panStartY  = 0;
 let panOriginX = 0, panOriginY = 0;
 
+// Bloquear menú contextual sobre el mapa
+mapZone.addEventListener('contextmenu', (e) => { e.preventDefault(); });
+
 mapZone.addEventListener('mousedown', (e) => {
+  // Botón derecho → pan directo sin importar la herramienta
+  if (e.button === 2) {
+    isPanning  = true;
+    panStartX  = e.clientX;
+    panStartY  = e.clientY;
+    panOriginX = panX;
+    panOriginY = panY;
+    mapZone.classList.add('panning');
+    e.preventDefault();
+    return;
+  }
+
   if (currentTool === 'pan') {
     isPanning  = true;
     panStartX  = e.clientX;
