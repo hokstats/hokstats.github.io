@@ -1062,7 +1062,7 @@ function updateRecommendations() {
   }
 
   if (totalCountersRendered === 0) {
-    countersZone.innerHTML = `<div class="empty-state">Sin héroes fuertes directos contra la mesa.</div>`;
+    countersZone.innerHTML = `<div class="empty-state">${t('no_counter')}</div>`;
   }
 
   // RENDERIZADO CAJÓN VIOLETA — DEBILIDADES BIDIRECCIONALES
@@ -1222,6 +1222,7 @@ const i18n = {
     waiting_rival: 'Esperando selecciones del rival...',
     waiting_picks: 'Esperando picks del rival...',
     opening_phase: '¡Fase de apertura! Realiza tu primer pick para detonar sinergias.',
+    no_counter: 'Sin héroes fuertes directos contra la mesa.',
     no_weak: 'Sin héroes débiles ante el rival detectados.',
     no_synergy: 'Sin combos directos registrados en base de datos.',
     combo_with: 'Combo con',
@@ -1266,6 +1267,7 @@ const i18n = {
     waiting_rival: 'Waiting for enemy selections...',
     waiting_picks: 'Waiting for enemy picks...',
     opening_phase: 'Opening phase! Make your first pick to trigger synergies.',
+    no_counter: 'No direct strong heroes against the enemy lineup.',
     no_weak: 'No heroes weak against the enemy detected.',
     no_synergy: 'No direct combos registered in database.',
     combo_with: 'Combo with',
@@ -1310,6 +1312,7 @@ const i18n = {
     waiting_rival: 'Aguardando seleções do rival...',
     waiting_picks: 'Aguardando picks do rival...',
     opening_phase: 'Fase de abertura! Faça seu primeiro pick para ativar sinergias.',
+    no_counter: 'Nenhum herói forte direto contra o time rival.',
     no_weak: 'Nenhum herói fraco contra o rival detectado.',
     no_synergy: 'Nenhum combo direto registrado na base de dados.',
     combo_with: 'Combo com',
@@ -1368,6 +1371,10 @@ function applyLang(lang) {
           : `⏳ ${dict.rival_turn}: ${currentStep.label}`;
       }
     }
+  }
+  // Re-renderizar recomendaciones si el draft está en curso
+  if (typeof updateRecommendations === 'function' && typeof DRAFT_SEQUENCE !== 'undefined' && DRAFT_SEQUENCE.length > 0) {
+    updateRecommendations();
   }
   document.documentElement.lang = lang;
 }
