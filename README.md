@@ -50,7 +50,7 @@ El aviso de copyright anterior y este aviso de permiso deben incluirse en todas 
 
 **EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO. EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE DE NINGÚN DAÑO, RECLAMACIÓN O CONSECUENCIA DERIVADA DEL USO DE ESTE SOFTWARE.**
 
-> **Nota importante:** Esta licencia aplica únicamente al código fuente de HoKstats. No incluye ni otorga ningún derecho sobre las imágenes, nombres, logotipos o cualquier otro asset visual de los héroes utilizados en la plataforma, los cuales son propiedad exclusiva de **Honor of Kings / Tencent Games** y están sujetos a sus propios términos de uso. Cualquier uso de dichos assets fuera del contexto de este proyecto es responsabilidad exclusiva del usuario.
+> **Nota importante:** Esta licencia aplica únicamente al código fuente de HoKstats. No incluye ni otorga ningún derecho sobre las imágenes, nombres, logotipos, el mapa del juego o cualquier otro asset visual utilizado en la plataforma, los cuales son propiedad exclusiva de **Honor of Kings / Tencent Games** y están sujetos a sus propios términos de uso. Cualquier uso de dichos assets fuera del contexto de este proyecto es responsabilidad exclusiva del usuario.
 
 ---
 
