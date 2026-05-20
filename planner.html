@@ -155,49 +155,8 @@ body {
   display: inline-block;
 }
 
-/* ── MODO PANTALLA COMPLETA ── */
-body.is-fullscreen {
-  padding: 0;
-  background: #1c1c1f;
-}
-body.is-fullscreen .top-bar {
-  display: none;
-}
-body.is-fullscreen .container {
-  max-width: 100%;
-  padding: 8px 10px;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-body.is-fullscreen .main-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border-radius: 0;
-}
-body.is-fullscreen .content-padding-zone {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  padding: 10px 12px;
-}
-body.is-fullscreen .planner-toolbar {
-  flex-shrink: 0;
-}
-body.is-fullscreen .planner-body {
-  flex: 1;
-  min-height: 0;
-}
-body.is-fullscreen .heroes-panel {
-  height: 100%;
-}
-body.is-fullscreen .map-viewport {
-  flex: 1;
-  min-height: 0;
-}
+/* Panel izquierdo heroes */
+.planner-left {
   width: 200px;
   flex-shrink: 0;
   display: flex;
@@ -1082,10 +1041,16 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
 
 // ── PANTALLA COMPLETA ──
 const fsBtn = document.getElementById('btn-fullscreen');
+const topBar = document.querySelector('.top-bar');
+const container = document.querySelector('.container');
+
 fsBtn.addEventListener('click', () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
-    document.body.classList.add('is-fullscreen');
+    topBar.style.display = 'none';
+    container.style.maxWidth = '100%';
+    container.style.padding = '0 10px';
+    document.body.style.padding = '8px 0';
     fsBtn.textContent = '✕';
   } else {
     document.exitFullscreen();
@@ -1094,7 +1059,10 @@ fsBtn.addEventListener('click', () => {
 
 document.addEventListener('fullscreenchange', () => {
   if (!document.fullscreenElement) {
-    document.body.classList.remove('is-fullscreen');
+    topBar.style.display = '';
+    container.style.maxWidth = '';
+    container.style.padding = '';
+    document.body.style.padding = '';
     fsBtn.textContent = '⛶';
   }
 });
