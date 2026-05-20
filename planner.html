@@ -510,10 +510,9 @@ body {
         <div class="toolbar-divider"></div>
 
         <!-- Aura -->
-        <span class="toolbar-label" data-i18n="lbl_aura">Bdo.</span>
-        <button class="btn-tool" id="aura-none" data-tip="Sin aura" data-i18n-tip="tip_aura_none">⚪</button>
-        <button class="btn-tool" id="aura-blue" data-tip="Azul" data-i18n-tip="tip_aura_blue">🔵</button>
-        <button class="btn-tool" id="aura-red" data-tip="Rojo" data-i18n-tip="tip_aura_red">🔴</button>
+        <button class="btn-tool-labeled" id="aura-none" data-tip="Sin aura" data-i18n-tip="tip_aura_none">⚪ <span data-i18n="lbl_aura_none">Sin lado</span></button>
+        <button class="btn-tool-labeled" id="aura-blue" data-tip="Azul" data-i18n-tip="tip_aura_blue" style="color:#06b6d4; border-color:#06b6d4;">🔵 <span data-i18n="lbl_aura_blue">Azul</span></button>
+        <button class="btn-tool-labeled" id="aura-red" data-tip="Rojo" data-i18n-tip="tip_aura_red" style="color:#dc2626; border-color:#dc2626;">🔴 <span data-i18n="lbl_aura_red">Rojo</span></button>
 
         <div class="toolbar-divider"></div>
 
@@ -525,10 +524,14 @@ body {
         <div class="toolbar-divider"></div>
 
         <!-- Acciones -->
-        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save">💾</button>
-        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset">🔄</button>
-        <button class="btn-tool-labeled" id="load-map" data-tip="Cargar mapa propio" data-i18n-tip="tip_loadmap" style="border-color:#a855f7; color:#c084fc;">🖼️</button>
+        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save">💾 <span data-i18n="lbl_save">Guardar</span></button>
+        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset">🔄 <span data-i18n="lbl_reset">Reset</span></button>
+        <button class="btn-tool-labeled" id="load-map" data-tip="Cargar mapa propio" data-i18n-tip="tip_loadmap" style="border-color:#a855f7; color:#c084fc;">🖼️ <span data-i18n="lbl_loadmap">Mapa</span></button>
         <input type="file" id="map-file-input" accept="image/*" style="display:none;">
+
+        <div class="toolbar-divider"></div>
+
+        <button class="btn-tool" id="btn-fullscreen" data-tip="Pantalla completa" data-i18n-tip="tip_fullscreen">⛶</button>
 
       </div>
 
@@ -956,7 +959,7 @@ document.getElementById('hist-redo').addEventListener('click', () => {
 // ── TOOLBAR: event listeners directos por botón ──
 document.querySelectorAll('.btn-tool, .btn-tool-labeled').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all') return;
+    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all' || btn.id === 'load-map' || btn.id === 'btn-fullscreen') return;
     if (btn.id.startsWith('zoom-')) return;
 
     // Activo visual: solo dentro del grupo semántico
@@ -994,6 +997,8 @@ document.getElementById('clear-all').addEventListener('click', () => {
 
 document.getElementById('save-png').addEventListener('click', () => {
   const btn = document.getElementById('save-png');
+  const lang = localStorage.getItem('hokstats_lang') || 'es';
+  const saveLabel = i18n[lang]?.lbl_save || 'Guardar';
   btn.innerHTML = "⏳";
   btn.disabled = true;
 
@@ -1007,12 +1012,12 @@ document.getElementById('save-png').addEventListener('click', () => {
     link.download = 'hokstats-estrategia.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    btn.innerHTML = "💾";
+    btn.innerHTML = `💾 <span data-i18n="lbl_save">${saveLabel}</span>`;
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
     alert("Hubo un problema al generar la imagen.");
-    btn.innerHTML = "💾";
+    btn.innerHTML = `💾 <span data-i18n="lbl_save">${saveLabel}</span>`;
     btn.disabled = false;
   });
 });
@@ -1032,6 +1037,23 @@ document.querySelectorAll('.tab').forEach(tab => {
 document.getElementById('drawerSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value.toLowerCase().trim();
   renderDrawer(currentRole, currentSearch);
+});
+
+// ── PANTALLA COMPLETA ──
+const fsBtn = document.getElementById('btn-fullscreen');
+fsBtn.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    fsBtn.textContent = '✕';
+    fsBtn.setAttribute('data-tip', fsBtn.getAttribute('data-tip').replace('Pantalla completa','Salir').replace('Full screen','Exit').replace('Tela cheia','Sair'));
+  } else {
+    document.exitFullscreen();
+    fsBtn.textContent = '⛶';
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) fsBtn.textContent = '⛶';
 });
 
 // Centrar mapa al inicio
@@ -1065,9 +1087,12 @@ const i18n = {
     tip_arrow: 'Trazar flecha', tip_eraser: 'Borrar elemento',
     tip_undo: 'Deshacer', tip_redo: 'Rehacer',
     tip_zoomout: 'Alejar', tip_zoomin: 'Acercar', tip_zoomreset: 'Restablecer vista',
-    tip_aura_none: 'Sin aura', tip_aura_blue: 'Azul', tip_aura_red: 'Rojo',
+    tip_aura_none: 'Sin aura', tip_aura_blue: 'Lado Azul', tip_aura_red: 'Lado Rojo',
+    lbl_aura_none: 'Sin lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Rojo',
     tip_yellow: 'Amarillo', tip_green: 'Verde',
     tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_loadmap: 'Cargar mapa propio',
+    lbl_save: 'Guardar', lbl_reset: 'Reset', lbl_loadmap: 'Mapa',
+    tip_fullscreen: 'Pantalla completa',
     filter_label: 'Filtrar héroes',
     role_all: 'Todo', role_choque: 'Choque', role_cazador: 'Caza',
     role_medio: 'Medio', role_merodeo: 'Merod.', role_farmeo: 'Farmeo',
@@ -1081,9 +1106,12 @@ const i18n = {
     tip_arrow: 'Draw arrow', tip_eraser: 'Erase element',
     tip_undo: 'Undo', tip_redo: 'Redo',
     tip_zoomout: 'Zoom out', tip_zoomin: 'Zoom in', tip_zoomreset: 'Reset view',
-    tip_aura_none: 'No aura', tip_aura_blue: 'Blue', tip_aura_red: 'Red',
+    tip_aura_none: 'No aura', tip_aura_blue: 'Blue side', tip_aura_red: 'Red side',
+    lbl_aura_none: 'No side', lbl_aura_blue: 'Blue', lbl_aura_red: 'Red',
     tip_yellow: 'Yellow', tip_green: 'Green',
     tip_save: 'Save PNG', tip_reset: 'Reset all', tip_loadmap: 'Load custom map',
+    lbl_save: 'Save', lbl_reset: 'Reset', lbl_loadmap: 'Map',
+    tip_fullscreen: 'Full screen',
     filter_label: 'Filter heroes',
     role_all: 'All', role_choque: 'Fighter', role_cazador: 'Jungle',
     role_medio: 'Mid', role_merodeo: 'Roam', role_farmeo: 'Farmer',
@@ -1097,9 +1125,12 @@ const i18n = {
     tip_arrow: 'Traçar seta', tip_eraser: 'Apagar elemento',
     tip_undo: 'Desfazer', tip_redo: 'Refazer',
     tip_zoomout: 'Afastar', tip_zoomin: 'Aproximar', tip_zoomreset: 'Restaurar vista',
-    tip_aura_none: 'Sem aura', tip_aura_blue: 'Azul', tip_aura_red: 'Vermelho',
+    tip_aura_none: 'Sem aura', tip_aura_blue: 'Lado Azul', tip_aura_red: 'Lado Vermelho',
+    lbl_aura_none: 'Sem lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Verm.',
     tip_yellow: 'Amarelo', tip_green: 'Verde',
     tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_loadmap: 'Carregar mapa próprio',
+    lbl_save: 'Salvar', lbl_reset: 'Resetar', lbl_loadmap: 'Mapa',
+    tip_fullscreen: 'Tela cheia',
     filter_label: 'Filtrar heróis',
     role_all: 'Tudo', role_choque: 'Lutador', role_cazador: 'Caçador',
     role_medio: 'Meio', role_merodeo: 'Suporte', role_farmeo: 'Carry',
