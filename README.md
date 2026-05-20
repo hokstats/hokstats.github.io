@@ -34,7 +34,7 @@ Disponible en: [hokstats.github.io](https://hokstats.github.io)
 |------|--------|
 | Win rate, Pick rate, Ban rate, Rendimiento Early/Mid/Late, Daño por partida, Kills por partida, Oro de caza, Daño por muerte, Asistencias por partida, Torres por partida, Daño a torres | [HoK Camp](https://camp.honorofkings.com) — servidor global oficial |
 | Fortalezas y debilidades entre héroes | Aplicación oficial (servidor China), complementado periódicamente con publicaciones de HoK Camp |
-| Sinergias | Publicaciones periódicas de HoK Camp exclusivamente |
+| Sinergias | Publicaciones periódicas de HoK Camp principalmente |
 
 Ver metodología completa en la página [Acerca de](https://hokstats.github.io/acerca.html).
 
