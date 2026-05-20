@@ -546,7 +546,7 @@ table.main-layout {
 
           <div class="center-panel">
             <div class="status-display">
-              <div class="status-title" id="phase-label">Fase de Bloqueo (Ban)</div>
+              <div class="status-title" id="phase-label" data-i18n="phase_ban">Fase de Bloqueo (Ban)</div>
               <div class="status-turn" id="turn-label">Cargando...</div>
             </div>
 
@@ -1030,7 +1030,7 @@ function updateRecommendations() {
     groupBlock.innerHTML = `
       <div class="rec-group-title-row">
         <img src="${group.target.imagen}">
-        <span>Fuerte vs ${group.target.nombre}</span>
+        <span>${t('strong_vs')} ${group.target.nombre}</span>
       </div>
       <div class="rec-items-horizontal-grid"></div>
     `;
@@ -1078,7 +1078,7 @@ function updateRecommendations() {
     groupBlock.innerHTML = `
       <div class="rec-group-title-row">
         <img src="${group.target.imagen}">
-        <span>Débil ante: ${group.target.nombre}</span>
+        <span>${t('weak_vs')} ${group.target.nombre}</span>
       </div>
       <div class="rec-items-horizontal-grid"></div>
     `;
@@ -1088,7 +1088,7 @@ function updateRecommendations() {
     group.list.forEach(allyHero => {
       const iconCard = document.createElement('div');
       iconCard.className = 'rec-icon-card disabled-click';
-      iconCard.innerHTML = `<img src="${allyHero.imagen}" class="hero-main-thumb" title="${allyHero.nombre} es débil ante ${group.target.nombre}">`;
+      iconCard.innerHTML = `<img src="${allyHero.imagen}" class="hero-main-thumb" title="${allyHero.nombre} ${t('weak_vs')} ${group.target.nombre}">`;
       grid.appendChild(iconCard);
     });
   }
@@ -1225,6 +1225,8 @@ const i18n = {
     no_weak: 'Sin héroes débiles ante el rival detectados.',
     no_synergy: 'Sin combos directos registrados en base de datos.',
     combo_with: 'Combo con',
+    strong_vs: 'Fuerte vs',
+    weak_vs: 'Débil ante:',
     pick_blue_1: 'Pick Azul 1', pick_blue_2: 'Pick Azul 2', pick_blue_3: 'Pick Azul 3',
     pick_blue_4: 'Pick Azul 4', pick_blue_5: 'Pick Azul 5',
     pick_red_1: 'Pick Rojo 1', pick_red_2: 'Pick Rojo 2', pick_red_3: 'Pick Rojo 3',
@@ -1267,6 +1269,8 @@ const i18n = {
     no_weak: 'No heroes weak against the enemy detected.',
     no_synergy: 'No direct combos registered in database.',
     combo_with: 'Combo with',
+    strong_vs: 'Strong vs',
+    weak_vs: 'Weak vs',
     pick_blue_1: 'Blue Pick 1', pick_blue_2: 'Blue Pick 2', pick_blue_3: 'Blue Pick 3',
     pick_blue_4: 'Blue Pick 4', pick_blue_5: 'Blue Pick 5',
     pick_red_1: 'Red Pick 1', pick_red_2: 'Red Pick 2', pick_red_3: 'Red Pick 3',
@@ -1309,6 +1313,8 @@ const i18n = {
     no_weak: 'Nenhum herói fraco contra o rival detectado.',
     no_synergy: 'Nenhum combo direto registrado na base de dados.',
     combo_with: 'Combo com',
+    strong_vs: 'Forte vs',
+    weak_vs: 'Fraco ante:',
     pick_blue_1: 'Pick Azul 1', pick_blue_2: 'Pick Azul 2', pick_blue_3: 'Pick Azul 3',
     pick_blue_4: 'Pick Azul 4', pick_blue_5: 'Pick Azul 5',
     pick_red_1: 'Pick Vermelho 1', pick_red_2: 'Pick Vermelho 2', pick_red_3: 'Pick Vermelho 3',
@@ -1346,6 +1352,22 @@ function applyLang(lang) {
   const crossLabel = document.getElementById('cross-model-label');
   if (crossLabel) {
     crossLabel.textContent = useCrossModel ? dict.cross_model : dict.normal_model;
+  }
+  // Re-renderizar phase-label y turn-label si el draft ya está en curso
+  if (typeof currentStepIndex !== 'undefined' && typeof DRAFT_SEQUENCE !== 'undefined' && DRAFT_SEQUENCE.length > 0) {
+    if (currentStepIndex >= DRAFT_SEQUENCE.length) {
+      document.getElementById('phase-label').innerText = dict.phase_done || '';
+      document.getElementById('turn-label').innerText = dict.turn_done || '';
+    } else {
+      const currentStep = DRAFT_SEQUENCE[currentStepIndex];
+      if (currentStep) {
+        document.getElementById('phase-label').innerText = currentStep.type === 'ban' ? dict.phase_ban : dict.phase_pick;
+        const isMyTurn = currentStep.team === userSide;
+        document.getElementById('turn-label').innerText = isMyTurn
+          ? `👉 ${dict.your_turn}: ${currentStep.label}`
+          : `⏳ ${dict.rival_turn}: ${currentStep.label}`;
+      }
+    }
   }
   document.documentElement.lang = lang;
 }
