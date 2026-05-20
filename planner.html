@@ -406,7 +406,6 @@ body {
   border-radius: 50%;
   display: block;
   pointer-events: none;
-  filter: saturate(1.45);
 }
 
 .placed-hero.aura-blue { border: 3.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6,182,212,0.8); }
@@ -858,13 +857,13 @@ function handleStartContainer(e) {
     isDrawing = true;
     const coords = getLocalCoords(e);
     startX = coords.x; startY = coords.y;
-    
+
     activePathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
     activePathElement.setAttribute("class", "free-path");
     activePathElement.setAttribute("stroke", currentStrokeColor);
-    
-    currentPathPoints = `M ${startX} ${startY}`;
-    activePathElement.setAttribute("d", currentPathPoints);
+
+    currentPathPoints = [[startX, startY]];
+    activePathElement.setAttribute("d", `M ${startX} ${startY}`);
     svgLayer.appendChild(activePathElement);
   }
 }
@@ -889,8 +888,21 @@ function handleMoveContainer(e) {
   } 
   else if (currentTool === 'draw' && activePathElement) {
     if (e.cancelable) e.preventDefault();
-    currentPathPoints += ` L ${currentX} ${currentY}`;
-    activePathElement.setAttribute("d", currentPathPoints);
+    currentPathPoints.push([currentX, currentY]);
+    const pts = currentPathPoints;
+    const n = pts.length;
+    if (n < 3) {
+      activePathElement.setAttribute("d", `M ${pts[0][0]} ${pts[0][1]} L ${currentX} ${currentY}`);
+    } else {
+      let d = `M ${pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < n - 1; i++) {
+        const mx = (pts[i][0] + pts[i+1][0]) / 2;
+        const my = (pts[i][1] + pts[i+1][1]) / 2;
+        d += ` Q ${pts[i][0]} ${pts[i][1]} ${mx} ${my}`;
+      }
+      d += ` L ${pts[n-1][0]} ${pts[n-1][1]}`;
+      activePathElement.setAttribute("d", d);
+    }
   }
 }
 
