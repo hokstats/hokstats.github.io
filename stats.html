@@ -481,125 +481,130 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   text-align: center;
 }
 
-/* ── VISTA DETALLE HÉROE ── */
-.detail-header {
-  margin-bottom: 24px;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  color: #555;
-  font-size: 12px;
-  padding: 0;
-  cursor: pointer;
-  letter-spacing: 0.3px;
-}
-
-.back-btn:hover { color: #a0a0b5; }
-
-.detail-top {
+/* ── VISTA DETALLE HÉROE (estilo counter) ── */
+.detail-top-dashboard {
   display: flex;
-  gap: 32px;
+  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 28px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid #3a3a46;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
-/* — Bloque izquierdo: imagen + identidad — */
-.detail-hero-info {
+.focus-hero-card {
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 14px;
   display: flex;
-  gap: 18px;
   align-items: center;
-  flex: 0 0 220px;
+  gap: 14px;
+  flex-grow: 1;
+  min-height: 80px;
 }
 
-.detail-hero-img {
-  width: 72px;
-  height: 72px;
-  border-radius: 8px;
+.focus-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 4px;
   object-fit: cover;
+  border: 2px solid #4f6edb;
   flex-shrink: 0;
 }
 
-.detail-hero-meta {
+.focus-details h2 { margin: 0; color: white; font-size: 16px; }
+.focus-roles { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.role-badge {
+  background: #31313c;
+  color: #a0a0b5;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid #444452;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.detail-control-panel {
+  background: #24242b;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 12px 16px;
+  width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+  box-sizing: border-box;
+  min-height: 80px;
+  justify-content: center;
 }
 
-.detail-hero-name {
-  font-size: 17px;
-  font-weight: bold;
-  color: white;
-  letter-spacing: 0.2px;
-}
-
-.detail-hero-sub {
+.detail-control-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
 
-.detail-hero-roles {
-  display: flex;
-  gap: 4px;
+.btn-back {
+  background: #31313c;
+  border: 1px solid #444452;
+  color: white;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
 }
-
-.detail-hero-roles img {
-  width: 18px;
-  height: 18px;
-  opacity: 0.5;
-}
+.btn-back:hover { border-color: #7b7a8e; }
 
 .detail-tier-text {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
-  padding: 2px 7px;
+  padding: 3px 9px;
   border-radius: 3px;
 }
-.detail-tier-S { color: #4dabf7; background: rgba(77,171,247,0.12); }
-.detail-tier-A { color: #69db7c; background: rgba(105,219,124,0.12); }
-.detail-tier-B { color: #ffa94d; background: rgba(255,169,77,0.12);  }
-.detail-tier-C { color: #868e96; background: rgba(134,142,150,0.12); }
+.detail-tier-S { color: #4dabf7; background: rgba(77,171,247,0.12); border: 1px solid rgba(77,171,247,0.25); }
+.detail-tier-A { color: #69db7c; background: rgba(105,219,124,0.12); border: 1px solid rgba(105,219,124,0.25); }
+.detail-tier-B { color: #ffa94d; background: rgba(255,169,77,0.12);  border: 1px solid rgba(255,169,77,0.25);  }
+.detail-tier-C { color: #868e96; background: rgba(134,142,150,0.12); border: 1px solid rgba(134,142,150,0.25); }
 
-/* — Bloque derecho: stats en fila — */
-.detail-stats-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  flex: 1;
-  border: 1px solid #4a4a58;
+.detail-week-label {
+  font-size: 10px;
+  color: #555;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Cajones de stats */
+.detail-stats-cajones {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.cajon {
+  background: #24242b;
+  border: 1px solid #3a3a48;
   border-radius: 6px;
-  overflow: hidden;
-}
-
-.detail-stat-card {
-  flex: 1 1 80px;
-  padding: 12px 14px;
-  border-right: 1px solid #4a4a58;
-  border-bottom: 1px solid #4a4a58;
+  padding: 12px 8px;
   text-align: center;
-  background: #3a3a48;
 }
 
-.detail-stat-card:last-child { border-right: none; }
-
-.detail-stat-label {
+.cajon-label {
   font-size: 9px;
-  color: #8888a0;
-  margin-bottom: 5px;
+  color: #666;
   text-transform: uppercase;
   letter-spacing: 0.8px;
+  margin-bottom: 6px;
   font-family: 'IBM Plex Mono', monospace;
 }
 
-.detail-stat-value {
+.cajon-value {
   font-size: 15px;
   font-weight: 600;
-  color: #e8e8f0;
+  color: #c8c8dc;
   font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -774,30 +779,38 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
     <div class="main-box">
       <div class="content-padding-zone">
 
-        <div class="detail-header">
-          <button class="back-btn" id="backBtn">← Volver</button>
-        </div>
-
-        <div class="detail-top">
-          <div class="detail-hero-info">
-            <img id="detailImg" src="" class="detail-hero-img">
-            <div class="detail-hero-meta">
-              <div class="detail-hero-name" id="detailName"></div>
-              <div class="detail-hero-sub">
-                <div class="detail-hero-roles" id="detailRoles"></div>
-                <div id="detailTier"></div>
-              </div>
+        <!-- Cabecera: foto + info + botón volver -->
+        <div class="detail-top-dashboard">
+          <div class="focus-hero-card">
+            <img src="" class="focus-avatar" id="detailImg">
+            <div class="focus-details">
+              <h2 id="detailName">-</h2>
+              <div class="focus-roles" id="detailRoles"></div>
             </div>
           </div>
-          <div class="detail-stats-grid" id="detailStatsGrid"></div>
+          <div class="detail-control-panel">
+            <div class="detail-control-row">
+              <button class="btn-back" id="backBtn">← Volver</button>
+              <span id="detailTier"></span>
+            </div>
+            <div class="detail-week-label" id="detailWeekLabel"></div>
+          </div>
         </div>
 
+        <!-- Cajones de stats -->
+        <div class="detail-stats-cajones" id="detailStatsGrid"></div>
+
+        <!-- Selector de stat + gráfico -->
         <div class="detail-chart-section">
           <div class="detail-chart-controls" id="detailChartControls"></div>
           <div class="detail-chart-wrap">
             <canvas id="heroLineChart"></canvas>
           </div>
         </div>
+
+      </div>
+    </div>
+  </div>
 
       </div>
     </div>
@@ -1072,27 +1085,41 @@ const chartStatOptions = [
 
 function showHeroDetail(nombre) {
   const meta = metaMap[nombre] || {};
+  const lang = localStorage.getItem('hokstats_lang') || 'es';
+  const roleMap = {
+    es: { Choque: 'Choque', Cazador: 'Cazador', Medio: 'Medio', Merodeo: 'Merodeo', Farmeo: 'Farmeo' },
+    en: { Choque: 'Fighter', Cazador: 'Jungler', Medio: 'Mid', Merodeo: 'Roamer', Farmeo: 'Farmer' },
+    pt: { Choque: 'Lutador', Cazador: 'Caçador', Medio: 'Meio', Merodeo: 'Suporte', Farmeo: 'Carry' }
+  };
 
-  // Historial completo del héroe ordenado por semana asc
+  // Historial completo ordenado asc
   const heroHistory = historicoData
     .filter(r => r.Heroe && r.Heroe.trim() === nombre)
     .sort((a, b) => Number(a.semana_anio) - Number(b.semana_anio));
 
   if (!heroHistory.length) return;
 
-  // Datos de la semana actual del héroe
   const current = allData.find(h => h.nombre === nombre) || {};
 
-  // Poblar info superior
+  // Cabecera
   document.getElementById("detailImg").src = meta.imagen || "";
   document.getElementById("detailName").textContent = nombre;
-  document.getElementById("detailRoles").innerHTML =
-    (meta.roleImgs || []).map(img => `<img src="${img}">`).join("");
+
+  // Roles como texto (badge)
+  const rolesEl = document.getElementById("detailRoles");
+  rolesEl.innerHTML = (meta.roles || [])
+    .map(r => `<span class="role-badge">${(roleMap[lang]?.[r]) || r}</span>`)
+    .join("");
+
+  // Tier
   document.getElementById("detailTier").innerHTML =
     `<span class="detail-tier-text detail-tier-${current.tier || 'C'}">${current.tier || 'C'}</span>`;
 
-  // Cards de stats actuales
-  const statsCards = [
+  // Semana actual
+  document.getElementById("detailWeekLabel").textContent = `Semana ${currentWeek}`;
+
+  // Cajones de stats
+  const cajones = [
     { label: 'Win',       value: current.win    != null ? current.win + '%'  : '—' },
     { label: 'Pick',      value: current.pick   != null ? current.pick + '%' : '—' },
     { label: 'Ban',       value: current.ban    != null ? current.ban + '%'  : '—' },
@@ -1103,13 +1130,13 @@ function showHeroDetail(nombre) {
     { label: 'Oro/min',   value: current.gold   != null ? current.gold       : '—' },
   ];
   document.getElementById("detailStatsGrid").innerHTML =
-    statsCards.map(s => `
-      <div class="detail-stat-card">
-        <div class="detail-stat-label">${s.label}</div>
-        <div class="detail-stat-value">${s.value}</div>
+    cajones.map(s => `
+      <div class="cajon">
+        <div class="cajon-label">${s.label}</div>
+        <div class="cajon-value">${s.value}</div>
       </div>`).join("");
 
-  // Botones de selector de stat para el gráfico
+  // Botones selector de stat para gráfico
   const controls = document.getElementById("detailChartControls");
   controls.innerHTML = chartStatOptions.map(o =>
     `<button class="chart-stat-btn${o.key === activeChartStat ? ' active' : ''}"
@@ -1128,7 +1155,6 @@ function showHeroDetail(nombre) {
   document.getElementById("stats").classList.remove("active");
   document.getElementById("hero-detail").classList.add("active");
 
-  // Renderizar gráfico después de que el canvas sea visible
   setTimeout(() => renderHeroChart(heroHistory, activeChartStat), 50);
 }
 
