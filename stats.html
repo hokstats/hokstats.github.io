@@ -2,7 +2,7 @@
 <html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Tier List HoK - HoKstats</title>
+<title>Estadisticas - HoKstats</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -479,6 +479,149 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   text-align: center;
 }
 
+/* ── VISTA DETALLE HÉROE ── */
+.detail-header {
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: #282830;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  color: #a0a0b5;
+  font-size: 12px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  color: white;
+  border-color: #5a5a6b;
+}
+
+.detail-top {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.detail-hero-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.detail-hero-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.detail-hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-hero-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+
+.detail-hero-roles {
+  display: flex;
+  gap: 6px;
+}
+
+.detail-hero-roles img {
+  width: 22px;
+  height: 22px;
+  opacity: 0.6;
+}
+
+.detail-tier-badge-wrap .tier-badge {
+  margin: 0;
+}
+
+.detail-stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 1;
+}
+
+.detail-stat-card {
+  background: #282830;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 10px 16px;
+  min-width: 100px;
+  text-align: center;
+}
+
+.detail-stat-label {
+  font-size: 10px;
+  color: #777;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-stat-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+
+.detail-chart-section {
+  margin-top: 10px;
+}
+
+.detail-chart-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.chart-stat-btn {
+  padding: 5px 12px;
+  font-size: 11px;
+  background: #282830;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  color: #a0a0b5;
+  cursor: pointer;
+}
+
+.chart-stat-btn:hover {
+  color: white;
+  border-color: #5a5a6b;
+}
+
+.chart-stat-btn.active {
+  background: #4f6edb;
+  border-color: #4f6edb;
+  color: white;
+}
+
+.detail-chart-wrap {
+  background: #282830;
+  border: 1px solid #444452;
+  border-radius: 6px;
+  padding: 20px;
+  height: 280px;
+}
+
+.detail-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* scrollbar modo oscuro */
 ::-webkit-scrollbar {
   width: 10px;
@@ -600,7 +743,37 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
     </div>
   </div>
 
-  <div class="view" id="charts">
+  <!-- VISTA DETALLE HÉROE -->
+  <div class="view" id="hero-detail">
+    <div class="main-box">
+      <div class="content-padding-zone">
+
+        <div class="detail-header">
+          <button class="back-btn" id="backBtn">← Volver</button>
+        </div>
+
+        <div class="detail-top">
+          <div class="detail-hero-info">
+            <img id="detailImg" src="" class="detail-hero-img">
+            <div class="detail-hero-meta">
+              <div class="detail-hero-name" id="detailName"></div>
+              <div class="detail-hero-roles" id="detailRoles"></div>
+              <div class="detail-tier-badge-wrap" id="detailTier"></div>
+            </div>
+          </div>
+          <div class="detail-stats-grid" id="detailStatsGrid"></div>
+        </div>
+
+        <div class="detail-chart-section">
+          <div class="detail-chart-controls" id="detailChartControls"></div>
+          <div class="detail-chart-wrap">
+            <canvas id="heroLineChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
     <div class="chart-box">
       <canvas id="scatterChart"></canvas>
     </div>
@@ -788,7 +961,7 @@ function buildAllData() {
       imagen:   meta.imagen   || "",
       roles:    meta.roles    || [],
       roleImgs: meta.roleImgs || [],
-      tier:     meta.tier     || "C",
+      tier:     r.tRank     || meta.tier || "C",
       pos,
       posDelta,
       syn:      meta.syn      || [],
@@ -892,9 +1065,163 @@ function renderTable(data) {
       <td class="col-stat stat">${item.towerDmg}</td>
     `;
 
+    tr.addEventListener("click", () => showHeroDetail(item.nombre));
     tbody.appendChild(tr);
   });
 }
+
+let heroLineChart = null;
+let activeChartStat = 'win';
+
+const chartStatOptions = [
+  { key: 'win',      label: 'Win %' },
+  { key: 'pick',     label: 'Pick %' },
+  { key: 'ban',      label: 'Ban %' },
+  { key: 'early',    label: 'Early' },
+  { key: 'mid',      label: 'Mid' },
+  { key: 'late',     label: 'Late' },
+  { key: 'output',   label: 'Daño' },
+  { key: 'kills',    label: 'Kills' },
+  { key: 'gold',     label: 'Oro' },
+  { key: 'suffer',   label: 'Daño rec.' },
+  { key: 'assist',   label: 'Asist.' },
+  { key: 'towers',   label: 'Torres' },
+  { key: 'towerDmg', label: 'Daño torres' }
+];
+
+function showHeroDetail(nombre) {
+  const meta = metaMap[nombre] || {};
+
+  // Historial completo del héroe ordenado por semana asc
+  const heroHistory = historicoData
+    .filter(r => r.Heroe && r.Heroe.trim() === nombre)
+    .sort((a, b) => Number(a.semana_anio) - Number(b.semana_anio));
+
+  if (!heroHistory.length) return;
+
+  // Datos de la semana actual del héroe
+  const current = allData.find(h => h.nombre === nombre) || {};
+
+  // Poblar info superior
+  document.getElementById("detailImg").src = meta.imagen || "";
+  document.getElementById("detailName").textContent = nombre;
+  document.getElementById("detailRoles").innerHTML =
+    (meta.roleImgs || []).map(img => `<img src="${img}">`).join("");
+  document.getElementById("detailTier").innerHTML =
+    `<div class="tier-badge tier-${current.tier || 'C'}"><span>${current.tier || 'C'}</span></div>`;
+
+  // Cards de stats actuales
+  const statsCards = [
+    { label: 'Win',    value: current.win    != null ? current.win + '%'  : '—' },
+    { label: 'Pick',   value: current.pick   != null ? current.pick + '%' : '—' },
+    { label: 'Ban',    value: current.ban    != null ? current.ban + '%'  : '—' },
+    { label: 'Early',  value: current.early  != null ? current.early      : '—' },
+    { label: 'Mid',    value: current.mid    != null ? current.mid        : '—' },
+    { label: 'Late',   value: current.late   != null ? current.late       : '—' },
+    { label: 'Kills',  value: current.kills  != null ? current.kills      : '—' },
+    { label: 'Oro',    value: current.gold   != null ? current.gold       : '—' },
+  ];
+  document.getElementById("detailStatsGrid").innerHTML =
+    statsCards.map(s => `
+      <div class="detail-stat-card">
+        <div class="detail-stat-label">${s.label}</div>
+        <div class="detail-stat-value">${s.value}</div>
+      </div>`).join("");
+
+  // Botones de selector de stat para el gráfico
+  const controls = document.getElementById("detailChartControls");
+  controls.innerHTML = chartStatOptions.map(o =>
+    `<button class="chart-stat-btn${o.key === activeChartStat ? ' active' : ''}"
+      data-stat="${o.key}">${o.label}</button>`
+  ).join("");
+  controls.querySelectorAll(".chart-stat-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeChartStat = btn.dataset.stat;
+      controls.querySelectorAll(".chart-stat-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderHeroChart(heroHistory, activeChartStat);
+    });
+  });
+
+  // Cambiar vista
+  document.getElementById("stats").classList.remove("active");
+  document.getElementById("hero-detail").classList.add("active");
+
+  // Renderizar gráfico
+  renderHeroChart(heroHistory, activeChartStat);
+}
+
+function getStatFromRow(r, key) {
+  const map = {
+    win: r.Win_Rate, pick: r.Pick_Rate, ban: r.Ban_Rate,
+    early: r.beginPhase, mid: r.midPhase, late: r.endPhase,
+    output: r.output, kills: r.killNum, gold: r.moneyPerMin,
+    suffer: r.suffer, assist: r.assist, towers: r.towerNum, towerDmg: r.towerDamage
+  };
+  return cleanNumber(map[key]);
+}
+
+function renderHeroChart(heroHistory, statKey) {
+  const labels = heroHistory.map(r => 'S' + r.semana_anio);
+  const heroValues = heroHistory.map(r => getStatFromRow(r, statKey));
+
+  // Rango global: min y max de TODOS los héroes para esa stat en todas las semanas
+  const allValues = historicoData.map(r => getStatFromRow(r, statKey)).filter(v => v > 0);
+  const globalMin = Math.min(...allValues);
+  const globalMax = Math.max(...allValues);
+  const padding = (globalMax - globalMin) * 0.08;
+
+  if (heroLineChart) heroLineChart.destroy();
+
+  const ctx = document.getElementById("heroLineChart");
+  heroLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: chartStatOptions.find(o => o.key === statKey)?.label || statKey,
+        data: heroValues,
+        borderColor: '#4f6edb',
+        backgroundColor: 'rgba(79,110,219,0.10)',
+        pointBackgroundColor: '#4f6edb',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#777', font: { size: 11 } },
+          grid: { color: '#2e2e38' }
+        },
+        y: {
+          min: Math.max(0, globalMin - padding),
+          max: globalMax + padding,
+          ticks: { color: '#777', font: { size: 11 } },
+          grid: { color: '#2e2e38' }
+        }
+      }
+    }
+  });
+}
+
+document.getElementById("backBtn").addEventListener("click", () => {
+  if (heroLineChart) { heroLineChart.destroy(); heroLineChart = null; }
+  document.getElementById("hero-detail").classList.remove("active");
+  document.getElementById("stats").classList.add("active");
+});
 
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
