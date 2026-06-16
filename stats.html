@@ -532,7 +532,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
             <div class="week-dropdown" id="weekDropdown">
               <div class="week-pill" id="weekPill">
                 <span class="week-pill-label">Semana</span>
-                <span class="week-pill-value" id="weekPillValue">—</span>
+                <span class="week-pill-value" id="weekPillValue"></span>
                 <span class="week-pill-arrow">▾</span>
               </div>
               <div class="week-list" id="weekList"></div>
@@ -587,7 +587,7 @@ let chartInstance = null;
 const CSV_COUNTERS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 // ── Fuente histórica: stats numéricas semana a semana
-const CSV_HISTORICO = "https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/archivos/hokstats_combined.csv";
+const CSV_HISTORICO = "PEGA ACÁ EL ENLACE";
 
 let metaMap = {};       // { nombreHeroe → { imagen, roles, roleImgs, tier, pos, syn, weak, counter } }
 let historicoData = []; // todas las filas del CSV histórico
@@ -745,7 +745,7 @@ function buildAllData() {
       roles:    meta.roles    || [],
       roleImgs: meta.roleImgs || [],
       tier:     meta.tier     || "C",
-      pos:      meta.pos      || 999,
+      pos:      cleanNumber(r.Meta_Ranking) || meta.pos || 999,
       syn:      meta.syn      || [],
       weak:     meta.weak     || [],
       counter:  meta.counter  || [],
