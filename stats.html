@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
 <style>
 /* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
@@ -629,12 +628,12 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 }
 
 .cajon-icon {
-  font-size: 14px;
-  opacity: 0.35;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  opacity: 0.3;
   color: white;
-  font-style: normal;
 }
+.cajon-icon svg { display: block; }
 
 .cajon-delta {
   font-size: 10px;
@@ -1160,22 +1159,15 @@ const chartStatOptions = [
 ];
 
 const cajonDefs = [
-  { key: 'win',      label: 'Win',      icon: 'trophy',       fmt: v => v + '%' },
-  { key: 'pick',     label: 'Pick',     icon: 'mouse-pointer-click', fmt: v => v + '%' },
-  { key: 'ban',      label: 'Ban',      icon: 'shield-off',   fmt: v => v + '%' },
-  { key: 'early',    label: 'Early',    icon: 'sunrise',      fmt: v => v },
-  { key: 'mid',      label: 'Mid',      icon: 'sun',          fmt: v => v },
-  { key: 'late',     label: 'Late',     icon: 'moon',         fmt: v => v },
-  { key: 'kills',    label: 'Kills',    icon: 'crosshair',    fmt: v => v },
-  { key: 'gold',     label: 'Oro/min',  icon: 'coins',        fmt: v => v },
+  { key: 'win',      label: 'Win',      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`, fmt: v => v + '%' },
+  { key: 'pick',     label: 'Pick',     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>`, fmt: v => v + '%' },
+  { key: 'ban',      label: 'Ban',      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`, fmt: v => v + '%' },
+  { key: 'early',    label: 'Early',    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg>`, fmt: v => v },
+  { key: 'mid',      label: 'Mid',      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`, fmt: v => v },
+  { key: 'late',     label: 'Late',     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`, fmt: v => v },
+  { key: 'kills',    label: 'Kills',    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="M12 6V2"/><path d="M12 22v-4"/></svg>`, fmt: v => v },
+  { key: 'gold',     label: 'Oro/min',  icon: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`, fmt: v => v },
 ];
-
-function lucideIcon(name) {
-  const el = document.createElement('i');
-  el.setAttribute('data-lucide', name);
-  el.style.cssText = 'width:15px;height:15px;stroke:#ffffff;stroke-width:1.5;opacity:0.3;display:block;';
-  return el.outerHTML;
-}
 
 function showHeroDetail(nombre) {
   const meta = metaMap[nombre] || {};
@@ -1249,16 +1241,13 @@ function showHeroDetail(nombre) {
     return `
       <div class="cajon">
         <div class="cajon-top">
-          <i data-lucide="${c.icon}" style="width:15px;height:15px;stroke:#ffffff;stroke-width:1.5;opacity:0.3;"></i>
+          <span class="cajon-icon">${c.icon}</span>
           ${deltaHtml}
         </div>
         <div class="cajon-label">${c.label}</div>
         <div class="cajon-value">${val != null ? c.fmt(val) : '—'}</div>
       </div>`;
   }).join("");
-
-  // Activar iconos Lucide
-  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   // Botones selector
   const controls = document.getElementById("detailChartControls");
