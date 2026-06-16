@@ -2,9 +2,10 @@
 <html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Estadisticas - HoKstats</title>
+<title>Tier List HoK - HoKstats</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
@@ -774,21 +775,15 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
       </div>
     </div>
   </div>
-    <div class="chart-box">
-      <canvas id="scatterChart"></canvas>
-    </div>
-  </div>
       
 </div>
 
 <script>
-let chartInstance = null;
-
 // ── Fuente maestra: imagen, rol de línea, tier, pos, syn, weak, counter
 const CSV_COUNTERS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 // ── Fuente histórica: stats numéricas semana a semana
-const CSV_HISTORICO = "https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/archivos/hokstats_combined.csv";
+const CSV_HISTORICO = "PEGA ACÁ EL ENLACE";
 
 let metaMap = {};       // { nombreHeroe → { imagen, roles, roleImgs, tier, pos, syn, weak, counter } }
 let historicoData = []; // todas las filas del CSV histórico
@@ -799,42 +794,6 @@ let allData = [];
 let currentSort = { key: null, asc: false };
 let currentRole = "all";
 let currentSearch = "";
-
-const imagePointsPlugin = {
-  id: 'imagePoints',
-  afterDatasetsDraw(chart) {
-    const { ctx } = chart;
-
-    chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const meta = chart.getDatasetMeta(datasetIndex);
-
-      meta.data.forEach((point, index) => {
-        const data = dataset.data[index];
-        const img = data.imgInstance;
-
-        if (!img) return;
-
-        const size = 26;
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, size / 2, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
-
-        ctx.drawImage(
-          img,
-          point.x - size / 2,
-          point.y - size / 2,
-          size,
-          size
-        );
-
-        ctx.restore();
-      });
-    });
-  }
-};
 
 function cleanNumber(val){
   if (!val) return 0;
@@ -925,11 +884,6 @@ Promise.all([
 
   buildAllData();
   applyFilters();
-
-  if (!chartCreated) {
-    createChart();
-    chartCreated = true;
-  }
 });
 
 // ── Construye allData uniendo historico (semana seleccionada) + metaMap
@@ -1196,6 +1150,13 @@ function renderHeroChart(heroHistory, statKey) {
       plugins: {
         legend: { display: false },
         tooltip: {
+          backgroundColor: '#1c1c1f',
+          borderColor: '#444452',
+          borderWidth: 1,
+          titleColor: '#a0a0b5',
+          bodyColor: 'white',
+          bodyFont: { family: "'IBM Plex Mono'", size: 12 },
+          padding: 10,
           callbacks: {
             label: ctx => ` ${ctx.parsed.y}`
           }
@@ -1203,14 +1164,16 @@ function renderHeroChart(heroHistory, statKey) {
       },
       scales: {
         x: {
-          ticks: { color: '#777', font: { size: 11 } },
-          grid: { color: '#2e2e38' }
+          ticks: { color: '#666', font: { family: "'IBM Plex Mono'", size: 10 } },
+          grid: { color: '#2a2a35' },
+          border: { color: '#444452' }
         },
         y: {
           min: Math.max(0, globalMin - padding),
           max: globalMax + padding,
-          ticks: { color: '#777', font: { size: 11 } },
-          grid: { color: '#2e2e38' }
+          ticks: { color: '#666', font: { family: "'IBM Plex Mono'", size: 10 }, maxTicksLimit: 6 },
+          grid: { color: '#2a2a35' },
+          border: { color: '#444452' }
         }
       }
     }
@@ -1262,85 +1225,7 @@ function sortTable(key) {
 
   applyFilters();
 }
-let chartCreated = false;
 
-document.querySelectorAll(".view-tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-
-    document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-
-    const view = tab.dataset.view;
-
-    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-    document.getElementById(view).classList.add("active");
-
-    if (view === "charts" && !chartCreated && allData.length > 0) {
-      createChart();
-      chartCreated = true;
-    }
-
-  });
-});
-
-function createChart() {
-  const ctx = document.getElementById("scatterChart");
-
-  const data = allData.map(hero => {
-    const img = new Image();
-    img.src = hero.imagen;
-
-    return {
-      x: hero.pick + hero.ban,
-      y: hero.win,
-      imgInstance: img,
-      name: hero.nombre
-    };
-  });
-
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  chartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: {datasets: [{
-        label: 'Heroes',
-        data: data,
-        pointRadius: 0
-      }]
-    },
-    plugins: [imagePointsPlugin],
-    options: {
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const d = data[context.dataIndex];
-              return `${d.name} | Win: ${d.y}% | Presence: ${d.x}%`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: 'Presence rate (%)'
-          }
-        },
-        y: {
-          min: 44,
-          max: 56,
-          title: {
-            display: true,
-            text: 'Win rate (%)'
-          }
-        }
-      }
-    }
-  });
-}
 </script>
 
 <script>
