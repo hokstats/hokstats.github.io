@@ -2,7 +2,7 @@
 <html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Estadisticas - HoKstats</title>
+<title>Tier List HoK - HoKstats</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -318,6 +318,7 @@ td {
 .trend-same { color: #adb5bd; }
 
 /* 📌 FIJAMOS EL TAMAÑO DE LAS PRIMERAS 4 COLUMNAS */
+.col-trend { width: 2%; text-align: center; }
 .col-pos  { width: 4%; text-align: center; }
 .col-hero { width: 13%; }
 .col-tier { width: 5%; text-align: center; }
@@ -572,6 +573,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
         <table>
           <thead>
             <tr>
+              <th class="col-trend"></th>
               <th class="col-pos" onclick="sortTable('pos')" data-i18n="col_pos">Pos</th>
               <th class="col-hero" data-i18n="col_hero">Héroe</th>
               <th class="col-tier" onclick="sortTable('tier')" data-i18n="col_tier">Tier</th>
@@ -852,7 +854,8 @@ function renderTable(data) {
           : `<span class="trend trend-same">=</span>`;
 
     tr.innerHTML = `
-      <td class="col-pos stat" style="display:flex;align-items:center;justify-content:center;gap:4px;height:100%;">${trendHTML}<span>${item.pos}</span></td>
+      <td class="col-trend">${trendHTML}</td>
+      <td class="col-pos stat">${item.pos}</td>
     
       <td class="col-hero">
         <div class="champion">
