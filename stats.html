@@ -482,100 +482,123 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 
 /* ── VISTA DETALLE HÉROE ── */
 .detail-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .back-btn {
-  background: #282830;
-  border: 1px solid #444452;
-  border-radius: 4px;
-  color: #a0a0b5;
+  background: none;
+  border: none;
+  color: #555;
   font-size: 12px;
-  padding: 7px 14px;
+  padding: 0;
   cursor: pointer;
+  letter-spacing: 0.3px;
 }
 
-.back-btn:hover {
-  color: white;
-  border-color: #5a5a6b;
-}
+.back-btn:hover { color: #a0a0b5; }
 
 .detail-top {
   display: flex;
-  gap: 30px;
+  gap: 32px;
   align-items: flex-start;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #3a3a46;
 }
 
+/* — Bloque izquierdo: imagen + identidad — */
 .detail-hero-info {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   align-items: center;
-  flex: 0 0 auto;
+  flex: 0 0 220px;
 }
 
 .detail-hero-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 10px;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .detail-hero-meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .detail-hero-name {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: bold;
   color: white;
+  letter-spacing: 0.2px;
+}
+
+.detail-hero-sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .detail-hero-roles {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 .detail-hero-roles img {
-  width: 22px;
-  height: 22px;
-  opacity: 0.6;
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
 }
 
-.detail-tier-badge-wrap .tier-badge {
-  margin: 0;
+.detail-tier-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: 3px;
 }
+.detail-tier-S { color: #4dabf7; background: rgba(77,171,247,0.12); }
+.detail-tier-A { color: #69db7c; background: rgba(105,219,124,0.12); }
+.detail-tier-B { color: #ffa94d; background: rgba(255,169,77,0.12);  }
+.detail-tier-C { color: #868e96; background: rgba(134,142,150,0.12); }
 
+/* — Bloque derecho: stats en fila — */
 .detail-stats-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
   flex: 1;
+  border: 1px solid #3a3a46;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .detail-stat-card {
-  background: #282830;
-  border: 1px solid #444452;
-  border-radius: 6px;
-  padding: 10px 16px;
-  min-width: 100px;
+  flex: 1 1 80px;
+  padding: 12px 14px;
+  border-right: 1px solid #3a3a46;
+  border-bottom: 1px solid #3a3a46;
   text-align: center;
 }
 
+.detail-stat-card:last-child { border-right: none; }
+
 .detail-stat-label {
-  font-size: 10px;
-  color: #777;
-  margin-bottom: 4px;
+  font-size: 9px;
+  color: #555;
+  margin-bottom: 5px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .detail-stat-value {
-  font-size: 16px;
-  font-weight: bold;
-  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d0d0e0;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .detail-chart-section {
@@ -758,8 +781,10 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
             <img id="detailImg" src="" class="detail-hero-img">
             <div class="detail-hero-meta">
               <div class="detail-hero-name" id="detailName"></div>
-              <div class="detail-hero-roles" id="detailRoles"></div>
-              <div class="detail-tier-badge-wrap" id="detailTier"></div>
+              <div class="detail-hero-sub">
+                <div class="detail-hero-roles" id="detailRoles"></div>
+                <div id="detailTier"></div>
+              </div>
             </div>
           </div>
           <div class="detail-stats-grid" id="detailStatsGrid"></div>
@@ -1062,18 +1087,18 @@ function showHeroDetail(nombre) {
   document.getElementById("detailRoles").innerHTML =
     (meta.roleImgs || []).map(img => `<img src="${img}">`).join("");
   document.getElementById("detailTier").innerHTML =
-    `<div class="tier-badge tier-${current.tier || 'C'}"><span>${current.tier || 'C'}</span></div>`;
+    `<span class="detail-tier-text detail-tier-${current.tier || 'C'}">${current.tier || 'C'}</span>`;
 
   // Cards de stats actuales
   const statsCards = [
-    { label: 'Win',    value: current.win    != null ? current.win + '%'  : '—' },
-    { label: 'Pick',   value: current.pick   != null ? current.pick + '%' : '—' },
-    { label: 'Ban',    value: current.ban    != null ? current.ban + '%'  : '—' },
-    { label: 'Early',  value: current.early  != null ? current.early      : '—' },
-    { label: 'Mid',    value: current.mid    != null ? current.mid        : '—' },
-    { label: 'Late',   value: current.late   != null ? current.late       : '—' },
-    { label: 'Kills',  value: current.kills  != null ? current.kills      : '—' },
-    { label: 'Oro',    value: current.gold   != null ? current.gold       : '—' },
+    { label: 'Win',       value: current.win    != null ? current.win + '%'  : '—' },
+    { label: 'Pick',      value: current.pick   != null ? current.pick + '%' : '—' },
+    { label: 'Ban',       value: current.ban    != null ? current.ban + '%'  : '—' },
+    { label: 'Early',     value: current.early  != null ? current.early      : '—' },
+    { label: 'Mid',       value: current.mid    != null ? current.mid        : '—' },
+    { label: 'Late',      value: current.late   != null ? current.late       : '—' },
+    { label: 'Kills',     value: current.kills  != null ? current.kills      : '—' },
+    { label: 'Oro/min',   value: current.gold   != null ? current.gold       : '—' },
   ];
   document.getElementById("detailStatsGrid").innerHTML =
     statsCards.map(s => `
@@ -1101,8 +1126,8 @@ function showHeroDetail(nombre) {
   document.getElementById("stats").classList.remove("active");
   document.getElementById("hero-detail").classList.add("active");
 
-  // Renderizar gráfico
-  renderHeroChart(heroHistory, activeChartStat);
+  // Renderizar gráfico después de que el canvas sea visible
+  setTimeout(() => renderHeroChart(heroHistory, activeChartStat), 50);
 }
 
 function getStatFromRow(r, key) {
