@@ -2,7 +2,7 @@
 <html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Estadisticas - HoKstats</title>
+<title>Tier List HoK - HoKstats</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -570,7 +570,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   flex-wrap: wrap;
   gap: 0;
   flex: 1;
-  border: 1px solid #3a3a46;
+  border: 1px solid #4a4a58;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -578,16 +578,17 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 .detail-stat-card {
   flex: 1 1 80px;
   padding: 12px 14px;
-  border-right: 1px solid #3a3a46;
-  border-bottom: 1px solid #3a3a46;
+  border-right: 1px solid #4a4a58;
+  border-bottom: 1px solid #4a4a58;
   text-align: center;
+  background: #3a3a48;
 }
 
 .detail-stat-card:last-child { border-right: none; }
 
 .detail-stat-label {
   font-size: 9px;
-  color: #555;
+  color: #8888a0;
   margin-bottom: 5px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -597,7 +598,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 .detail-stat-value {
   font-size: 15px;
   font-weight: 600;
-  color: #d0d0e0;
+  color: #e8e8f0;
   font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -638,12 +639,12 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
   border: 1px solid #444452;
   border-radius: 6px;
   padding: 20px;
+  position: relative;
   height: 280px;
 }
 
 .detail-chart-wrap canvas {
-  width: 100% !important;
-  height: 100% !important;
+  display: block;
 }
 
 /* scrollbar modo oscuro */
@@ -725,7 +726,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
             </div>
             <div class="week-dropdown" id="weekDropdown">
               <div class="week-pill" id="weekPill">
-                <span class="week-pill-label">Semana</span>
+                <span class="week-pill-label" data-i18n="week_label">Semana</span>
                 <span class="week-pill-value" id="weekPillValue"></span>
                 <span class="week-pill-arrow">▾</span>
               </div>
@@ -808,7 +809,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 const CSV_COUNTERS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 // ── Fuente histórica: stats numéricas semana a semana
-const CSV_HISTORICO = "https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/archivos/hokstats_combined.csv";
+const CSV_HISTORICO = "PEGA ACÁ EL ENLACE";
 
 let metaMap = {};       // { nombreHeroe → { imagen, roles, roleImgs, tier, pos, syn, weak, counter } }
 let historicoData = []; // todas las filas del CSV histórico
@@ -1266,7 +1267,8 @@ const i18n = {
     col_early: 'Rend. Early', col_mid: 'Rend. Mid', col_late: 'Rend. Late',
     col_dmg: 'Daño/ partida', col_kills: 'Kills/ partida', col_gold: 'Oro caza',
     col_suffer: 'Daño/ muerte', col_assist: 'Asist./ partida',
-    col_towers: 'Torres/ partida', col_towerdmg: 'Daño torres'
+    col_towers: 'Torres/ partida', col_towerdmg: 'Daño torres',
+    week_label: 'Semana'
   },
   en: {
     nav_general: 'General', nav_stats: 'Statistics', nav_counters: 'Counters',
@@ -1279,7 +1281,8 @@ const i18n = {
     col_early: 'Early perf.', col_mid: 'Mid perf.', col_late: 'Late perf.',
     col_dmg: 'Dmg/ match', col_kills: 'Kills/ match', col_gold: 'Hunt gold',
     col_suffer: 'Dmg/ death', col_assist: 'Assists/ match',
-    col_towers: 'Towers/ match', col_towerdmg: 'Tower dmg'
+    col_towers: 'Towers/ match', col_towerdmg: 'Tower dmg',
+    week_label: 'Week'
   },
   pt: {
     nav_general: 'Geral', nav_stats: 'Estatísticas', nav_counters: 'Counters',
@@ -1292,7 +1295,8 @@ const i18n = {
     col_early: 'Rend. Early', col_mid: 'Rend. Mid', col_late: 'Rend. Late',
     col_dmg: 'Dano/ partida', col_kills: 'Kills/ partida', col_gold: 'Ouro caça',
     col_suffer: 'Dano/ morte', col_assist: 'Assist./ partida',
-    col_towers: 'Torres/ partida', col_towerdmg: 'Dano torres'
+    col_towers: 'Torres/ partida', col_towerdmg: 'Dano torres',
+    week_label: 'Semana'
   }
 };
 
