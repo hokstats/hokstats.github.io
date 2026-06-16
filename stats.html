@@ -2,7 +2,7 @@
 <html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Tier List HoK - HoKstats</title>
+<title>Estadisticas - HoKstats</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -218,7 +218,23 @@ body {
   background: #3a3a50;
 }
 
-/* 🔍 buscador */
+/* 📈 indicador de cambio de posición */
+.pos-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.pos-change {
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.pos-up   { color: #40c057; }
+.pos-down { color: #fa5252; }
+.pos-same { color: #adb5bd; }
 .search-box {
   width: 180px;
   flex: 0 0 180px;
@@ -290,6 +306,16 @@ tbody tr:hover {
 td {
   padding: 6px 4px;
 }
+
+/* 📈 indicador de tendencia */
+.trend {
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+.trend-up   { color: #40c057; }
+.trend-down { color: #fa5252; }
+.trend-same { color: #adb5bd; }
 
 /* 📌 FIJAMOS EL TAMAÑO DE LAS PRIMERAS 4 COLUMNAS */
 .col-pos  { width: 4%; text-align: center; }
@@ -735,9 +761,25 @@ Promise.all([
 function buildAllData() {
   const filasSemana = historicoData.filter(r => r.semana_anio === currentWeek);
 
+  // Semana anterior: la siguiente en availableWeeks (están ordenadas desc)
+  const prevWeekIndex = availableWeeks.indexOf(currentWeek) + 1;
+  const prevWeek = availableWeeks[prevWeekIndex] || null;
+  const filasPrev = prevWeek ? historicoData.filter(r => r.semana_anio === prevWeek) : [];
+
+  // Mapa rápido de posición anterior por héroe
+  const prevPosMap = {};
+  filasPrev.forEach(r => {
+    const n = r.Heroe ? r.Heroe.trim() : "";
+    if (n) prevPosMap[n] = cleanNumber(r.Meta_Ranking);
+  });
+
   allData = filasSemana.map(r => {
     const nombre = r.Heroe ? r.Heroe.trim() : "";
     const meta = metaMap[nombre] || {};
+
+    const pos = cleanNumber(r.Meta_Ranking) || meta.pos || 999;
+    const prevPos = prevPosMap.hasOwnProperty(nombre) ? prevPosMap[nombre] : null;
+    const posDelta = prevPos !== null ? prevPos - pos : null; // positivo = subió, negativo = bajó
 
     return {
       nombre,
@@ -745,7 +787,8 @@ function buildAllData() {
       roles:    meta.roles    || [],
       roleImgs: meta.roleImgs || [],
       tier:     meta.tier     || "C",
-      pos:      cleanNumber(r.Meta_Ranking) || meta.pos || 999,
+      pos,
+      posDelta,
       syn:      meta.syn      || [],
       weak:     meta.weak     || [],
       counter:  meta.counter  || [],
@@ -800,8 +843,16 @@ function renderTable(data) {
   data.forEach(item => {
     const tr = document.createElement("tr");
 
+    const trendHTML = item.posDelta === null
+      ? ''
+      : item.posDelta > 0
+        ? `<span class="trend trend-up">▲</span>`
+        : item.posDelta < 0
+          ? `<span class="trend trend-down">▼</span>`
+          : `<span class="trend trend-same">=</span>`;
+
     tr.innerHTML = `
-      <td class="col-pos stat">${item.pos}</td>
+      <td class="col-pos stat" style="display:flex;align-items:center;justify-content:center;gap:4px;height:100%;">${trendHTML}<span>${item.pos}</span></td>
     
       <td class="col-hero">
         <div class="champion">
