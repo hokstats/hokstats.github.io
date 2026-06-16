@@ -130,6 +130,94 @@ body {
   background: #4f6edb;
 }
 
+/* 🗓️ selector de semana custom */
+.week-dropdown {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.week-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  background: #282830;
+  color: #ccc;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.week-pill:hover {
+  border-color: #5a5a6b;
+  color: white;
+}
+
+.week-pill-label {
+  color: #777;
+  font-size: 11px;
+}
+
+.week-pill-value {
+  color: #ccc;
+  font-weight: 500;
+}
+
+.week-pill-arrow {
+  color: #555;
+  font-size: 10px;
+  margin-left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.week-dropdown.open .week-pill-arrow {
+  transform: rotate(180deg);
+}
+
+.week-dropdown.open .week-pill {
+  border-color: #4f6edb;
+}
+
+.week-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #282830;
+  border: 1px solid #444452;
+  border-radius: 4px;
+  z-index: 100;
+  min-width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.week-dropdown.open .week-list {
+  display: block;
+}
+
+.week-option {
+  padding: 7px 12px;
+  font-size: 12px;
+  color: #a0a0b5;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.week-option:hover {
+  background: #31313c;
+  color: white;
+}
+
+.week-option.selected {
+  color: white;
+  background: #3a3a50;
+}
+
 /* 🔍 buscador */
 .search-box {
   width: 180px;
@@ -441,6 +529,14 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
               <div class="tab" data-role="Merodeo" data-i18n="role_merodeo">Merodeo</div>
               <div class="tab" data-role="Farmeo" data-i18n="role_farmeo">Farmeo</div>
             </div>
+            <div class="week-dropdown" id="weekDropdown">
+              <div class="week-pill" id="weekPill">
+                <span class="week-pill-label">Semana</span>
+                <span class="week-pill-value" id="weekPillValue">—</span>
+                <span class="week-pill-arrow">▾</span>
+              </div>
+              <div class="week-list" id="weekList"></div>
+            </div>
             <div class="search-box">
               <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Buscar héroe...">
             </div>
@@ -486,7 +582,17 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 
 <script>
 let chartInstance = null;
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
+
+// ── Fuente maestra: imagen, rol de línea, tier, pos, syn, weak, counter
+const CSV_COUNTERS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
+
+// ── Fuente histórica: stats numéricas semana a semana
+const CSV_HISTORICO = "https://drive.google.com/file/d/1XQ_APNx3wnWXSrzb2AtFy3wvmzkiTOBj/view";
+
+let metaMap = {};       // { nombreHeroe → { imagen, roles, roleImgs, tier, pos, syn, weak, counter } }
+let historicoData = []; // todas las filas del CSV histórico
+let availableWeeks = [];
+let currentWeek = null;
 
 let allData = [];
 let currentSort = { key: null, asc: false };
@@ -546,59 +652,77 @@ function parseCSV(text) {
   }).data;
 }
 
-fetch(CSV_URL)
-.then(r => r.text())
-.then(csv => {
-  const data = parseCSV(csv).slice(1);
+// ── Carga ambas fuentes en paralelo
+Promise.all([
+  fetch(CSV_COUNTERS).then(r => r.text()),
+  fetch(CSV_HISTORICO).then(r => r.text())
+]).then(([csvCounters, csvHistorico]) => {
 
-  data.forEach(cols => {
+  // 1) Construir metaMap desde CSV de counters
+  const counterRows = parseCSV(csvCounters).slice(1);
+  counterRows.forEach(cols => {
     if (!cols[1]) return;
-
-    allData.push({
-      nombre: cols[1],
-      imagen: cols[3],
-      roles: [cols[5], cols[6], cols[7]].filter(Boolean),
-      roleImgs: [cols[64], cols[65], cols[66]]
-      .map(x => x.trim())
-      .filter(x => x && x !== "#N/A"),
-      win: cleanNumber(cols[8]),
-      pick: cleanNumber(cols[9]),
-      ban: cleanNumber(cols[10]),
-      
-      early: cleanNumber(cols[67]),
-      mid: cleanNumber(cols[68]),
-      late: cleanNumber(cols[69]),
-      output: cleanNumber(cols[70]),
-      kills: cleanNumber(cols[71]),
-      gold: cleanNumber(cols[72]),
-      suffer: cleanNumber(cols[73]),
-      assist: cleanNumber(cols[74]),
-      towers: cleanNumber(cols[75]),
-      towerDmg: cleanNumber(cols[76]),
-      
-      tier: cols[62],
-      pos: cleanNumber(cols[63]),
-
-      syn: [
-        {img: cols[13], name: cols[11]},
-        {img: cols[16], name: cols[14]}
-      ],
-
-      weak: [
-        {img: cols[19], name: cols[17]},
-        {img: cols[22], name: cols[20]}
-      ],
-
-      counter: [
-        {img: cols[25], name: cols[23]},
-        {img: cols[28], name: cols[26]}
-      ]
-    });
+    const nombre = cols[1].trim();
+    metaMap[nombre] = {
+      imagen:   cols[3],
+      roles:    [cols[5], cols[6], cols[7]].filter(Boolean),
+      roleImgs: [cols[64], cols[65], cols[66]].map(x => x.trim()).filter(x => x && x !== "#N/A"),
+      tier:     cols[62],
+      pos:      cleanNumber(cols[63]),
+      syn:      [{ img: cols[13], name: cols[11] }, { img: cols[16], name: cols[14] }],
+      weak:     [{ img: cols[19], name: cols[17] }, { img: cols[22], name: cols[20] }],
+      counter:  [{ img: cols[25], name: cols[23] }, { img: cols[28], name: cols[26] }]
+    };
   });
 
-  currentSort = { key: 'pos', asc: true };
-  allData.sort((a, b) => a.pos - b.pos);
+  // 2) Parsear CSV histórico con cabecera
+  const histRows = Papa.parse(csvHistorico.trim(), { header: true, skipEmptyLines: true }).data;
+  historicoData = histRows;
 
+  // 3) Detectar semanas disponibles (únicas, ordenadas desc)
+  const semanasSet = new Set(histRows.map(r => r.semana_anio).filter(Boolean));
+  availableWeeks = [...semanasSet].sort((a, b) => Number(b) - Number(a));
+
+  // 4) Poblar el dropdown custom
+  const weekList = document.getElementById("weekList");
+  const weekPillValue = document.getElementById("weekPillValue");
+  const weekDropdown = document.getElementById("weekDropdown");
+  const weekPill = document.getElementById("weekPill");
+
+  weekList.innerHTML = "";
+  availableWeeks.forEach(s => {
+    const opt = document.createElement("div");
+    opt.className = "week-option";
+    opt.textContent = s;
+    opt.dataset.week = s;
+    opt.addEventListener("click", () => {
+      currentWeek = s;
+      weekPillValue.textContent = s;
+      weekList.querySelectorAll(".week-option").forEach(o => o.classList.remove("selected"));
+      opt.classList.add("selected");
+      weekDropdown.classList.remove("open");
+      buildAllData();
+      applyFilters();
+    });
+    weekList.appendChild(opt);
+  });
+
+  // Toggle dropdown al hacer clic en la pill
+  weekPill.addEventListener("click", e => {
+    e.stopPropagation();
+    weekDropdown.classList.toggle("open");
+  });
+
+  // Cerrar al hacer clic fuera
+  document.addEventListener("click", () => weekDropdown.classList.remove("open"));
+
+  // 5) Por defecto: semana más reciente
+  currentWeek = availableWeeks[0];
+  weekPillValue.textContent = currentWeek;
+  const firstOpt = weekList.querySelector(".week-option");
+  if (firstOpt) firstOpt.classList.add("selected");
+
+  buildAllData();
   applyFilters();
 
   if (!chartCreated) {
@@ -606,6 +730,45 @@ fetch(CSV_URL)
     chartCreated = true;
   }
 });
+
+// ── Construye allData uniendo historico (semana seleccionada) + metaMap
+function buildAllData() {
+  const filasSemana = historicoData.filter(r => r.semana_anio === currentWeek);
+
+  allData = filasSemana.map(r => {
+    const nombre = r.Heroe ? r.Heroe.trim() : "";
+    const meta = metaMap[nombre] || {};
+
+    return {
+      nombre,
+      imagen:   meta.imagen   || "",
+      roles:    meta.roles    || [],
+      roleImgs: meta.roleImgs || [],
+      tier:     meta.tier     || "C",
+      pos:      meta.pos      || 999,
+      syn:      meta.syn      || [],
+      weak:     meta.weak     || [],
+      counter:  meta.counter  || [],
+
+      win:      cleanNumber(r.Win_Rate),
+      pick:     cleanNumber(r.Pick_Rate),
+      ban:      cleanNumber(r.Ban_Rate),
+      early:    cleanNumber(r.beginPhase),
+      mid:      cleanNumber(r.midPhase),
+      late:     cleanNumber(r.endPhase),
+      output:   cleanNumber(r.output),
+      kills:    cleanNumber(r.killNum),
+      gold:     cleanNumber(r.moneyPerMin),
+      suffer:   cleanNumber(r.suffer),
+      assist:   cleanNumber(r.assist),
+      towers:   cleanNumber(r.towerNum),
+      towerDmg: cleanNumber(r.towerDamage)
+    };
+  }).filter(h => h.nombre);
+
+  currentSort = { key: 'pos', asc: true };
+  allData.sort((a, b) => a.pos - b.pos);
+}
 
 function renderIcons(arr){
   return arr
