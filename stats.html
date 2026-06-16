@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
 <style>
 /* 📊 IDENTIDAD GLOBAL UNIFICADA Y CONTROL DE LAYOUT SHIFT */
@@ -628,9 +629,11 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 }
 
 .cajon-icon {
-  font-size: 16px;
-  opacity: 0.55;
+  font-size: 14px;
+  opacity: 0.35;
   line-height: 1;
+  color: white;
+  font-style: normal;
 }
 
 .cajon-delta {
@@ -856,7 +859,6 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
           <div class="detail-control-panel">
             <div class="detail-control-row">
               <button class="btn-back" id="backBtn">← Volver</button>
-              <span id="detailTier"></span>
             </div>
             <div class="detail-week-label" id="detailWeekLabel"></div>
             <div class="detail-pos-delta" id="detailPosDelta"></div>
@@ -1158,15 +1160,22 @@ const chartStatOptions = [
 ];
 
 const cajonDefs = [
-  { key: 'win',      label: 'Win',      icon: '🏆', fmt: v => v + '%' },
-  { key: 'pick',     label: 'Pick',     icon: '🎯', fmt: v => v + '%' },
-  { key: 'ban',      label: 'Ban',      icon: '🚫', fmt: v => v + '%' },
-  { key: 'early',    label: 'Early',    icon: '⚡', fmt: v => v },
-  { key: 'mid',      label: 'Mid',      icon: '☀️', fmt: v => v },
-  { key: 'late',     label: 'Late',     icon: '🌙', fmt: v => v },
-  { key: 'kills',    label: 'Kills',    icon: '💀', fmt: v => v },
-  { key: 'gold',     label: 'Oro/min',  icon: '💰', fmt: v => v },
+  { key: 'win',      label: 'Win',      icon: 'trophy',       fmt: v => v + '%' },
+  { key: 'pick',     label: 'Pick',     icon: 'mouse-pointer-click', fmt: v => v + '%' },
+  { key: 'ban',      label: 'Ban',      icon: 'shield-off',   fmt: v => v + '%' },
+  { key: 'early',    label: 'Early',    icon: 'sunrise',      fmt: v => v },
+  { key: 'mid',      label: 'Mid',      icon: 'sun',          fmt: v => v },
+  { key: 'late',     label: 'Late',     icon: 'moon',         fmt: v => v },
+  { key: 'kills',    label: 'Kills',    icon: 'crosshair',    fmt: v => v },
+  { key: 'gold',     label: 'Oro/min',  icon: 'coins',        fmt: v => v },
 ];
+
+function lucideIcon(name) {
+  const el = document.createElement('i');
+  el.setAttribute('data-lucide', name);
+  el.style.cssText = 'width:15px;height:15px;stroke:#ffffff;stroke-width:1.5;opacity:0.3;display:block;';
+  return el.outerHTML;
+}
 
 function showHeroDetail(nombre) {
   const meta = metaMap[nombre] || {};
@@ -1240,13 +1249,16 @@ function showHeroDetail(nombre) {
     return `
       <div class="cajon">
         <div class="cajon-top">
-          <span class="cajon-icon">${c.icon}</span>
+          <i data-lucide="${c.icon}" style="width:15px;height:15px;stroke:#ffffff;stroke-width:1.5;opacity:0.3;"></i>
           ${deltaHtml}
         </div>
         <div class="cajon-label">${c.label}</div>
         <div class="cajon-value">${val != null ? c.fmt(val) : '—'}</div>
       </div>`;
   }).join("");
+
+  // Activar iconos Lucide
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   // Botones selector
   const controls = document.getElementById("detailChartControls");
@@ -1282,13 +1294,12 @@ function renderHeroChart(heroHistory, statKey) {
   const labels = heroHistory.map(r => 'S' + r.semana_anio);
   const heroValues = heroHistory.map(r => getStatFromRow(r, statKey));
 
-  // Promedio del héroe en todas sus semanas
-  const validVals = heroValues.filter(v => v > 0);
-  const avg = validVals.length ? Math.round((validVals.reduce((a,b) => a+b,0) / validVals.length) * 100) / 100 : 0;
-  const avgLine = heroValues.map(() => avg);
-
-  // Eje Y: rango global entre todos los héroes
+  // Promedio global: todos los héroes, todas las semanas, para esa stat
   const allValues = historicoData.map(r => getStatFromRow(r, statKey)).filter(v => v > 0);
+  const globalAvg = allValues.length
+    ? Math.round((allValues.reduce((a,b) => a+b,0) / allValues.length) * 100) / 100
+    : 0;
+  const avgLine = heroHistory.map(() => globalAvg);
   const globalMin = Math.min(...allValues);
   const globalMax = Math.max(...allValues);
   const padding = (globalMax - globalMin) * 0.1;
@@ -1297,7 +1308,7 @@ function renderHeroChart(heroHistory, statKey) {
   const statLabel = chartStatOptions.find(o => o.key === statKey)?.label || statKey;
   const weekRange = labels.length ? `${labels[0]} a ${labels[labels.length-1]}` : '';
   const legendEl = document.getElementById("legendAvgLabel");
-  if (legendEl) legendEl.textContent = `Promedio ${weekRange}`;
+  if (legendEl) legendEl.textContent = `Promedio global ${weekRange}`;
 
   if (heroLineChart) heroLineChart.destroy();
 
