@@ -628,9 +628,9 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 }
 
 .cajon-icon {
-  font-size: 15px;
+  font-size: 16px;
+  opacity: 0.55;
   line-height: 1;
-  opacity: 0.7;
 }
 
 .cajon-delta {
@@ -856,6 +856,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
           <div class="detail-control-panel">
             <div class="detail-control-row">
               <button class="btn-back" id="backBtn">← Volver</button>
+              <span id="detailTier"></span>
             </div>
             <div class="detail-week-label" id="detailWeekLabel"></div>
             <div class="detail-pos-delta" id="detailPosDelta"></div>
@@ -928,9 +929,7 @@ function parseCSV(text) {
 // ── Carga ambas fuentes en paralelo
 Promise.all([
   fetch(CSV_COUNTERS).then(r => r.text()),
-  CSV_HISTORICO === "PEGA ACÁ EL ENLACE"
-    ? Promise.resolve(null)
-    : fetch(CSV_HISTORICO).then(r => r.text()).catch(() => null)
+  fetch(CSV_HISTORICO).then(r => r.text())
 ]).then(([csvCounters, csvHistorico]) => {
 
   // 1) Construir metaMap desde CSV de counters
@@ -950,13 +949,12 @@ Promise.all([
     };
   });
 
-  // 2) Parsear CSV histórico
-  if (csvHistorico) {
-    historicoData = Papa.parse(csvHistorico.trim(), { header: true, skipEmptyLines: true }).data;
-  }
+  // 2) Parsear CSV histórico con cabecera
+  const histRows = Papa.parse(csvHistorico.trim(), { header: true, skipEmptyLines: true }).data;
+  historicoData = histRows;
 
   // 3) Detectar semanas disponibles (únicas, ordenadas desc)
-  const semanasSet = new Set(historicoData.map(r => r.semana_anio).filter(Boolean));
+  const semanasSet = new Set(histRows.map(r => r.semana_anio).filter(Boolean));
   availableWeeks = [...semanasSet].sort((a, b) => Number(b) - Number(a));
 
   // 4) Poblar el dropdown custom
@@ -1160,14 +1158,14 @@ const chartStatOptions = [
 ];
 
 const cajonDefs = [
-  { key: 'win',   label: 'Win',     icon: '🏆', fmt: v => v + '%' },
-  { key: 'pick',  label: 'Pick',    icon: '🎯', fmt: v => v + '%' },
-  { key: 'ban',   label: 'Ban',     icon: '🚫', fmt: v => v + '%' },
-  { key: 'early', label: 'Early',   icon: '⚡', fmt: v => v },
-  { key: 'mid',   label: 'Mid',     icon: '☀️', fmt: v => v },
-  { key: 'late',  label: 'Late',    icon: '🌙', fmt: v => v },
-  { key: 'kills', label: 'Kills',   icon: '💀', fmt: v => v },
-  { key: 'gold',  label: 'Oro/min', icon: '💰', fmt: v => v },
+  { key: 'win',      label: 'Win',      icon: '🏆', fmt: v => v + '%' },
+  { key: 'pick',     label: 'Pick',     icon: '🎯', fmt: v => v + '%' },
+  { key: 'ban',      label: 'Ban',      icon: '🚫', fmt: v => v + '%' },
+  { key: 'early',    label: 'Early',    icon: '⚡', fmt: v => v },
+  { key: 'mid',      label: 'Mid',      icon: '☀️', fmt: v => v },
+  { key: 'late',     label: 'Late',     icon: '🌙', fmt: v => v },
+  { key: 'kills',    label: 'Kills',    icon: '💀', fmt: v => v },
+  { key: 'gold',     label: 'Oro/min',  icon: '💰', fmt: v => v },
 ];
 
 function showHeroDetail(nombre) {
@@ -1183,12 +1181,7 @@ function showHeroDetail(nombre) {
     .filter(r => r.Heroe && r.Heroe.trim() === nombre)
     .sort((a, b) => Number(a.semana_anio) - Number(b.semana_anio));
 
-  if (!heroHistory.length) {
-    // Sin histórico: igual mostrar la vista con los datos del CSV de counters
-    document.getElementById("stats").classList.remove("active");
-    document.getElementById("hero-detail").classList.add("active");
-    return;
-  }
+  if (!heroHistory.length) return;
 
   const current = allData.find(h => h.nombre === nombre) || {};
 
@@ -1289,12 +1282,13 @@ function renderHeroChart(heroHistory, statKey) {
   const labels = heroHistory.map(r => 'S' + r.semana_anio);
   const heroValues = heroHistory.map(r => getStatFromRow(r, statKey));
 
-  // Promedio global: todos los héroes, todas las semanas, para esa stat
+  // Promedio del héroe en todas sus semanas
+  const validVals = heroValues.filter(v => v > 0);
+  const avg = validVals.length ? Math.round((validVals.reduce((a,b) => a+b,0) / validVals.length) * 100) / 100 : 0;
+  const avgLine = heroValues.map(() => avg);
+
+  // Eje Y: rango global entre todos los héroes
   const allValues = historicoData.map(r => getStatFromRow(r, statKey)).filter(v => v > 0);
-  const globalAvg = allValues.length
-    ? Math.round((allValues.reduce((a,b) => a+b,0) / allValues.length) * 100) / 100
-    : 0;
-  const avgLine = heroHistory.map(() => globalAvg);
   const globalMin = Math.min(...allValues);
   const globalMax = Math.max(...allValues);
   const padding = (globalMax - globalMin) * 0.1;
@@ -1303,7 +1297,7 @@ function renderHeroChart(heroHistory, statKey) {
   const statLabel = chartStatOptions.find(o => o.key === statKey)?.label || statKey;
   const weekRange = labels.length ? `${labels[0]} a ${labels[labels.length-1]}` : '';
   const legendEl = document.getElementById("legendAvgLabel");
-  if (legendEl) legendEl.textContent = `Promedio global ${weekRange}`;
+  if (legendEl) legendEl.textContent = `Promedio ${weekRange}`;
 
   if (heroLineChart) heroLineChart.destroy();
 
