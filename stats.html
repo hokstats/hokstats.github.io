@@ -2,7 +2,7 @@
 <html lang="es" style="scrollbar-gutter: stable;">
 <head>
 <meta charset="UTF-8">
-<title>Estadisticas - HoKstats</title>
+<title>Tier List HoK - HoKstats</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -896,7 +896,7 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
 const CSV_COUNTERS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTO4rMY_drrjKMx3KTdjAaSrH6GenxyZ7YzLPT7oiZ_pNYm6EKG-yJPfmbRcZgYGGi2gERA1Gciw-Fy/pub?gid=538223640&single=true&output=csv";
 
 // ── Fuente histórica: stats numéricas semana a semana
-const CSV_HISTORICO = "https://raw.githubusercontent.com/hokstats/hokstats.github.io/refs/heads/main/archivos/hokstats_combined.csv";
+const CSV_HISTORICO = "PEGA ACÁ EL ENLACE";
 
 let metaMap = {};       // { nombreHeroe → { imagen, roles, roleImgs, tier, pos, syn, weak, counter } }
 let historicoData = []; // todas las filas del CSV histórico
@@ -928,7 +928,9 @@ function parseCSV(text) {
 // ── Carga ambas fuentes en paralelo
 Promise.all([
   fetch(CSV_COUNTERS).then(r => r.text()),
-  fetch(CSV_HISTORICO).then(r => r.text())
+  CSV_HISTORICO === "PEGA ACÁ EL ENLACE"
+    ? Promise.resolve(null)
+    : fetch(CSV_HISTORICO).then(r => r.text()).catch(() => null)
 ]).then(([csvCounters, csvHistorico]) => {
 
   // 1) Construir metaMap desde CSV de counters
@@ -948,12 +950,13 @@ Promise.all([
     };
   });
 
-  // 2) Parsear CSV histórico con cabecera
-  const histRows = Papa.parse(csvHistorico.trim(), { header: true, skipEmptyLines: true }).data;
-  historicoData = histRows;
+  // 2) Parsear CSV histórico
+  if (csvHistorico) {
+    historicoData = Papa.parse(csvHistorico.trim(), { header: true, skipEmptyLines: true }).data;
+  }
 
   // 3) Detectar semanas disponibles (únicas, ordenadas desc)
-  const semanasSet = new Set(histRows.map(r => r.semana_anio).filter(Boolean));
+  const semanasSet = new Set(historicoData.map(r => r.semana_anio).filter(Boolean));
   availableWeeks = [...semanasSet].sort((a, b) => Number(b) - Number(a));
 
   // 4) Poblar el dropdown custom
@@ -1180,7 +1183,12 @@ function showHeroDetail(nombre) {
     .filter(r => r.Heroe && r.Heroe.trim() === nombre)
     .sort((a, b) => Number(a.semana_anio) - Number(b.semana_anio));
 
-  if (!heroHistory.length) return;
+  if (!heroHistory.length) {
+    // Sin histórico: igual mostrar la vista con los datos del CSV de counters
+    document.getElementById("stats").classList.remove("active");
+    document.getElementById("hero-detail").classList.add("active");
+    return;
+  }
 
   const current = allData.find(h => h.nombre === nombre) || {};
 
