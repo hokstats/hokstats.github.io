@@ -304,12 +304,13 @@ body {
 .ct-rel-cell img {
   width: 28px;
   height: 28px;
-  border-radius: 5px;
+  border-radius: 50%;
   object-fit: cover;
+  border: none;
 }
-.ct-rel-strong img { border: 1px solid rgba(249,115,22,0.5); }
-.ct-rel-weak   img { border: 1px solid rgba(168,85,247,0.5); }
-.ct-rel-syn    img { border: 1px solid rgba(34,197,94,0.5);  }
+.ct-rel-strong img { }
+.ct-rel-weak   img { }
+.ct-rel-syn    img { }
 
 
 
@@ -650,7 +651,7 @@ function cargarBaseDatos() {
           sinergiaCon: sinergiasNames
         });
       });
-      heroesData.sort((a,b) => a.pos - b.pos);
+      heroesData.sort((a,b) => a.nombre.localeCompare(b.nombre, undefined, {sensitivity: 'base'}));
       renderCatalogo();
     }
   });
@@ -713,11 +714,16 @@ function renderCatalogo() {
   const tbody = document.getElementById('catalogTableBody');
   tbody.innerHTML = '';
 
-  let pos = 1;
-  heroesData.forEach(hero => {
-    if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return;
-    if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return;
+  let filtered = heroesData
+    .filter(hero => {
+      if (currentRoleFilter !== 'all' && !hero.roles.includes(currentRoleFilter)) return false;
+      if (currentSearchQuery && !hero.nombre.toLowerCase().includes(currentSearchQuery)) return false;
+      return true;
+    })
+    .sort((a,b) => a.nombre.localeCompare(b.nombre, undefined, {sensitivity: 'base'}));
 
+  let pos = 1;
+  filtered.forEach(hero => {
     const tr = document.createElement('tr');
 
     // Roles como imágenes
