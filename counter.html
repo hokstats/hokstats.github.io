@@ -538,9 +538,7 @@ body {
         <table class="counter-table">
           <thead>
             <tr>
-              <th class="ct-pos" data-i18n="col_pos">Pos</th>
               <th class="ct-hero" data-i18n="col_hero">Héroe</th>
-              <th class="ct-tier" data-i18n="col_tier">Tier</th>
               <th class="ct-rol" data-i18n="col_rol">Rol</th>
               <th class="ct-rel" data-i18n="col_strong">Fuerte vs</th>
               <th class="ct-rel" data-i18n="col_weak">Débil vs</th>
@@ -732,18 +730,10 @@ function renderCatalogo() {
       .join('');
 
     tr.innerHTML = `
-      <td class="ct-pos"><span class="ct-pos-val">${pos}</span></td>
-
       <td class="ct-hero">
         <div class="ct-champion">
           <img src="${hero.imagen}">
           <span>${hero.nombre}</span>
-        </div>
-      </td>
-
-      <td class="ct-tier">
-        <div class="tier-badge tier-${hero.tier}">
-          <span>${hero.tier}</span>
         </div>
       </td>
 
