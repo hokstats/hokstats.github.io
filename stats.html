@@ -876,7 +876,11 @@ tbody .col-win-val, tbody .col-pick-val, tbody .col-ban-val {
             </div>
             <div class="chart-legend-item">
               <div class="chart-legend-line chart-legend-dashed"></div>
-              <span id="legendAvgLabel">Promedio</span>
+              <span id="legendAvgLabel">Promedio héroe</span>
+            </div>
+            <div class="chart-legend-item">
+              <div class="chart-legend-line chart-legend-dashed" style="border-color:#f59e0b"></div>
+              <span>Promedio global</span>
             </div>
           </div>
         </div>
@@ -1283,8 +1287,12 @@ function renderHeroChart(heroHistory, statKey) {
   const avg = validVals.length ? Math.round((validVals.reduce((a,b) => a+b,0) / validVals.length) * 100) / 100 : 0;
   const avgLine = heroValues.map(() => avg);
 
-  // Eje Y: rango global entre todos los héroes
+  // Promedio global: todos los héroes, todas las semanas
   const allValues = historicoData.map(r => getStatFromRow(r, statKey)).filter(v => v > 0);
+  const globalAvg = allValues.length ? Math.round((allValues.reduce((a,b) => a+b,0) / allValues.length) * 100) / 100 : 0;
+  const globalAvgLine = heroValues.map(() => globalAvg);
+
+  // Eje Y: rango global entre todos los héroes
   const globalMin = Math.min(...allValues);
   const globalMax = Math.max(...allValues);
   const padding = (globalMax - globalMin) * 0.1;
@@ -1293,7 +1301,7 @@ function renderHeroChart(heroHistory, statKey) {
   const statLabel = chartStatOptions.find(o => o.key === statKey)?.label || statKey;
   const weekRange = labels.length ? `${labels[0]} a ${labels[labels.length-1]}` : '';
   const legendEl = document.getElementById("legendAvgLabel");
-  if (legendEl) legendEl.textContent = `Promedio ${weekRange}`;
+  if (legendEl) legendEl.textContent = `Promedio héroe ${weekRange}`;
 
   if (heroLineChart) heroLineChart.destroy();
 
@@ -1316,7 +1324,7 @@ function renderHeroChart(heroHistory, statKey) {
           order: 1
         },
         {
-          label: 'Promedio',
+          label: 'Promedio héroe',
           data: avgLine,
           borderColor: '#555570',
           borderDash: [5, 4],
@@ -1324,6 +1332,16 @@ function renderHeroChart(heroHistory, statKey) {
           pointRadius: 0,
           fill: false,
           order: 2
+        },
+        {
+          label: 'Promedio global',
+          data: globalAvgLine,
+          borderColor: '#f59e0b',
+          borderDash: [5, 4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+          order: 3
         }
       ]
     },
@@ -1341,9 +1359,11 @@ function renderHeroChart(heroHistory, statKey) {
           bodyFont: { family: "'IBM Plex Mono'", size: 12 },
           padding: 10,
           callbacks: {
-            label: ctx => ctx.datasetIndex === 0
-              ? ` ${ctx.parsed.y}`
-              : ` Promedio: ${ctx.parsed.y}`
+            label: ctx => {
+              if (ctx.datasetIndex === 0) return ` ${ctx.parsed.y}`;
+              if (ctx.datasetIndex === 1) return ` Prom. héroe: ${ctx.parsed.y}`;
+              return ` Prom. global: ${ctx.parsed.y}`;
+            }
           }
         }
       },
