@@ -44,7 +44,7 @@ Ver metodología completa en la página [Acerca de](https://hokstats.github.io/a
 
 MIT License — Copyright (c) 2025 HoKstats
 
-Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia de este software (codigo) y archivos asociados, para usar, copiar, modificar, fusionar, publicar, distribuir y/o vender copias del mismo, sujeto a las siguientes condiciones:
+Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia de este software (codigo) para usar, copiar, modificar, fusionar, publicar, distribuir y/o vender copias del mismo, sujeto a las siguientes condiciones:
 
 El aviso de copyright anterior y este aviso de permiso deben incluirse en todas las copias o partes sustanciales del software.
 
