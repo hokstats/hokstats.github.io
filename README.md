@@ -44,13 +44,13 @@ Ver metodología completa en la página [Acerca de](https://hokstats.github.io/a
 
 MIT License — Copyright (c) 2025 HoKstats
 
-Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia de este software y archivos asociados, para usar, copiar, modificar, fusionar, publicar, distribuir y/o vender copias del mismo, sujeto a las siguientes condiciones:
+Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia de este software (codigo) y archivos asociados, para usar, copiar, modificar, fusionar, publicar, distribuir y/o vender copias del mismo, sujeto a las siguientes condiciones:
 
 El aviso de copyright anterior y este aviso de permiso deben incluirse en todas las copias o partes sustanciales del software.
 
 **EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO. EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE DE NINGÚN DAÑO, RECLAMACIÓN O CONSECUENCIA DERIVADA DEL USO DE ESTE SOFTWARE.**
 
-> **Nota importante:** Esta licencia aplica únicamente al código fuente de HoKstats. No incluye ni otorga ningún derecho sobre las imágenes, nombres, logotipos, el mapa del juego o cualquier otro asset visual utilizado en la plataforma, los cuales son propiedad exclusiva de **Honor of Kings / Tencent Games** y están sujetos a sus propios términos de uso. Cualquier uso de dichos assets fuera del contexto de este proyecto es responsabilidad exclusiva del usuario.
+> **Nota importante:** Esta licencia aplica únicamente al código fuente de HoKstats. No incluye ni otorga ningún derecho sobre las imágenes, nombres, logotipos, estadisticas, el mapa del juego o cualquier otro asset utilizado en la plataforma, los cuales son propiedad exclusiva de **Honor of Kings / Tencent Games** y están sujetos a sus propios términos de uso. Cualquier uso de dichos assets fuera del contexto de este proyecto es responsabilidad exclusiva del usuario.
 
 ---
 
