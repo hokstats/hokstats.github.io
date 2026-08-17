@@ -376,13 +376,15 @@ body {
 
 .map-viewport.tool-eraser .placed-hero,
 .map-viewport.tool-eraser .vector-arrow,
-.map-viewport.tool-eraser .free-path {
+.map-viewport.tool-eraser .free-path,
+.map-viewport.tool-eraser .placed-text {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
 }
 
 .map-viewport.tool-eraser .placed-hero:hover,
 .map-viewport.tool-eraser .vector-arrow:hover,
-.map-viewport.tool-eraser .free-path:hover {
+.map-viewport.tool-eraser .free-path:hover,
+.map-viewport.tool-eraser .placed-text:hover {
   filter: drop-shadow(0 0 8px #ef4444) brightness(1.2);
   opacity: 0.7;
 }
@@ -410,6 +412,22 @@ body {
 
 .placed-hero.aura-blue { border: 3.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6,182,212,0.8); }
 .placed-hero.aura-red  { border: 3.5px solid #dc2626; box-shadow: 0 0 8px rgba(220,38,38,0.8); }
+
+/* Texto colocado en el mapa: se comporta como un elemento más (arrastrable/borrable) */
+.placed-text {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.9);
+  user-select: none;
+}
+
+.map-viewport .placed-text { cursor: grab !important; }
+.map-viewport .placed-text:active { cursor: grabbing !important; }
 
 .vector-arrow {
   position: absolute;
@@ -518,19 +536,19 @@ body {
         <!-- Color trazo -->
         <span class="toolbar-label" data-i18n="lbl_stroke">Trz.</span>
         <button class="btn-tool active" id="color-yellow" data-tip="Amarillo" data-i18n-tip="tip_yellow"><span class="color-dot" style="background:#eab308"></span></button>
-        <button class="btn-tool" id="color-green" data-tip="Verde" data-i18n-tip="tip_green"><span class="color-dot" style="background:#22c55e"></span></button>
+        <button class="btn-tool" id="color-black" data-tip="Negro" data-i18n-tip="tip_black"><span class="color-dot" style="background:#000000; border:1px solid #444452;"></span></button>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Texto -->
+        <span class="toolbar-label" data-i18n="lbl_text">Txt.</span>
+        <button class="btn-tool-labeled" id="add-text" data-tip="Agregar texto" data-i18n-tip="tip_addtext">🔤 <span data-i18n="lbl_addtext">Texto</span></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Acciones -->
-        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save">💾 <span data-i18n="lbl_save">Guardar</span></button>
-        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset">🔄 <span data-i18n="lbl_reset">Reset</span></button>
-        <button class="btn-tool-labeled" id="load-map" data-tip="Cargar mapa propio" data-i18n-tip="tip_loadmap" style="border-color:#a855f7; color:#c084fc;">🖼️ <span data-i18n="lbl_loadmap">Mapa</span></button>
-        <input type="file" id="map-file-input" accept="image/*" style="display:none;">
-
-        <div class="toolbar-divider"></div>
-
-        <button class="btn-tool" id="btn-fullscreen" data-tip="Pantalla completa" data-i18n-tip="tip_fullscreen">⛶</button>
+        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save">💾</button>
+        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset">🔄</button>
 
       </div>
 
@@ -664,6 +682,23 @@ function createHeroNode(imgUrl, x, y, recordHistory = true) {
   if (recordHistory) saveState('add', el);
 }
 
+function createTextNode(text, x, y, recordHistory = true) {
+  const inner = document.getElementById('mapInner');
+  const el = document.createElement('div');
+  el.className = 'placed-text';
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  el.style.color = currentStrokeColor;
+  el.textContent = text;
+
+  el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
+  el.addEventListener('touchstart', (e) => handleHeroClickOrDrag(e, el), {passive: false});
+
+  inner.appendChild(el);
+  if (recordHistory) saveState('add', el);
+  return el;
+}
+
 function handleHeroClickOrDrag(e, element) {
   if (currentTool === 'eraser') {
     saveState('delete', element, { parent: document.getElementById('mapInner') });
@@ -779,10 +814,15 @@ mapZone.addEventListener('mousedown', (e) => {
     return;
   }
 
-  // Héroe tiene prioridad sobre cualquier herramienta
+  // Héroe o texto tienen prioridad sobre cualquier herramienta
   const heroEl = e.target.closest('.placed-hero');
   if (heroEl) {
     handleHeroClickOrDrag(e, heroEl);
+    return;
+  }
+  const textEl = e.target.closest('.placed-text');
+  if (textEl) {
+    handleHeroClickOrDrag(e, textEl);
     return;
   }
 
@@ -827,10 +867,15 @@ mapZone.addEventListener('wheel', (e) => {
 function handleStartContainer(e) {
   if (currentTool === 'pan') return;
 
-  // Si el click es sobre un héroe, siempre lo movemos sin importar la herramienta
+  // Si el click es sobre un héroe o un texto, siempre lo movemos sin importar la herramienta
   const heroEl = e.target.closest('.placed-hero');
   if (heroEl) {
     handleHeroClickOrDrag(e, heroEl);
+    return;
+  }
+  const textEl = e.target.closest('.placed-text');
+  if (textEl) {
+    handleHeroClickOrDrag(e, textEl);
     return;
   }
 
@@ -980,7 +1025,7 @@ document.getElementById('hist-redo').addEventListener('click', () => {
 // ── TOOLBAR: event listeners directos por botón ──
 document.querySelectorAll('.btn-tool, .btn-tool-labeled').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all' || btn.id === 'load-map' || btn.id === 'btn-fullscreen') return;
+    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all' || btn.id === 'add-text') return;
     if (btn.id.startsWith('zoom-')) return;
 
     // Activo visual: solo dentro del grupo semántico
@@ -1001,7 +1046,7 @@ document.querySelectorAll('.btn-tool, .btn-tool-labeled').forEach(btn => {
       document.querySelectorAll('[id^="color-"]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       if (btn.id === 'color-yellow') currentStrokeColor = '#eab308';
-      if (btn.id === 'color-green')  currentStrokeColor = '#22c55e';
+      if (btn.id === 'color-black')  currentStrokeColor = '#000000';
       if (btn.id === 'color-white')  currentStrokeColor = '#ffffff';
     }
   });
@@ -1010,6 +1055,7 @@ document.querySelectorAll('.btn-tool, .btn-tool-labeled').forEach(btn => {
 document.getElementById('clear-all').addEventListener('click', () => {
   document.querySelectorAll('.vector-arrow').forEach(el => el.remove());
   document.querySelectorAll('.placed-hero').forEach(el => el.remove());
+  document.querySelectorAll('.placed-text').forEach(el => el.remove());
   svgLayer.innerHTML = "";
   undoStack = [];
   redoStack = [];
@@ -1018,8 +1064,6 @@ document.getElementById('clear-all').addEventListener('click', () => {
 
 document.getElementById('save-png').addEventListener('click', () => {
   const btn = document.getElementById('save-png');
-  const lang = localStorage.getItem('hokstats_lang') || 'es';
-  const saveLabel = i18n[lang]?.lbl_save || 'Guardar';
   btn.innerHTML = "⏳";
   btn.disabled = true;
 
@@ -1033,12 +1077,12 @@ document.getElementById('save-png').addEventListener('click', () => {
     link.download = 'hokstats-estrategia.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    btn.innerHTML = `💾 <span data-i18n="lbl_save">${saveLabel}</span>`;
+    btn.innerHTML = "💾";
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
     alert("Hubo un problema al generar la imagen.");
-    btn.innerHTML = `💾 <span data-i18n="lbl_save">${saveLabel}</span>`;
+    btn.innerHTML = "💾";
     btn.disabled = false;
   });
 });
@@ -1060,70 +1104,19 @@ document.getElementById('drawerSearch').addEventListener('input', (e) => {
   renderDrawer(currentRole, currentSearch);
 });
 
-// ── PANTALLA COMPLETA ──
-const fsBtn = document.getElementById('btn-fullscreen');
-const topBar = document.querySelector('.top-bar');
-const container = document.querySelector('.container');
-const mapZoneEl = document.getElementById('mapZone');
-const plannerLeft = document.querySelector('.planner-left');
-
-function enterFullscreen() {
-  document.documentElement.requestFullscreen();
-  topBar.style.display = 'none';
-  container.style.maxWidth = '100%';
-  container.style.padding = '0 10px';
-  document.body.style.padding = '8px 0';
-  // Calcular altura disponible: pantalla - top-bar eliminado - paddings - toolbar
-  setTimeout(() => {
-    const toolbar = document.querySelector('.planner-toolbar');
-    const toolbarH = toolbar ? toolbar.offsetHeight : 0;
-    const newH = window.innerHeight - 16 - 20 - toolbarH - 2;
-    mapZoneEl.style.height = newH + 'px';
-    if (plannerLeft) plannerLeft.style.height = newH + 'px';
-    applyTransform();
-  }, 100);
-  fsBtn.textContent = '✕';
-}
-
-function exitFullscreen() {
-  document.exitFullscreen();
-}
-
-fsBtn.addEventListener('click', () => {
-  if (!document.fullscreenElement) enterFullscreen();
-  else exitFullscreen();
-});
-
-document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) {
-    topBar.style.display = '';
-    container.style.maxWidth = '';
-    container.style.padding = '';
-    document.body.style.padding = '';
-    mapZoneEl.style.height = '';
-    if (plannerLeft) plannerLeft.style.height = '';
-    applyTransform();
-    fsBtn.textContent = '⛶';
-  }
-});
-
 // Centrar mapa al inicio
 window.addEventListener('load', () => { applyTransform(); });
 
-// ── CARGAR MAPA PROPIO ──
-document.getElementById('load-map').addEventListener('click', () => {
-  document.getElementById('map-file-input').click();
-});
+// ── AGREGAR TEXTO ──
+document.getElementById('add-text').addEventListener('click', () => {
+  const lang = localStorage.getItem('hokstats_lang') || 'es';
+  const promptMsg = i18n[lang]?.prompt_addtext || 'Escribe el texto:';
+  const text = prompt(promptMsg);
+  if (!text || !text.trim()) return;
 
-document.getElementById('map-file-input').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    document.getElementById('mapBg').src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
+  const cx = mapZone.scrollLeft + mapZone.clientWidth  / 2;
+  const cy = mapZone.scrollTop  + mapZone.clientHeight / 2;
+  createTextNode(text.trim(), cx, cy, true);
 });
 
 </script>
@@ -1140,10 +1133,10 @@ const i18n = {
     tip_zoomout: 'Alejar', tip_zoomin: 'Acercar', tip_zoomreset: 'Restablecer vista',
     tip_aura_none: 'Sin aura', tip_aura_blue: 'Lado Azul', tip_aura_red: 'Lado Rojo',
     lbl_aura_none: 'Sin lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Rojo',
-    tip_yellow: 'Amarillo', tip_green: 'Verde',
-    tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_loadmap: 'Cargar mapa propio',
-    lbl_save: 'Guardar', lbl_reset: 'Reset', lbl_loadmap: 'Mapa',
-    tip_fullscreen: 'Pantalla completa',
+    tip_yellow: 'Amarillo', tip_black: 'Negro',
+    tip_save: 'Guardar PNG', tip_reset: 'Reset todo',
+    lbl_text: 'Txt.', tip_addtext: 'Agregar texto', lbl_addtext: 'Texto',
+    prompt_addtext: 'Escribe el texto:',
     filter_label: 'Filtrar héroes',
     role_all: 'Todo', role_choque: 'Choque', role_cazador: 'Caza',
     role_medio: 'Medio', role_merodeo: 'Merod.', role_farmeo: 'Farmeo',
@@ -1159,10 +1152,10 @@ const i18n = {
     tip_zoomout: 'Zoom out', tip_zoomin: 'Zoom in', tip_zoomreset: 'Reset view',
     tip_aura_none: 'No aura', tip_aura_blue: 'Blue side', tip_aura_red: 'Red side',
     lbl_aura_none: 'No side', lbl_aura_blue: 'Blue', lbl_aura_red: 'Red',
-    tip_yellow: 'Yellow', tip_green: 'Green',
-    tip_save: 'Save PNG', tip_reset: 'Reset all', tip_loadmap: 'Load custom map',
-    lbl_save: 'Save', lbl_reset: 'Reset', lbl_loadmap: 'Map',
-    tip_fullscreen: 'Full screen',
+    tip_yellow: 'Yellow', tip_black: 'Black',
+    tip_save: 'Save PNG', tip_reset: 'Reset all',
+    lbl_text: 'Text', tip_addtext: 'Add text', lbl_addtext: 'Text',
+    prompt_addtext: 'Type the text:',
     filter_label: 'Filter heroes',
     role_all: 'All', role_choque: 'Fighter', role_cazador: 'Jungle',
     role_medio: 'Mid', role_merodeo: 'Roam', role_farmeo: 'Farmer',
@@ -1178,10 +1171,10 @@ const i18n = {
     tip_zoomout: 'Afastar', tip_zoomin: 'Aproximar', tip_zoomreset: 'Restaurar vista',
     tip_aura_none: 'Sem aura', tip_aura_blue: 'Lado Azul', tip_aura_red: 'Lado Vermelho',
     lbl_aura_none: 'Sem lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Verm.',
-    tip_yellow: 'Amarelo', tip_green: 'Verde',
-    tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_loadmap: 'Carregar mapa próprio',
-    lbl_save: 'Salvar', lbl_reset: 'Resetar', lbl_loadmap: 'Mapa',
-    tip_fullscreen: 'Tela cheia',
+    tip_yellow: 'Amarelo', tip_black: 'Preto',
+    tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo',
+    lbl_text: 'Txt.', tip_addtext: 'Adicionar texto', lbl_addtext: 'Texto',
+    prompt_addtext: 'Digite o texto:',
     filter_label: 'Filtrar heróis',
     role_all: 'Tudo', role_choque: 'Lutador', role_cazador: 'Caçador',
     role_medio: 'Meio', role_merodeo: 'Suporte', role_farmeo: 'Carry',
