@@ -155,6 +155,23 @@ body {
   display: inline-block;
 }
 
+/* Iconos monocromáticos (trazo tipo Feather/Lucide): heredan el color del botón */
+.btn-tool svg,
+.btn-tool-labeled svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  display: block;
+}
+
+@keyframes icon-spin { to { transform: rotate(360deg); } }
+.icon-spin { animation: icon-spin 0.8s linear infinite; }
+
 /* Panel izquierdo heroes */
 .planner-left {
   width: 200px;
@@ -503,33 +520,33 @@ body {
 
         <!-- Herramientas -->
         <span class="toolbar-label" data-i18n="lbl_tools">Herr.</span>
-        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe" data-i18n-tip="tip_move">🖐️</button>
-        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa" data-i18n-tip="tip_pan">🗺️</button>
-        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria" data-i18n-tip="tip_draw">✏️</button>
-        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha" data-i18n-tip="tip_arrow">🏹</button>
-        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento" data-i18n-tip="tip_eraser">🧽</button>
+        <button class="btn-tool-labeled active" id="tool-move" data-tip="Mover héroe" data-i18n-tip="tip_move"><svg viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></button>
+        <button class="btn-tool-labeled" id="tool-pan" data-tip="Mover mapa" data-i18n-tip="tip_pan"><svg viewBox="0 0 24 24"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg></button>
+        <button class="btn-tool-labeled" id="tool-draw" data-tip="Dibujar trayectoria" data-i18n-tip="tip_draw"><svg viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+        <button class="btn-tool-labeled" id="tool-arrow" data-tip="Trazar flecha" data-i18n-tip="tip_arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
+        <button class="btn-tool-labeled" id="tool-eraser" data-tip="Borrar elemento" data-i18n-tip="tip_eraser"><svg viewBox="0 0 24 24"><path d="M20 20H8.5L3 14.5a2 2 0 0 1 0-2.83l7-7a2 2 0 0 1 2.83 0l7 7a2 2 0 0 1 0 2.83L13.5 20"/><line x1="12" y1="20" x2="20" y2="20"/></svg></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Historial -->
         <span class="toolbar-label" data-i18n="lbl_hist">Hist.</span>
-        <button class="btn-tool" id="hist-undo" disabled data-tip="Deshacer" data-i18n-tip="tip_undo">↩️</button>
-        <button class="btn-tool" id="hist-redo" disabled data-tip="Rehacer" data-i18n-tip="tip_redo">↪️</button>
+        <button class="btn-tool" id="hist-undo" disabled data-tip="Deshacer" data-i18n-tip="tip_undo"><svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>
+        <button class="btn-tool" id="hist-redo" disabled data-tip="Rehacer" data-i18n-tip="tip_redo"><svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Zoom -->
         <span class="toolbar-label">Zoom</span>
-        <button class="btn-tool" id="zoom-out" data-tip="Alejar" data-i18n-tip="tip_zoomout">−</button>
-        <button class="btn-tool" id="zoom-in" data-tip="Acercar" data-i18n-tip="tip_zoomin">+</button>
-        <button class="btn-tool" id="zoom-reset" data-tip="Restablecer vista" data-i18n-tip="tip_zoomreset" style="font-size:10px; color:#a0a0b5;">⌂</button>
+        <button class="btn-tool" id="zoom-out" data-tip="Alejar" data-i18n-tip="tip_zoomout"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button class="btn-tool" id="zoom-in" data-tip="Acercar" data-i18n-tip="tip_zoomin"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button class="btn-tool" id="zoom-reset" data-tip="Restablecer vista" data-i18n-tip="tip_zoomreset"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/></svg></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Aura -->
-        <button class="btn-tool-labeled" id="aura-none" data-tip="Sin aura" data-i18n-tip="tip_aura_none">⚪ <span data-i18n="lbl_aura_none">Sin lado</span></button>
-        <button class="btn-tool-labeled" id="aura-blue" data-tip="Azul" data-i18n-tip="tip_aura_blue" style="color:#06b6d4; border-color:#06b6d4;">🔵 <span data-i18n="lbl_aura_blue">Azul</span></button>
-        <button class="btn-tool-labeled" id="aura-red" data-tip="Rojo" data-i18n-tip="tip_aura_red" style="color:#dc2626; border-color:#dc2626;">🔴 <span data-i18n="lbl_aura_red">Rojo</span></button>
+        <button class="btn-tool-labeled" id="aura-none" data-tip="Sin aura" data-i18n-tip="tip_aura_none"><span class="color-dot" style="background:transparent; border:1.5px solid #7b7a8e;"></span> <span data-i18n="lbl_aura_none">Sin lado</span></button>
+        <button class="btn-tool-labeled" id="aura-blue" data-tip="Azul" data-i18n-tip="tip_aura_blue" style="color:#06b6d4; border-color:#06b6d4;"><span class="color-dot" style="background:#06b6d4"></span> <span data-i18n="lbl_aura_blue">Azul</span></button>
+        <button class="btn-tool-labeled" id="aura-red" data-tip="Rojo" data-i18n-tip="tip_aura_red" style="color:#dc2626; border-color:#dc2626;"><span class="color-dot" style="background:#dc2626"></span> <span data-i18n="lbl_aura_red">Rojo</span></button>
 
         <div class="toolbar-divider"></div>
 
@@ -542,13 +559,13 @@ body {
 
         <!-- Texto -->
         <span class="toolbar-label" data-i18n="lbl_text">Txt.</span>
-        <button class="btn-tool-labeled" id="add-text" data-tip="Agregar texto" data-i18n-tip="tip_addtext">🔤 <span data-i18n="lbl_addtext">Texto</span></button>
+        <button class="btn-tool-labeled" id="add-text" data-tip="Agregar texto" data-i18n-tip="tip_addtext"><svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> <span data-i18n="lbl_addtext">Texto</span></button>
 
         <div class="toolbar-divider"></div>
 
         <!-- Acciones -->
-        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save">💾</button>
-        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset">🔄</button>
+        <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+        <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
 
       </div>
 
@@ -1062,9 +1079,12 @@ document.getElementById('clear-all').addEventListener('click', () => {
   updateHistoryButtons();
 });
 
+const SAVE_ICON = '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+const SPIN_ICON = '<svg class="icon-spin" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9"/></svg>';
+
 document.getElementById('save-png').addEventListener('click', () => {
   const btn = document.getElementById('save-png');
-  btn.innerHTML = "⏳";
+  btn.innerHTML = SPIN_ICON;
   btn.disabled = true;
 
   html2canvas(mapZone, {
@@ -1077,12 +1097,12 @@ document.getElementById('save-png').addEventListener('click', () => {
     link.download = 'hokstats-estrategia.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    btn.innerHTML = "💾";
+    btn.innerHTML = SAVE_ICON;
     btn.disabled = false;
   }).catch(err => {
     console.error("Error exportando el canvas:", err);
     alert("Hubo un problema al generar la imagen.");
-    btn.innerHTML = "💾";
+    btn.innerHTML = SAVE_ICON;
     btn.disabled = false;
   });
 });
