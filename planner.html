@@ -1250,10 +1250,49 @@ document.getElementById('clear-all').addEventListener('click', () => {
   updateHistoryButtons();
 });
 
-// ── PANTALLA COMPLETA DEL MAPA ──
+// ── PANTALLA COMPLETA DEL MAPA (Fullscreen API real, como F11) ──
 const FULLSCREEN_ICON = '<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/></svg>';
 const EXIT_FULLSCREEN_ICON = '<svg viewBox="0 0 24 24"><path d="M9 3v3a2 2 0 0 1-2 2H4"/><path d="M15 3v3a2 2 0 0 0 2 2h3"/><path d="M15 21v-3a2 2 0 0 1 2-2h3"/><path d="M9 21v-3a2 2 0 0 0-2-2H4"/></svg>';
 let isPlannerFullscreen = false;
+let usingNativeFullscreen = false;
+
+function getFullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+}
+function requestNativeFullscreen(el) {
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  if (!req) { enterFullscreenLayout(); return; } // navegador sin soporte: fallback al layout expandido
+  const result = req.call(el);
+  if (result && result.catch) {
+    result.catch(() => enterFullscreenLayout()); // bloqueado (ej. iframe sin permiso): fallback
+  }
+}
+function exitNativeFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+  if (exit) exit.call(document);
+}
+
+function enterFullscreenLayout() {
+  isPlannerFullscreen = true;
+  document.body.classList.add('planner-fullscreen');
+  const btn = document.getElementById('btn-fullscreen');
+  btn.classList.add('active');
+  btn.innerHTML = EXIT_FULLSCREEN_ICON;
+  updateFullscreenMapHeight();
+}
+
+function exitFullscreenLayout() {
+  isPlannerFullscreen = false;
+  document.body.classList.remove('planner-fullscreen');
+  const btn = document.getElementById('btn-fullscreen');
+  btn.classList.remove('active');
+  btn.innerHTML = FULLSCREEN_ICON;
+  mapZone.style.height = '';
+  mapZoom = 1;
+  panX = 0;
+  panY = 0;
+  applyTransform();
+}
 
 function updateFullscreenMapHeight() {
   if (!isPlannerFullscreen) return;
@@ -1286,24 +1325,28 @@ function fitMapToViewport() {
 }
 
 document.getElementById('btn-fullscreen').addEventListener('click', () => {
-  isPlannerFullscreen = !isPlannerFullscreen;
-  const btn = document.getElementById('btn-fullscreen');
-  document.body.classList.toggle('planner-fullscreen', isPlannerFullscreen);
-  btn.classList.toggle('active', isPlannerFullscreen);
-  btn.innerHTML = isPlannerFullscreen ? EXIT_FULLSCREEN_ICON : FULLSCREEN_ICON;
   if (isPlannerFullscreen) {
-    updateFullscreenMapHeight();
+    if (usingNativeFullscreen) exitNativeFullscreen();
+    else exitFullscreenLayout();
   } else {
-    mapZone.style.height = '';
-    mapZoom = 1;
-    panX = 0;
-    panY = 0;
-    applyTransform();
+    requestNativeFullscreen(document.documentElement);
   }
 });
 
 window.addEventListener('resize', () => {
   if (isPlannerFullscreen) updateFullscreenMapHeight();
+});
+
+['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    if (getFullscreenElement()) {
+      usingNativeFullscreen = true;
+      enterFullscreenLayout();
+    } else if (usingNativeFullscreen) {
+      usingNativeFullscreen = false;
+      exitFullscreenLayout();
+    }
+  });
 });
 
 const SAVE_ICON = '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
