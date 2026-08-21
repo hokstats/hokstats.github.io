@@ -313,8 +313,8 @@ body {
   align-content: flex-start;
 }
 
-.heroes-panel-header {
-  border-bottom: 1px solid #3a3a46;
+.heroes-panel-footer {
+  border-top: 1px solid #3a3a46;
   padding: 8px;
   background: #24242b;
   flex-shrink: 0;
@@ -641,7 +641,8 @@ body {
         <!-- PANEL IZQUIERDO: héroes -->
         <div class="planner-left">
           <div class="heroes-panel">
-            <div class="heroes-panel-header">
+            <div class="heroes-grid" id="available-heroes"></div>
+            <div class="heroes-panel-footer">
               <div class="panel-section-label" data-i18n="filter_label">Filtrar héroes</div>
               <div class="tabs">
                 <div class="tab active" data-role="all" data-i18n="role_all">Todo</div>
@@ -655,7 +656,6 @@ body {
                 <input type="text" id="drawerSearch" data-i18n-placeholder="search_placeholder" placeholder="Buscar héroe...">
               </div>
             </div>
-            <div class="heroes-grid" id="available-heroes"></div>
           </div>
         </div>
 
