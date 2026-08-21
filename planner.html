@@ -436,6 +436,31 @@ body {
   pointer-events: none;
 }
 
+/* ── MODO PANTALLA COMPLETA DEL MAPA ── */
+body.planner-fullscreen {
+  padding: 10px 0;
+}
+body.planner-fullscreen .top-bar {
+  display: none;
+}
+body.planner-fullscreen .container {
+  max-width: 100%;
+  padding: 0 12px;
+}
+body.planner-fullscreen .content-padding-zone {
+  padding: 12px;
+}
+body.planner-fullscreen .planner-toolbar {
+  margin-bottom: 10px;
+}
+body.planner-fullscreen .map-viewport {
+  height: 700px; /* fallback; se recalcula dinámicamente por JS */
+}
+#btn-fullscreen.active {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.4);
+}
+
 /* Solo captura eventos cuando está en modo dibujo, pero nunca sobre héroes */
 .svg-draw-layer.active-drawing {
   pointer-events: auto;
@@ -632,6 +657,11 @@ body {
         <!-- Acciones -->
         <button class="btn-tool-labeled success" id="save-png" data-tip="Guardar PNG" data-i18n-tip="tip_save"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
         <button class="btn-tool-labeled danger" id="clear-all" data-tip="Reset todo" data-i18n-tip="tip_reset"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Pantalla completa -->
+        <button class="btn-tool" id="btn-fullscreen" data-tip="Pantalla completa" data-i18n-tip="tip_fullscreen"><svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/></svg></button>
 
       </div>
 
@@ -1005,7 +1035,11 @@ document.getElementById('zoom-out').addEventListener('click', () => {
   zoomAtPoint(-1, mapZone.clientWidth / 2, mapZone.clientHeight / 2);
 });
 document.getElementById('zoom-reset').addEventListener('click', () => {
-  mapZoom = 1; panX = 0; panY = 0; applyTransform();
+  if (isPlannerFullscreen) {
+    fitMapToViewport();
+  } else {
+    mapZoom = 1; panX = 0; panY = 0; applyTransform();
+  }
 });
 mapZone.addEventListener('wheel', (e) => {
   e.preventDefault();
@@ -1174,7 +1208,7 @@ document.getElementById('hist-redo').addEventListener('click', () => {
 // ── TOOLBAR: event listeners directos por botón ──
 document.querySelectorAll('.btn-tool, .btn-tool-labeled').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all' || btn.id === 'add-text') return;
+    if (btn.id.startsWith('hist-') || btn.id === 'save-png' || btn.id === 'clear-all' || btn.id === 'add-text' || btn.id === 'btn-fullscreen') return;
     if (btn.id.startsWith('zoom-')) return;
 
     // Activo visual: solo dentro del grupo semántico
@@ -1214,6 +1248,62 @@ document.getElementById('clear-all').addEventListener('click', () => {
   undoStack = [];
   redoStack = [];
   updateHistoryButtons();
+});
+
+// ── PANTALLA COMPLETA DEL MAPA ──
+const FULLSCREEN_ICON = '<svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2h-3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/></svg>';
+const EXIT_FULLSCREEN_ICON = '<svg viewBox="0 0 24 24"><path d="M9 3v3a2 2 0 0 1-2 2H4"/><path d="M15 3v3a2 2 0 0 0 2 2h3"/><path d="M15 21v-3a2 2 0 0 1 2-2h3"/><path d="M9 21v-3a2 2 0 0 0-2-2H4"/></svg>';
+let isPlannerFullscreen = false;
+
+function updateFullscreenMapHeight() {
+  if (!isPlannerFullscreen) return;
+  const toolbar = document.querySelector('.planner-toolbar');
+  const contentZone = document.querySelector('.content-padding-zone');
+  const czStyle = getComputedStyle(contentZone);
+  const padTop = parseFloat(czStyle.paddingTop) || 0;
+  const padBottom = parseFloat(czStyle.paddingBottom) || 0;
+  const toolbarStyle = getComputedStyle(toolbar);
+  const toolbarMarginBottom = parseFloat(toolbarStyle.marginBottom) || 0;
+  const bodyStyle = getComputedStyle(document.body);
+  const bodyPadTop = parseFloat(bodyStyle.paddingTop) || 0;
+  const bodyPadBottom = parseFloat(bodyStyle.paddingBottom) || 0;
+  const chrome = toolbar.offsetHeight + toolbarMarginBottom + padTop + padBottom + bodyPadTop + bodyPadBottom + 4;
+  const available = window.innerHeight - chrome;
+  mapZone.style.height = Math.max(320, available) + 'px';
+  fitMapToViewport();
+}
+
+// Escala el mapa (manteniendo su proporción cuadrada) para ocupar el máximo
+// espacio posible del viewport disponible, sin deformarse ni recortarse.
+function fitMapToViewport() {
+  const vw = mapZone.clientWidth;
+  const vh = mapZone.clientHeight;
+  if (vw <= 0 || vh <= 0) return;
+  mapZoom = Math.min(vw, vh) / MAP_BASE;
+  panX = 0;
+  panY = 0;
+  applyTransform();
+}
+
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  isPlannerFullscreen = !isPlannerFullscreen;
+  const btn = document.getElementById('btn-fullscreen');
+  document.body.classList.toggle('planner-fullscreen', isPlannerFullscreen);
+  btn.classList.toggle('active', isPlannerFullscreen);
+  btn.innerHTML = isPlannerFullscreen ? EXIT_FULLSCREEN_ICON : FULLSCREEN_ICON;
+  if (isPlannerFullscreen) {
+    updateFullscreenMapHeight();
+  } else {
+    mapZone.style.height = '';
+    mapZoom = 1;
+    panX = 0;
+    panY = 0;
+    applyTransform();
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (isPlannerFullscreen) updateFullscreenMapHeight();
 });
 
 const SAVE_ICON = '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
@@ -1291,7 +1381,7 @@ const i18n = {
     tip_aura_none: 'Sin aura', tip_aura_blue: 'Lado Azul', tip_aura_red: 'Lado Rojo',
     lbl_aura_none: 'Sin lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Rojo',
     tip_yellow: 'Amarillo', tip_black: 'Negro', tip_custom: 'Personalizado',
-    tip_save: 'Guardar PNG', tip_reset: 'Reset todo',
+    tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_fullscreen: 'Pantalla completa',
     lbl_text: 'Txt.', tip_addtext: 'Agregar texto', lbl_addtext: 'Texto',
     prompt_addtext: 'Escribe el texto:',
     filter_label: 'Filtrar héroes',
@@ -1310,7 +1400,7 @@ const i18n = {
     tip_aura_none: 'No aura', tip_aura_blue: 'Blue side', tip_aura_red: 'Red side',
     lbl_aura_none: 'No side', lbl_aura_blue: 'Blue', lbl_aura_red: 'Red',
     tip_yellow: 'Yellow', tip_black: 'Black', tip_custom: 'Custom',
-    tip_save: 'Save PNG', tip_reset: 'Reset all',
+    tip_save: 'Save PNG', tip_reset: 'Reset all', tip_fullscreen: 'Fullscreen',
     lbl_text: 'Text', tip_addtext: 'Add text', lbl_addtext: 'Text',
     prompt_addtext: 'Type the text:',
     filter_label: 'Filter heroes',
@@ -1329,7 +1419,7 @@ const i18n = {
     tip_aura_none: 'Sem aura', tip_aura_blue: 'Lado Azul', tip_aura_red: 'Lado Vermelho',
     lbl_aura_none: 'Sem lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Verm.',
     tip_yellow: 'Amarelo', tip_black: 'Preto', tip_custom: 'Personalizado',
-    tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo',
+    tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_fullscreen: 'Tela cheia',
     lbl_text: 'Txt.', tip_addtext: 'Adicionar texto', lbl_addtext: 'Texto',
     prompt_addtext: 'Digite o texto:',
     filter_label: 'Filtrar heróis',
