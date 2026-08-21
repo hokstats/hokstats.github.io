@@ -650,11 +650,17 @@ body.planner-fullscreen .map-viewport {
 
 .vector-arrow {
   position: absolute;
-  height: 0;
-  border-top: var(--arrow-w, 4px) var(--arrow-style, solid) currentColor;
+  height: var(--arrow-w, 4px); /* alto explícito y sin borde propio: referencia limpia y sin ambigüedad para posicionar la punta */
   transform-origin: top left;
   z-index: 5;
   cursor: pointer;
+}
+
+.vector-arrow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-top: var(--arrow-w, 4px) var(--arrow-style, solid) currentColor;
 }
 
 .vector-arrow::after {
@@ -994,11 +1000,12 @@ function getDasharrayForStyle(style, width) {
 function applyArrowStrokeVars(el, width, style) {
   const headH = Math.round(width * 1.75);
   const headL = Math.round(width * 3);
-  // El div usa "height:0; border-top: Wpx" para poder soportar los estilos
-  // discontinuo/punteado, así que el ::after (la punta) se posiciona respecto
-  // al borde de padding, que arranca W px más abajo que el borde del propio div.
-  // Hay que restar ese offset para que la punta quede centrada sobre la línea.
-  const headTop = -(width / 2) - headH;
+  // El div ahora tiene alto explícito = grosor de la línea (sin usar su propio
+  // borde), y la línea se dibuja aparte con ::before. Eso vuelve inequívoca la
+  // caja de referencia para la punta (::after): "top" se mide directo desde
+  // el borde superior de esa caja de W px, sin offsets ocultos que dependan
+  // de cómo cada navegador resuelva cajas con altura 0 + borde.
+  const headTop = (width / 2) - headH;
   el.style.setProperty('--arrow-w', width + 'px');
   el.style.setProperty('--arrow-style', style);
   el.style.setProperty('--arrow-head-h', headH + 'px');
