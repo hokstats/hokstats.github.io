@@ -170,17 +170,36 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 .color-custom-popover.show { display: flex; }
-.color-custom-popover input[type="color"] {
+
+/* Contenedor: swatch decorativo (degradado) + input nativo transparente encima */
+.sw-native-color-wrap {
+  position: relative;
   width: 100%;
   height: 28px;
-  padding: 0;
   border: 1px solid #444452;
   border-radius: 3px;
-  background: transparent;
+  overflow: hidden;
   cursor: pointer;
 }
-.color-custom-popover input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-.color-custom-popover input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+.sw-native-color-swatch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sw-native-color-swatch.rainbow {
+  background: conic-gradient(from 180deg, #ef4444, #eab308, #22c55e, #06b6d4, #6366f1, #ec4899, #ef4444);
+}
+.color-custom-popover input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0; /* el swatch decorativo de atrás es lo que se ve; este solo habilita el picker nativo al hacer clic */
+}
 .color-custom-popover input[type="text"] {
   width: 100%;
   background: #282830;
@@ -253,9 +272,39 @@ body {
 }
 .sw-style-preview.dashed { border-top-style: dashed; }
 .sw-style-preview.dotted { border-top-style: dotted; }
+.sw-ending-preview {
+  display: flex;
+  align-items: center;
+  width: 28px;
+}
+.sw-ending-preview.normal::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: #cfcfd8;
+  border-radius: 2px;
+}
+.sw-ending-preview.arrow::before {
+  content: '';
+  display: block;
+  flex: 1;
+  height: 3px;
+  background: #cfcfd8;
+}
+.sw-ending-preview.arrow::after {
+  content: '';
+  display: block;
+  flex-shrink: 0;
+  width: 0; height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #cfcfd8;
+}
 
 /* Diferenciación visual del botón de color personalizado frente a los fijos (amarillo/negro) */
-#color-custom::before {
+#color-custom::before,
+#btn-stroke-width::before {
   content: '';
   position: absolute;
   bottom: 1px;
@@ -267,7 +316,9 @@ body {
   pointer-events: none;
 }
 #color-custom:hover::before,
-#color-custom.active::before { border-bottom-color: #ffffff; }
+#color-custom.active::before,
+#btn-stroke-width:hover::before,
+#btn-stroke-width.active::before { border-bottom-color: #ffffff; }
 
 /* Aro arcoíris por defecto: comunica "elegí cualquier color" hasta que se elija uno */
 #customColorDot.rainbow {
@@ -542,12 +593,15 @@ body.planner-fullscreen .map-viewport {
 .map-viewport.tool-eraser .placed-hero,
 .map-viewport.tool-eraser .vector-arrow,
 .map-viewport.tool-eraser .free-path,
+.map-viewport.tool-eraser .free-path-ending,
 .map-viewport.tool-eraser .placed-text {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2"><path d="M20 20H4M20 20L13 13M20 20L17 17M13 13L7 7M13 13L17 9L11 3L5 9L7 7"/></svg>'), pointer !important;
 }
 
 .map-viewport.tool-eraser .placed-hero:hover,
 .map-viewport.tool-eraser .vector-arrow:hover,
+.map-viewport.tool-eraser .free-path-group:hover .free-path,
+.map-viewport.tool-eraser .free-path-group:hover .free-path-ending,
 .map-viewport.tool-eraser .free-path:hover,
 .map-viewport.tool-eraser .placed-text:hover {
   filter: drop-shadow(0 0 8px #ef4444) brightness(1.2);
@@ -701,8 +755,8 @@ body.planner-fullscreen .map-viewport {
         <!-- Color trazo -->
         <span class="toolbar-label" data-i18n="lbl_stroke">Trz.</span>
         <button class="btn-tool active" id="color-yellow" data-tip="Amarillo" data-i18n-tip="tip_yellow"><span class="color-dot" style="background:#eab308"></span></button>
-        <button class="btn-tool" id="color-black" data-tip="Negro" data-i18n-tip="tip_black"><span class="color-dot" style="background:#000000; border:1px solid #444452;"></span></button>
-        <button class="btn-tool" id="color-custom" data-tip="Personalizado" data-i18n-tip="tip_custom"><span class="color-dot rainbow" id="customColorDot" style="border:1px solid #444452;"></span></button>
+        <button class="btn-tool" id="color-black" data-tip="Negro" data-i18n-tip="tip_black"><span class="color-dot" style="background:#000000; box-shadow: 0 0 0 1px #444452;"></span></button>
+        <button class="btn-tool" id="color-custom" data-tip="Personalizado" data-i18n-tip="tip_custom"><span class="color-dot rainbow" id="customColorDot" style="box-shadow: 0 0 0 1px #444452;"></span></button>
         <button class="btn-tool" id="btn-stroke-width" data-tip="Grosor de trazo" data-i18n-tip="tip_strokewidth"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6" stroke-width="1"/><line x1="4" y1="12" x2="20" y2="12" stroke-width="2.5"/><line x1="4" y1="18" x2="20" y2="18" stroke-width="4.5"/></svg></button>
 
         <div class="toolbar-divider"></div>
@@ -781,13 +835,17 @@ let currentAura = 'none';
 let currentStrokeColor = '#eab308';
 let currentStrokeWidth = 4;      // px: afecta tanto al lápiz como a las flechas
 let currentStrokeStyle = 'solid'; // 'solid' | 'dashed' | 'dotted'
+let currentStrokeEnding = 'normal'; // 'normal' | 'arrow' — solo aplica al lápiz (las flechas ya tienen punta)
 
 // ── COLOR PERSONALIZADO: popover con paleta nativa + código HEX editable ──
 const customColorPopover = document.createElement('div');
 customColorPopover.className = 'color-custom-popover';
 customColorPopover.id = 'customColorPopover';
 customColorPopover.innerHTML = `
-  <input type="color" id="customColorPicker" value="#22c55e">
+  <div class="sw-native-color-wrap">
+    <div class="sw-native-color-swatch rainbow" id="customColorSwatchPreview"></div>
+    <input type="color" id="customColorPicker" value="#22c55e">
+  </div>
   <input type="text" id="customColorHex" value="#22c55e" maxlength="7" spellcheck="false" autocomplete="off">
 `;
 document.body.appendChild(customColorPopover);
@@ -795,6 +853,7 @@ document.body.appendChild(customColorPopover);
 const customColorPicker = document.getElementById('customColorPicker');
 const customColorHex = document.getElementById('customColorHex');
 const customColorDot = document.getElementById('customColorDot');
+const customColorSwatchPreview = document.getElementById('customColorSwatchPreview');
 let customColorValue = '#22c55e';
 
 function setCustomColor(hex) {
@@ -805,6 +864,8 @@ function setCustomColor(hex) {
   if (customColorHex.value !== hex) customColorHex.value = hex;
   customColorDot.classList.remove('rainbow');
   customColorDot.style.background = hex;
+  customColorSwatchPreview.classList.remove('rainbow');
+  customColorSwatchPreview.style.background = hex;
   if (document.getElementById('color-custom').classList.contains('active')) {
     currentStrokeColor = hex;
   }
@@ -865,6 +926,11 @@ strokeWidthPopover.innerHTML = `
     <button class="sw-btn" data-style="dashed"><span class="sw-style-preview dashed"></span></button>
     <button class="sw-btn" data-style="dotted"><span class="sw-style-preview dotted"></span></button>
   </div>
+  <div class="sw-section-label" data-i18n="sw_ending_label">Terminación (lápiz)</div>
+  <div class="sw-row" id="swEndingRow">
+    <button class="sw-btn active" data-ending="normal"><span class="sw-ending-preview normal"></span></button>
+    <button class="sw-btn" data-ending="arrow"><span class="sw-ending-preview arrow"></span></button>
+  </div>
 `;
 document.body.appendChild(strokeWidthPopover);
 strokeWidthPopover.addEventListener('click', (e) => e.stopPropagation());
@@ -883,6 +949,13 @@ strokeWidthPopover.querySelectorAll('#swStyleRow .sw-btn').forEach(b => {
     b.classList.add('active');
   });
 });
+strokeWidthPopover.querySelectorAll('#swEndingRow .sw-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    currentStrokeEnding = b.dataset.ending;
+    strokeWidthPopover.querySelectorAll('#swEndingRow .sw-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
 
 function openStrokeWidthPopover() {
   const btn = document.getElementById('btn-stroke-width');
@@ -890,9 +963,11 @@ function openStrokeWidthPopover() {
   strokeWidthPopover.style.left = `${Math.round(rect.left)}px`;
   strokeWidthPopover.style.top = `${Math.round(rect.bottom + 7)}px`;
   strokeWidthPopover.classList.add('show');
+  btn.classList.add('active');
 }
 function closeStrokeWidthPopover() {
   strokeWidthPopover.classList.remove('show');
+  document.getElementById('btn-stroke-width').classList.remove('active');
 }
 
 document.getElementById('btn-stroke-width').addEventListener('click', () => {
@@ -916,7 +991,11 @@ function getDasharrayForStyle(style, width) {
 function applyArrowStrokeVars(el, width, style) {
   const headH = Math.round(width * 1.75);
   const headL = Math.round(width * 3);
-  const headTop = (width / 2) - headH;
+  // El div usa "height:0; border-top: Wpx" para poder soportar los estilos
+  // discontinuo/punteado, así que el ::after (la punta) se posiciona respecto
+  // al borde de padding, que arranca W px más abajo que el borde del propio div.
+  // Hay que restar ese offset para que la punta quede centrada sobre la línea.
+  const headTop = -(width / 2) - headH;
   el.style.setProperty('--arrow-w', width + 'px');
   el.style.setProperty('--arrow-style', style);
   el.style.setProperty('--arrow-head-h', headH + 'px');
@@ -930,6 +1009,7 @@ let activeArrowElement = null;
 let activePathElement = null;
 let currentPathPoints = "";
 let smoothX = 0, smoothY = 0;
+let activePathEndingMode = 'normal'; // terminación fijada al iniciar el trazo actual
 const DRAW_SMOOTHING = 0.35; // 0-1: más bajo = trazo más suave (con algo más de retraso), más alto = más fiel al pulso
 const DRAW_MIN_DIST = 1.3;   // px mínimos entre puntos para ignorar micro-temblores
 
@@ -1238,6 +1318,21 @@ function buildSmoothPathD(pts) {
   return d;
 }
 
+// Construye el triángulo (relleno) de la punta de flecha opcional del lápiz,
+// orientado según la dirección del último tramo del trazo.
+function buildArrowheadPath(px, py, tx, ty, width) {
+  const headH = width * 1.75;
+  const headL = width * 3;
+  const dx = tx - px, dy = ty - py;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const perpX = -uy, perpY = ux;
+  const baseX = tx - ux * headL, baseY = ty - uy * headL;
+  const leftX = baseX + perpX * headH, leftY = baseY + perpY * headH;
+  const rightX = baseX - perpX * headH, rightY = baseY - perpY * headH;
+  return `M ${tx} ${ty} L ${leftX} ${leftY} L ${rightX} ${rightY} Z`;
+}
+
 function handleStartContainer(e) {
   if (currentTool === 'pan') return;
 
@@ -1256,6 +1351,13 @@ function handleStartContainer(e) {
   const isBg = e.target === mapZone || e.target === document.getElementById('mapInner') || e.target.className === 'map-background' || e.target === svgLayer;
   
   if (currentTool === 'eraser' && !isBg) {
+    const groupEl = e.target.closest('.free-path-group');
+    if (groupEl) {
+      saveState('delete', groupEl, { parent: groupEl.parentNode });
+      groupEl.remove();
+      return;
+    }
+
     if (e.target.classList.contains('free-path')) {
       saveState('delete', e.target, { parent: svgLayer });
       e.target.remove();
@@ -1298,6 +1400,7 @@ function handleStartContainer(e) {
     activePathElement.style.strokeWidth = currentStrokeWidth + 'px';
     const dasharray = getDasharrayForStyle(currentStrokeStyle, currentStrokeWidth);
     if (dasharray) activePathElement.style.strokeDasharray = dasharray;
+    activePathEndingMode = currentStrokeEnding;
 
     currentPathPoints = [[startX, startY]];
     smoothX = startX;
@@ -1369,11 +1472,34 @@ function handleEndContainer() {
     activeArrowElement = null;
   }
   else if (currentTool === 'draw' && activePathElement) {
+    let finalPoints = currentPathPoints;
     if (currentPathPoints.length > 2) {
-      const simplified = simplifyPath(currentPathPoints, 1.5);
-      activePathElement.setAttribute("d", buildSmoothPathD(simplified));
+      finalPoints = simplifyPath(currentPathPoints, 1.5);
+      activePathElement.setAttribute("d", buildSmoothPathD(finalPoints));
     }
-    saveState('add', activePathElement);
+
+    if (activePathEndingMode === 'arrow' && finalPoints.length >= 2) {
+      const last = finalPoints[finalPoints.length - 1];
+      const prev = finalPoints[finalPoints.length - 2];
+      const w = parseFloat(activePathElement.style.strokeWidth) || currentStrokeWidth;
+      const color = activePathElement.getAttribute('stroke') || currentStrokeColor;
+
+      const headEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      headEl.setAttribute('class', 'free-path-ending');
+      headEl.setAttribute('d', buildArrowheadPath(prev[0], prev[1], last[0], last[1], w));
+      headEl.setAttribute('fill', color);
+
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute('class', 'free-path-group');
+      svgLayer.removeChild(activePathElement);
+      group.appendChild(activePathElement);
+      group.appendChild(headEl);
+      svgLayer.appendChild(group);
+
+      saveState('add', group);
+    } else {
+      saveState('add', activePathElement);
+    }
     activePathElement = null;
   }
 }
@@ -1400,7 +1526,7 @@ document.getElementById('hist-redo').addEventListener('click', () => {
   undoStack.push(action);
   
   if (action.type === 'add') {
-    if (action.element.classList.contains('free-path')) {
+    if (action.element.classList.contains('free-path') || action.element.classList.contains('free-path-group')) {
       svgLayer.appendChild(action.element);
     } else {
       document.getElementById('mapInner').appendChild(action.element);
@@ -1634,7 +1760,7 @@ const i18n = {
     lbl_aura_none: 'Sin lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Rojo',
     tip_yellow: 'Amarillo', tip_black: 'Negro', tip_custom: 'Personalizado',
     tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_fullscreen: 'Pantalla completa',
-    tip_strokewidth: 'Grosor de trazo', sw_width_label: 'Grosor', sw_style_label: 'Estilo',
+    tip_strokewidth: 'Grosor de trazo', sw_width_label: 'Grosor', sw_style_label: 'Estilo', sw_ending_label: 'Terminación (lápiz)',
     lbl_text: 'Txt.', tip_addtext: 'Agregar texto', lbl_addtext: 'Texto',
     prompt_addtext: 'Escribe el texto:',
     filter_label: 'Filtrar héroes',
@@ -1654,7 +1780,7 @@ const i18n = {
     lbl_aura_none: 'No side', lbl_aura_blue: 'Blue', lbl_aura_red: 'Red',
     tip_yellow: 'Yellow', tip_black: 'Black', tip_custom: 'Custom',
     tip_save: 'Save PNG', tip_reset: 'Reset all', tip_fullscreen: 'Fullscreen',
-    tip_strokewidth: 'Stroke width', sw_width_label: 'Width', sw_style_label: 'Style',
+    tip_strokewidth: 'Stroke width', sw_width_label: 'Width', sw_style_label: 'Style', sw_ending_label: 'Ending (pencil)',
     lbl_text: 'Text', tip_addtext: 'Add text', lbl_addtext: 'Text',
     prompt_addtext: 'Type the text:',
     filter_label: 'Filter heroes',
@@ -1674,7 +1800,7 @@ const i18n = {
     lbl_aura_none: 'Sem lado', lbl_aura_blue: 'Azul', lbl_aura_red: 'Verm.',
     tip_yellow: 'Amarelo', tip_black: 'Preto', tip_custom: 'Personalizado',
     tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_fullscreen: 'Tela cheia',
-    tip_strokewidth: 'Espessura do traço', sw_width_label: 'Espessura', sw_style_label: 'Estilo',
+    tip_strokewidth: 'Espessura do traço', sw_width_label: 'Espessura', sw_style_label: 'Estilo', sw_ending_label: 'Término (lápis)',
     lbl_text: 'Txt.', tip_addtext: 'Adicionar texto', lbl_addtext: 'Texto',
     prompt_addtext: 'Digite o texto:',
     filter_label: 'Filtrar heróis',
