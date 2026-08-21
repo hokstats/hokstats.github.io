@@ -660,7 +660,11 @@ body.planner-fullscreen .map-viewport {
 .vector-arrow::after {
   content: '';
   position: absolute;
-  right: 0; top: var(--arrow-head-top, -5px);
+  /* El cuerpo de la flecha se acorta en JS (dejando lugar para la punta);
+     la punta se dibuja "por fuera" de ese cuerpo para que llegue exacto
+     hasta el punto real donde terminó el trazo, sin que el cuerpo sobresalga. */
+  right: calc(-1 * var(--arrow-head-l, 12px));
+  top: var(--arrow-head-top, -5px);
   width: 0; height: 0;
   border-top: var(--arrow-head-h, 7px) solid transparent;
   border-bottom: var(--arrow-head-h, 7px) solid transparent;
@@ -762,7 +766,6 @@ body.planner-fullscreen .map-viewport {
         <div class="toolbar-divider"></div>
 
         <!-- Texto -->
-        <span class="toolbar-label" data-i18n="lbl_text">Txt.</span>
         <button class="btn-tool-labeled" id="add-text" data-tip="Agregar texto" data-i18n-tip="tip_addtext"><svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> <span data-i18n="lbl_addtext">Texto</span></button>
 
         <div class="toolbar-divider"></div>
@@ -1001,6 +1004,7 @@ function applyArrowStrokeVars(el, width, style) {
   el.style.setProperty('--arrow-head-h', headH + 'px');
   el.style.setProperty('--arrow-head-l', headL + 'px');
   el.style.setProperty('--arrow-head-top', headTop + 'px');
+  el.dataset.headL = headL; // usado en el mousemove para acortar el cuerpo y que la punta llegue exacto al final
 }
 
 let isDrawing = false;
@@ -1424,9 +1428,14 @@ function handleMoveContainer(e) {
     const dy = currentY - startY;
     const distance = Math.hypot(dx, dy);
     const angle = Math.atan2(dy, dx);
-    
-    activeArrowElement.style.width = `${distance}px`;
+    const headL = parseFloat(activeArrowElement.dataset.headL) || 0;
+
+    // El cuerpo se acorta dejando lugar a la punta (que se dibuja por fuera,
+    // ver CSS), así la punta llega exacto hasta donde terminó el trazo real
+    // en vez de quedar "al ras" y que el cuerpo sobresalga por los costados.
+    activeArrowElement.style.width = `${Math.max(0, distance - headL)}px`;
     activeArrowElement.style.transform = `rotate(${angle}rad)`;
+    activeArrowElement.dataset.fullLength = distance;
   } 
   else if (currentTool === 'draw' && activePathElement) {
     if (e.cancelable) e.preventDefault();
@@ -1464,7 +1473,7 @@ function handleEndContainer() {
   isDrawing = false;
 
   if (currentTool === 'arrow' && activeArrowElement) {
-    if (parseFloat(activeArrowElement.style.width || 0) < 8) {
+    if (parseFloat(activeArrowElement.dataset.fullLength || 0) < 8) {
       activeArrowElement.remove();
     } else {
       saveState('add', activeArrowElement);
@@ -1475,18 +1484,30 @@ function handleEndContainer() {
     let finalPoints = currentPathPoints;
     if (currentPathPoints.length > 2) {
       finalPoints = simplifyPath(currentPathPoints, 1.5);
-      activePathElement.setAttribute("d", buildSmoothPathD(finalPoints));
     }
 
     if (activePathEndingMode === 'arrow' && finalPoints.length >= 2) {
-      const last = finalPoints[finalPoints.length - 1];
+      const tip = finalPoints[finalPoints.length - 1];
       const prev = finalPoints[finalPoints.length - 2];
       const w = parseFloat(activePathElement.style.strokeWidth) || currentStrokeWidth;
       const color = activePathElement.getAttribute('stroke') || currentStrokeColor;
 
+      // La línea debe detenerse en la base del triángulo (no en la punta real),
+      // así el triángulo cubre por completo el extremo de la línea y no sobresale.
+      const headL = w * 3;
+      const dx = tip[0] - prev[0], dy = tip[1] - prev[1];
+      const segLen = Math.hypot(dx, dy) || 1;
+      const pull = Math.min(headL, segLen * 0.9); // nunca retrocede más allá del punto anterior
+      const ux = dx / segLen, uy = dy / segLen;
+      const baseX = tip[0] - ux * pull;
+      const baseY = tip[1] - uy * pull;
+
+      const linePoints = finalPoints.slice(0, -1).concat([[baseX, baseY]]);
+      activePathElement.setAttribute("d", buildSmoothPathD(linePoints));
+
       const headEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
       headEl.setAttribute('class', 'free-path-ending');
-      headEl.setAttribute('d', buildArrowheadPath(prev[0], prev[1], last[0], last[1], w));
+      headEl.setAttribute('d', buildArrowheadPath(prev[0], prev[1], tip[0], tip[1], w));
       headEl.setAttribute('fill', color);
 
       const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -1498,6 +1519,9 @@ function handleEndContainer() {
 
       saveState('add', group);
     } else {
+      if (currentPathPoints.length > 2) {
+        activePathElement.setAttribute("d", buildSmoothPathD(finalPoints));
+      }
       saveState('add', activePathElement);
     }
     activePathElement = null;
@@ -1761,7 +1785,7 @@ const i18n = {
     tip_yellow: 'Amarillo', tip_black: 'Negro', tip_custom: 'Personalizado',
     tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_fullscreen: 'Pantalla completa',
     tip_strokewidth: 'Grosor de trazo', sw_width_label: 'Grosor', sw_style_label: 'Estilo', sw_ending_label: 'Terminación (lápiz)',
-    lbl_text: 'Txt.', tip_addtext: 'Agregar texto', lbl_addtext: 'Texto',
+    tip_addtext: 'Agregar texto', lbl_addtext: 'Texto',
     prompt_addtext: 'Escribe el texto:',
     filter_label: 'Filtrar héroes',
     role_all: 'Todo', role_choque: 'Choq.', role_cazador: 'Caza',
@@ -1781,7 +1805,7 @@ const i18n = {
     tip_yellow: 'Yellow', tip_black: 'Black', tip_custom: 'Custom',
     tip_save: 'Save PNG', tip_reset: 'Reset all', tip_fullscreen: 'Fullscreen',
     tip_strokewidth: 'Stroke width', sw_width_label: 'Width', sw_style_label: 'Style', sw_ending_label: 'Ending (pencil)',
-    lbl_text: 'Text', tip_addtext: 'Add text', lbl_addtext: 'Text',
+    tip_addtext: 'Add text', lbl_addtext: 'Text',
     prompt_addtext: 'Type the text:',
     filter_label: 'Filter heroes',
     role_all: 'All', role_choque: 'Fight.', role_cazador: 'Jungle',
@@ -1801,7 +1825,7 @@ const i18n = {
     tip_yellow: 'Amarelo', tip_black: 'Preto', tip_custom: 'Personalizado',
     tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_fullscreen: 'Tela cheia',
     tip_strokewidth: 'Espessura do traço', sw_width_label: 'Espessura', sw_style_label: 'Estilo', sw_ending_label: 'Término (lápis)',
-    lbl_text: 'Txt.', tip_addtext: 'Adicionar texto', lbl_addtext: 'Texto',
+    tip_addtext: 'Adicionar texto', lbl_addtext: 'Texto',
     prompt_addtext: 'Digite o texto:',
     filter_label: 'Filtrar heróis',
     role_all: 'Tudo', role_choque: 'Lutad.', role_cazador: 'Caçad.',
