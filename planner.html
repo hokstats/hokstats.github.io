@@ -302,9 +302,52 @@ body {
   border-left: 8px solid #cfcfd8;
 }
 
+/* Popover de agregar texto (reusa la apariencia del popover de grosor) */
+.text-popover {
+  min-width: 220px;
+}
+.text-popover textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 44px;
+  max-height: 140px;
+  background: #282830;
+  border: 1px solid #444452;
+  color: #e4e4ec;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  padding: 7px 8px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  outline: none;
+}
+.text-popover textarea:focus { border-color: #4f6edb; }
+.text-popover-insert {
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid #444452;
+  color: #e4e4ec;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 8px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.text-popover-insert:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+.text-popover-insert:disabled { opacity: 0.4; cursor: default; background: rgba(255,255,255,0.1); }
+.tp-size-preview { font-weight: bold; color: #cfcfd8; line-height: 1; }
+.tp-style-btn { font-family: Arial, sans-serif; font-size: 14px; color: #cfcfd8; line-height: 1; }
+.tp-style-btn.bold-preview { font-weight: bold; }
+.tp-style-btn.italic-preview { font-style: italic; }
+
 /* Diferenciación visual del botón de color personalizado frente a los fijos (amarillo/negro) */
+#add-text { position: relative; } /* .btn-tool-labeled no trae position:relative por defecto */
 #color-custom::before,
-#btn-stroke-width::before {
+#btn-stroke-width::before,
+#add-text::before {
   content: '';
   position: absolute;
   bottom: 1px;
@@ -318,7 +361,9 @@ body {
 #color-custom:hover::before,
 #color-custom.active::before,
 #btn-stroke-width:hover::before,
-#btn-stroke-width.active::before { border-bottom-color: #ffffff; }
+#btn-stroke-width.active::before,
+#add-text:hover::before,
+#add-text.active::before { border-bottom-color: #ffffff; }
 
 /* Aro arcoíris por defecto: comunica "elegí cualquier color" hasta que se elija uno */
 #customColorDot.rainbow {
@@ -845,6 +890,9 @@ let currentStrokeColor = '#eab308';
 let currentStrokeWidth = 4;      // px: afecta tanto al lápiz como a las flechas
 let currentStrokeStyle = 'solid'; // 'solid' | 'dashed' | 'dotted'
 let currentStrokeEnding = 'normal'; // 'normal' | 'arrow' — solo aplica al lápiz (las flechas ya tienen punta)
+let currentTextSize = 16;    // px
+let currentTextBold = true;  // coincide con el estilo por defecto que ya tenía el texto
+let currentTextItalic = false;
 
 // ── COLOR PERSONALIZADO: popover con paleta nativa + código HEX editable ──
 const customColorPopover = document.createElement('div');
@@ -1014,6 +1062,89 @@ function applyArrowStrokeVars(el, width, style) {
   el.dataset.headL = headL; // usado en el mousemove para acortar el cuerpo y que la punta llegue exacto al final
 }
 
+// ── AGREGAR TEXTO: popover con caja de texto + tamaño/negrita/cursiva ──
+const textPopover = document.createElement('div');
+textPopover.className = 'stroke-width-popover text-popover';
+textPopover.id = 'textPopover';
+textPopover.innerHTML = `
+  <div class="sw-section-label" data-i18n="tp_text_label">Texto</div>
+  <textarea id="textInputBox" rows="2" data-i18n-placeholder="prompt_addtext" placeholder="Escribe el texto..."></textarea>
+  <button class="text-popover-insert" id="textInsertBtn" data-i18n="tp_insert_btn" disabled>Insertar</button>
+  <div class="sw-section-label" data-i18n="tp_size_label">Tamaño</div>
+  <div class="sw-row" id="tpSizeRow">
+    <button class="sw-btn" data-size="12"><span class="tp-size-preview" style="font-size:12px">A</span></button>
+    <button class="sw-btn active" data-size="16"><span class="tp-size-preview" style="font-size:16px">A</span></button>
+    <button class="sw-btn" data-size="22"><span class="tp-size-preview" style="font-size:22px">A</span></button>
+  </div>
+  <div class="sw-section-label" data-i18n="tp_style_label">Estilo</div>
+  <div class="sw-row" id="tpStyleRow">
+    <button class="sw-btn active" data-tstyle="bold"><span class="tp-style-btn bold-preview">N</span></button>
+    <button class="sw-btn" data-tstyle="italic"><span class="tp-style-btn italic-preview">I</span></button>
+  </div>
+`;
+document.body.appendChild(textPopover);
+textPopover.addEventListener('click', (e) => e.stopPropagation());
+
+const textInputBox = document.getElementById('textInputBox');
+const textInsertBtn = document.getElementById('textInsertBtn');
+
+function updateTextInsertBtnState() {
+  textInsertBtn.disabled = !textInputBox.value.trim();
+}
+textInputBox.addEventListener('input', updateTextInsertBtnState);
+textInputBox.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (!textInsertBtn.disabled) textInsertBtn.click();
+  }
+});
+
+textPopover.querySelectorAll('#tpSizeRow .sw-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    currentTextSize = parseFloat(b.dataset.size);
+    textPopover.querySelectorAll('#tpSizeRow .sw-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+textPopover.querySelectorAll('#tpStyleRow .sw-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    // Negrita y cursiva se pueden combinar: cada botón alterna su propio estado.
+    b.classList.toggle('active');
+    if (b.dataset.tstyle === 'bold') currentTextBold = b.classList.contains('active');
+    if (b.dataset.tstyle === 'italic') currentTextItalic = b.classList.contains('active');
+  });
+});
+
+textInsertBtn.addEventListener('click', () => {
+  const text = textInputBox.value.trim();
+  if (!text) return;
+  const cx = mapZone.scrollLeft + mapZone.clientWidth  / 2;
+  const cy = mapZone.scrollTop  + mapZone.clientHeight / 2;
+  createTextNode(text, cx, cy, true);
+  textInputBox.value = '';
+  updateTextInsertBtnState();
+  closeTextPopover();
+});
+
+function openTextPopover() {
+  const btn = document.getElementById('add-text');
+  const rect = btn.getBoundingClientRect();
+  textPopover.style.left = `${Math.round(rect.left)}px`;
+  textPopover.style.top = `${Math.round(rect.bottom + 7)}px`;
+  textPopover.classList.add('show');
+  btn.classList.add('active');
+  textInputBox.focus();
+}
+function closeTextPopover() {
+  textPopover.classList.remove('show');
+  document.getElementById('add-text').classList.remove('active');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#textPopover') || e.target.closest('#add-text')) return;
+  closeTextPopover();
+});
+
 let isDrawing = false;
 let startX = 0, startY = 0;
 let activeArrowElement = null;
@@ -1099,6 +1230,9 @@ function createTextNode(text, x, y, recordHistory = true) {
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
   el.style.color = currentStrokeColor;
+  el.style.fontSize = currentTextSize + 'px';
+  el.style.fontWeight = currentTextBold ? 'bold' : 'normal';
+  el.style.fontStyle = currentTextItalic ? 'italic' : 'normal';
   el.textContent = text;
 
   el.addEventListener('mousedown', (e) => handleHeroClickOrDrag(e, el));
@@ -1765,17 +1899,12 @@ window.addEventListener('load', () => { applyTransform(); });
 
 // ── AGREGAR TEXTO ──
 document.getElementById('add-text').addEventListener('click', () => {
-  const lang = localStorage.getItem('hokstats_lang') || 'es';
-  const promptMsg = i18n[lang]?.prompt_addtext || 'Escribe el texto:';
-  const text = prompt(promptMsg);
-  if (!text || !text.trim()) return;
-
-  const cx = mapZone.scrollLeft + mapZone.clientWidth  / 2;
-  const cy = mapZone.scrollTop  + mapZone.clientHeight / 2;
-  createTextNode(text.trim(), cx, cy, true);
+  if (textPopover.classList.contains('show')) closeTextPopover();
+  else openTextPopover();
 });
 
 </script>
+
 
 <script>
 const i18n = {
@@ -1793,7 +1922,8 @@ const i18n = {
     tip_save: 'Guardar PNG', tip_reset: 'Reset todo', tip_fullscreen: 'Pantalla completa',
     tip_strokewidth: 'Grosor de trazo', sw_width_label: 'Grosor', sw_style_label: 'Estilo', sw_ending_label: 'Terminación (lápiz)',
     tip_addtext: 'Agregar texto', lbl_addtext: 'Texto',
-    prompt_addtext: 'Escribe el texto:',
+    prompt_addtext: 'Escribe el texto...',
+    tp_text_label: 'Texto', tp_insert_btn: 'Insertar', tp_size_label: 'Tamaño', tp_style_label: 'Estilo',
     filter_label: 'Filtrar héroes',
     role_all: 'Todo', role_choque: 'Choq.', role_cazador: 'Caza',
     role_medio: 'Medio', role_merodeo: 'Merod.', role_farmeo: 'Farm.',
@@ -1813,7 +1943,8 @@ const i18n = {
     tip_save: 'Save PNG', tip_reset: 'Reset all', tip_fullscreen: 'Fullscreen',
     tip_strokewidth: 'Stroke width', sw_width_label: 'Width', sw_style_label: 'Style', sw_ending_label: 'Ending (pencil)',
     tip_addtext: 'Add text', lbl_addtext: 'Text',
-    prompt_addtext: 'Type the text:',
+    prompt_addtext: 'Type the text...',
+    tp_text_label: 'Text', tp_insert_btn: 'Insert', tp_size_label: 'Size', tp_style_label: 'Style',
     filter_label: 'Filter heroes',
     role_all: 'All', role_choque: 'Fight.', role_cazador: 'Jungle',
     role_medio: 'Mid', role_merodeo: 'Roam', role_farmeo: 'Farm.',
@@ -1833,7 +1964,8 @@ const i18n = {
     tip_save: 'Salvar PNG', tip_reset: 'Resetar tudo', tip_fullscreen: 'Tela cheia',
     tip_strokewidth: 'Espessura do traço', sw_width_label: 'Espessura', sw_style_label: 'Estilo', sw_ending_label: 'Término (lápis)',
     tip_addtext: 'Adicionar texto', lbl_addtext: 'Texto',
-    prompt_addtext: 'Digite o texto:',
+    prompt_addtext: 'Digite o texto...',
+    tp_text_label: 'Texto', tp_insert_btn: 'Inserir', tp_size_label: 'Tamanho', tp_style_label: 'Estilo',
     filter_label: 'Filtrar heróis',
     role_all: 'Tudo', role_choque: 'Lutad.', role_cazador: 'Caçad.',
     role_medio: 'Meio', role_merodeo: 'Sup.', role_farmeo: 'Carry',
